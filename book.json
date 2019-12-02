@@ -1,0 +1,19 @@
+{
+    "title" : "SpringBoot 参考文档",
+    "language" : "zh-hans",
+    "style" : {
+        "website": "styles/website.css"
+    },
+    "plugins" : [
+        "github",
+        "-sharing",
+        "-livereload",
+        "back-to-top-button",
+        "code"
+    ],
+    "pluginsConfig": {
+        "github": {
+            "url": "https://github.com/zhdbest"
+        }
+    }
+}

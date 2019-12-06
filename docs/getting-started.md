@@ -4,7 +4,7 @@
 
 
 
-## 1. SpringBoot 介绍
+# 1. SpringBoot 介绍
 
 SpringBoot 可以非常简单的创建可独立运行、生产级、基于 Spring 的应用。我们对 Spring 平台和第三方库有自己的看法，这样您就可以轻松入门了。所有的 SpringBoot 应用都仅需要很少的 Spring 配置。
 
@@ -24,7 +24,7 @@ SpringBoot 可以非常简单的创建可独立运行、生产级、基于 Sprin
 
 
 
-## 2. 系统要求
+# 2. 系统要求
 
 SpringBoot 2.2.1.RELEASE 要求至少 Java8 ，并且可以兼容至 Java 13。并且还需要 [Spring Framework 5.2.1.RELEASE](https://docs.spring.io/spring/docs/5.2.1.RELEASE/spring-framework-reference/) 及以上版本。
 
@@ -37,7 +37,7 @@ SpringBoot 2.2.1.RELEASE 要求至少 Java8 ，并且可以兼容至 Java 13。�
 
 
 
-### 2.1 Servlet 容器
+## 2.1 Servlet 容器
 
 SpringBoot 支持以下嵌入式 Servlet 容器：
 
@@ -52,7 +52,7 @@ SpringBoot 支持以下嵌入式 Servlet 容器：
 
 
 
-## 3. SpringBoot 安装
+# 3. SpringBoot 安装
 
 Spring Boot可以与“经典” Java开发工具一起使用，也可以作为命令行工具安装。无论哪种方式，都需要有 1.8 或更高版本的 Java SDK。你可以使用以下命令检查你当前安装的 Java：
 
@@ -64,7 +64,7 @@ $ java -version
 
 
 
-### 3.1 Java 开发者安装说明
+## 3.1 Java 开发者安装说明
 
 您可以像使用其他标准 Java 库一样使用 SpringBoot。你可以通过引入`spring-boot-*.jar`到你的类路径来使用它。SpringBoot 不需要任何特殊的工具集成，因此您可以使用任何 IDE 或文本编辑器进行开发。同时，SpringBoot 应用也没有什么特殊的，所以你可以像运行、调试其他 Java 程序一样调试、运行 SpringBoot 应用。
 
@@ -72,7 +72,7 @@ $ java -version
 
 
 
-#### 3.1.1 Maven 安装
+### 3.1.1 Maven 安装
 
 SpringBoot 兼容 Apache Maven 3.3 及以上版本，如果你还没有安装 Maven，可以参考[maven.apache.org](https://maven.apache.org/)的安装说明进行安装。
 
@@ -137,15 +137,29 @@ SpringBoot 依赖使用的`groupId`为`org.springframework.boot`。通常的，�
 
 
 
+### 3.1.2 Gradle 安装
+
+SpringBoot 兼容 5.x 版本的 Gradle，虽然 4.0 版本的也支持，但已经被弃用了，并且会在未来的版本中删除。如果你还没有安装 Gradle，你可以参考[gradle.org](https://gradle.org/)的安装说明进行安装。
+
+SpringBoot 依赖使用 `org.springframework.boot` `group`进行声明。通常，你的项目会声明一个或多个“启动器”的依赖，SpringBoot 提供了非常有用的 Gradle 插件，可以用于简化依赖的声明和创建可执行 jar 包。
+
+Gradle Wrapper 提供了一种很棒的方式可以在你需要构建项目的时候“获取”Gradle。这是一个轻量级的脚本和库，您随代码一起提交以引导构建过程。更多细节可以查阅[docs.gradle.org/current/userguide/gradle_wrapper.html](https://docs.gradle.org/current/userguide/gradle_wrapper.html)。
+
+更多关于 SpringBoot 和 Gradle 使用说明的细节，可以参考 Gradle 插件使用说明的[开始]()章节。 
 
 
 
+## 3.2 安装 SpringBoot CLI
 
-## 4. 开发你的第一个 SpringBoot 应用
+SpringBoot CLI (Command Line Interface) 是一个可用于快速使用Spring进行原型设计的命令行工具。它使你可以运行具有类似 Java 语法而没有太多样板代码[Groovy](http://groovy-lang.org/)脚本。
 
 
 
-## 5. 延伸阅读
+# 4. 开发你的第一个 SpringBoot 应用
+
+
+
+# 5. 延伸阅读
 
 
 

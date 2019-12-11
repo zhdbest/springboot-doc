@@ -8,12 +8,22 @@
         "github",
         "-sharing",
         "-livereload",
-        "back-to-top-button",
-        "code"
+        "code",
+        "-search", 
+        "-lunr",
+        "search-pro",
+        "ancre-navigation",
+        "flexible-alerts"
     ],
     "pluginsConfig": {
         "github": {
             "url": "https://github.com/zhdbest"
+        },
+        "flexible-alerts" : {
+            "style" : "flat",
+            "tip" : {
+                "className" : "info"
+            }
         }
     }
 }

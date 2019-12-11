@@ -6,43 +6,43 @@
 
 该参考文档由以下章节组成：
 
-* [法律声明](docs/legal.md)
+* [法律声明](docs/2.2.2.RELEASE/legal.md)
 
   法律信息
 
-* [1. 文档概述](docs/documentation-overview.md)
+* [1. 文档概述](docs/2.2.2.RELEASE/documentation-overview.md)
 
   关于文档、获取帮助、入门等等
 
-* [2. 准备开始](docs/getting-started.md)
+* [2. 准备开始](docs/2.2.2.RELEASE/getting-started.md)
 
   介绍 SpringBoot、系统要求、Servlet 容器、安装 Spring Boot 、开发你的第一个 SpringBoot 应用
 
-* [3. 使用 SpringBoot](docs/using-spring-boot.md)
+* [3. 使用 SpringBoot](docs/2.2.2.RELEASE/using-spring-boot.md)
 
   构建系统，组织代码、配置、 Spring   Beans  和依赖注入等
 
-* [4. SpringBoot 特性](docs/spring-boot-features.md)
+* [4. SpringBoot 特性](docs/2.2.2.RELEASE/spring-boot-features.md)
 
   配置文件、日志、安全、缓存、Spring集成、测试等
 
-* [5. SpringBoot 执行器](docs/spring-boot-actuator.md)
+* [5. SpringBoot 执行器](docs/2.2.2.RELEASE/spring-boot-actuator.md)
 
   监控、指标、审计等
 
-* [6. 部署 SpringBoot 应用](docs/deployment.md)
+* [6. 部署 SpringBoot 应用](docs/2.2.2.RELEASE/deployment.md)
 
   部署到云上，以 Unix 应用的方式安装
 
-* [7. SpringBoot 命令行工具](docs/spring-boot-cli.md)
+* [7. SpringBoot 命令行工具](docs/2.2.2.RELEASE/spring-boot-cli.md)
 
   安装命令行工具、使用命令行工具、配置命令行工具等
 
-* [8. 构建工具插件](docs/build-tool-plugins.md)
+* [8. 构建工具插件](docs/2.2.2.RELEASE/build-tool-plugins.md)
 
   Maven 插件、 Gradle 插件、 Antlib 等
 
-* [9. 入门指南](docs/howto.md)
+* [9. 入门指南](docs/2.2.2.RELEASE/howto.md)
 
   应用开发、配置、嵌入式服务器、数据访问等等
 

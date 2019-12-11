@@ -26,14 +26,14 @@ SpringBoot 可以非常简单的创建可独立运行、生产级、基于 Sprin
 
 # 2. 系统要求
 
-SpringBoot 2.2.1.RELEASE 要求至少 Java8 ，并且可以兼容至 Java 13。并且还需要 [Spring Framework 5.2.1.RELEASE](https://docs.spring.io/spring/docs/5.2.1.RELEASE/spring-framework-reference/) 及以上版本。
+SpringBoot 2.2.2.RELEASE 要求至少 Java8 ，并且可以兼容至 Java 13。并且还需要 [Spring Framework 5.2.2.RELEASE](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/) 及以上版本。
 
 以下构建工具提供构建支持：
 
-| 构建工具 | 版本                        |
-| -------- | --------------------------- |
-| Maven    | 3.3+                        |
-| Gradle   | 5.x（4.10也支持，但已弃用） |
+| 构建工具 | 版本                               |
+| -------- | ---------------------------------- |
+| Maven    | 3.3+                               |
+| Gradle   | 5.x 和 6.x（4.10也支持，但已弃用） |
 
 
 
@@ -76,7 +76,8 @@ $ java -version
 
 SpringBoot 兼容 Apache Maven 3.3 及以上版本，如果你还没有安装 Maven，可以参考[maven.apache.org](https://maven.apache.org/)的安装说明进行安装。
 
-在一些操作系统上，Maven 可以通过包管理器的方式进行安装。如果你使用的是 macOS，可以运行`brew install maven`。Ubuntu 用户可以使用`sudo apt-get install maven`，Windows 用户可以通过 Chocolatey 从高级的（管理员）提示符下运行`choco install maven`。
+>[!tip]
+>在一些操作系统上，Maven 可以通过包管理器的方式进行安装。如果你使用的是 macOS，可以运行`brew install maven`。Ubuntu 用户可以使用`sudo apt-get install maven`，Windows 用户可以通过 Chocolatey 从高级的（管理员）提示符下运行`choco install maven`。
 
 SpringBoot 依赖使用的`groupId`为`org.springframework.boot`。通常的，你的 Maven POM 文件继承自`spring-boot-starter-parent`工程，并且声明一个或多个“启动器“的依赖。SpringBoot 也提供了可选的[Maven 插件](https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/html/build-tool-plugins.html#build-tool-plugins-maven-plugin)用于创建可执行 jar 包。
 
@@ -96,7 +97,7 @@ SpringBoot 依赖使用的`groupId`为`org.springframework.boot`。通常的，�
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.1.RELEASE</version>
+        <version>2.2.2.RELEASE</version>
     </parent>
 
     <!-- Override inherited settings -->
@@ -133,13 +134,15 @@ SpringBoot 依赖使用的`groupId`为`org.springframework.boot`。通常的，�
 </project>
 ```
 
-继承`spring-boot-starter-parent`是一个非常棒的使用 SpringBoot 的方式，但可能不适合所有场景。有时，你可能需要继承其他的父 POM，或者你可能不喜欢我们默认的设置，在这种情况下，请参阅[使用 SpringBoot](docs/using-spring-boot.md)，了解使用`import`范围的 POM 替代解决方案。
+> [!tip]
+>
+> 继承`spring-boot-starter-parent`是一个非常棒的使用 SpringBoot 的方式，但可能不适合所有场景。有时，你可能需要继承其他的父 POM，或者你可能不喜欢我们默认的设置，在这种情况下，请参阅[使用 SpringBoot](docs/using-spring-boot.md)，了解使用`import`范围的 POM 替代解决方案。
 
 
 
 ### 3.1.2 Gradle 安装
 
-SpringBoot 兼容 5.x 版本的 Gradle，虽然 4.0 版本的也支持，但已经被弃用了，并且会在未来的版本中删除。如果你还没有安装 Gradle，你可以参考[gradle.org](https://gradle.org/)的安装说明进行安装。
+SpringBoot 兼容 5.x 和 6.x 版本的 Gradle，虽然 4.0 版本的也支持，但已经被弃用了，并且会在未来的版本中删除。如果你还没有安装 Gradle，你可以参考[gradle.org](https://gradle.org/)的安装说明进行安装。
 
 SpringBoot 依赖使用 `org.springframework.boot` `group`进行声明。通常，你的项目会声明一个或多个“启动器”的依赖，SpringBoot 提供了非常有用的 Gradle 插件，可以用于简化依赖的声明和创建可执行 jar 包。
 
@@ -151,7 +154,27 @@ Gradle Wrapper 提供了一种很棒的方式可以在你需要构建项目的�
 
 ## 3.2 安装 SpringBoot CLI
 
-SpringBoot CLI (Command Line Interface) 是一个可用于快速使用Spring进行原型设计的命令行工具。它使你可以运行具有类似 Java 语法而没有太多样板代码[Groovy](http://groovy-lang.org/)脚本。
+SpringBoot CLI (Command Line Interface) 是一个可用于快速使用Spring进行原型设计的命令行工具。它使你可以运行具有类似 Java 语法而没有太多样板代码的[Groovy](http://groovy-lang.org/)脚本。
+
+你无需使用 CLI 即可使用 Spring Boot，但这绝对是使 Spring 应用程序启动的最快方法。
+
+
+
+### 3.2.1 手动安装
+
+### 3.2.2 通过 SDKMAN 安装
+
+### 3.2.3 OSX 通过 Homebrew 安装
+
+### 3.2.4 通过 MacPorts 安装
+
+### 3.2.5 命令行安装
+
+### 3.2.6 Windows 下通过 Scoop 安装
+
+### 3.2.7 快速入门Spring CLI示例
+
+
 
 
 

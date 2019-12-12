@@ -23,6 +23,9 @@
             "style" : "flat",
             "tip" : {
                 "className" : "info"
+            },
+            "note" : {
+                "className" : "tip"
             }
         }
     }

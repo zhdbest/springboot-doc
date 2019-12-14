@@ -338,6 +338,38 @@ Hello World!
 
 # 4. 开发你的第一个 SpringBoot 应用
 
+本节介绍如何开发一个简单的“ Hello World！” Web应用程序，该应用程序突出 Spring Boot 的一些关键特性。我们使用 Maven 来构建该项目，因为大多数 IDE 都支持它。
+
+>[!tip]
+>
+>[spring.io](https://spring.io/) 上包含许多使用 Spring Boot 的[“入门”指南](https://spring.io/guides)。如果你需要解决特定的问题，请首先查阅这些入门指南。
+>
+>通过转到[start.spring.io](https://start.spring.io/)并从**Dependencies**搜索框中选择“ Web”启动器，可以简化以下步骤。这样做会生成一个新的项目结构，以便你可以立即开始[编码](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/getting-started.html#getting-started-first-application-code)。查看[Spring Initializr 文档](https://docs.spring.io/initializr/docs/current/reference/html//#user-guide)以获取更多详细信息。
+
+在我们开始之前，先打开一个终端，然后执行以下命令以确认你安装的 Java 和 Maven 版本是合适的：
+
+```bash
+$ java -version
+java version "1.8.0_102"
+Java(TM) SE Runtime Environment (build 1.8.0_102-b14)
+Java HotSpot(TM) 64-Bit Server VM (build 25.102-b14, mixed mode)
+```
+
+```bash
+$ mvn -v
+Apache Maven 3.5.4 (1edded0938998edf8bf061f1ceb3cfdeccf443fe; 2018-06-17T14:33:14-04:00)
+Maven home: /usr/local/Cellar/maven/3.3.9/libexec
+Java version: 1.8.0_102, vendor: Oracle Corporation
+```
+
+>[!note]
+>
+>该示例需要在自己的文件夹中创建。 随后的说明中假定你已经创建了一个合适的文件夹，并且它是当前目录。
+
+
+
+
+
 
 
 # 5. 延伸阅读

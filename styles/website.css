@@ -1,3 +1,38 @@
 .gitbook-link {
     display: none !important;
 }
+
+/* flexible-alerts 插件相关样式 start */
+.alert.flat.tip-spring {
+    color: #02587f;
+    background-color: #e9f1f6;
+    border-color: white;
+    border-radius: 0.5em;
+}
+
+.alert.flat.tip-spring .title {
+    color: #0077b9;
+}
+
+.alert.flat.note-spring {
+    color: #285b2a;
+    background-color: #ecf1e8;
+    border-color: white;
+    border-radius: 0.5em;
+}
+
+.alert.flat.note-spring .title {
+    color: #3f6a22;
+}
+
+.alert.flat.warning-spring {
+    color: #852d12;
+    background-color: #fff9e4;
+    border-color: white;
+    border-radius: 0.5em;
+}
+
+.alert.flat.warning-spring .title {
+    color: #d88400;
+}
+/* flexible-alerts 插件相关样式 end */

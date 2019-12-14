@@ -308,6 +308,34 @@ Hello World!
 
 
 
+## 3.3 从老版本的 SpringBoot 升级
+
+如果你从`1.x`版本的 SpringBoot 升级，可以查阅[Spring Boot 迁移指南](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide)，里面有详细的升级介绍。还请检查“版本说明”以获取每个发行版的“新功能和值得注意的功能”列表。
+
+升级到新版本时，某些属性可能已被重命名或删除。 Spring Boot 提供了一种在启动时分析应用程序环境并打印出检查结果的方法，还可以在运行时为你临时迁移属性。要启用该功能，请将以下依赖项添加到你的项目中：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-properties-migrator</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+>[!warning]
+>
+>较晚添加到环境的属性（例如使用`@PropertySource`时）将不被包含在内。
+
+<span></span>
+
+>[!note]
+>
+>迁移完成后，请确保从项目的依赖项中删除此模块。
+
+要升级现有的 CLI，请使用适当的包管理器命令（例如`brew upgrade`）。 如果你是手动安装的 CLI，请遵循[标准说明](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/getting-started.html#getting-started-manual-cli-installation)，并记住要更新`PATH`环境变量以删除所有较旧的引用。
+
+
+
 # 4. 开发你的第一个 SpringBoot 应用
 
 

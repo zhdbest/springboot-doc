@@ -22,10 +22,13 @@
         "flexible-alerts" : {
             "style" : "flat",
             "tip" : {
-                "className" : "info"
+                "className" : "tip-spring"
             },
             "note" : {
-                "className" : "tip"
+                "className" : "note-spring"
+            },
+            "warning" : {
+                "className" : "warning-spring"
             }
         }
     }

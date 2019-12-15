@@ -368,7 +368,75 @@ Java version: 1.8.0_102, vendor: Oracle Corporation
 
 
 
+## 4.1 创建 POM
 
+我们需要先创建一个 Maven 的`pom.xml`文件。`pom.xml`是用于构建项目的。 打开您喜欢的文本编辑器并添加以下内容：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>myproject</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.2.RELEASE</version>
+    </parent>
+
+    <description/>
+    <developers>
+        <developer/>
+    </developers>
+    <licenses>
+        <license/>
+    </licenses>
+    <scm>
+        <url/>
+    </scm>
+    <url/>
+
+    <!-- Additional lines to be added here... -->
+
+</project>
+```
+
+上面的清单应会为你提供有效的构建。 你可以通过运行`mvn package`对其进行测试（目前，您可以忽略“ jar will be empty - no content was marked for inclusion! ”警告）。
+
+>[!note]
+>
+>此时，您可以将项目导入IDE（大多数现代 Java IDE 都提供对 Maven的内置支持）。 为简单起见，我们在此示例中继续使用纯文本编辑器。
+
+
+
+## 4.2 添加类路径依赖
+
+SpringBoot 提供了一些“启动器”，你可以添加它们的 jar 包到你的类路径下。我们冒烟测试的应用程序使用到了 POM 中`parent`部分的` spring-boot-starter-parent `启动器。`spring-boot-starter-parent`是一个特殊的启动器，提供实用的 Maven 默认值。它还提供了一个[依赖项管理](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-dependency-management)部分，以便你可以忽略其“下属”依赖项的`version`标签。
+
+当你开发一个特殊类型的应用的时候你可能还需要其他启动器提供的依赖。由于我们正在开发 Web 应用程序，因此我们添加了`spring-boot-starter-web`依赖项。在此之前，我们可以通过运行以下命令来查看当前的状态：
+
+```bash
+$ mvn dependency:tree
+
+[INFO] com.example:myproject:jar:0.0.1-SNAPSHOT
+```
+
+` mvn dependency:tree `命令打印出你的项目依赖的树状表示。你可以看到`spring-boot-starter-parent`本身不提供任何依赖关系。为了添加必需的依赖，请编辑你的`pom.xml`文件并且直接在`parent`部分下面添加` spring-boot-starter-web `的依赖：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+</dependencies>
+```
+
+如果你再次执行` mvn dependency:tree `命令，你将可以看到一些新增的依赖，包括 Tomcat web 服务器和 SpringBoot本身。
 
 
 

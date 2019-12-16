@@ -489,6 +489,12 @@ public class Example {
 
 
 
+### 4.3.3 “main”方法
+
+我们的应用的最后一部分就是`main`方法，这只是遵循Java约定的应用程序入口的标准方法。我们的`main`方法通过调用`run`委托给 SpringBoot 的`SpringApplication`类。SpringApplication会引导我们的应用程序，并启动Spring，后者反过来又会启动自动配置的Tomcat Web服务器。我们需要将`Example.class`作为参数传递给`run`方法，以告诉`SpringApplication`哪个是主要的Spring组件。`args`数组会将任意公开的命令行参数传递给`run`方法。
+
+
+
 # 5. 延伸阅读
 
 

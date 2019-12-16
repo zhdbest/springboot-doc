@@ -465,6 +465,22 @@ public class Example {
 }
 ```
 
+尽管这里没有太多代码，但是正在发生很多事情。 我们将在接下来的几节中逐步介绍重要部分。
+
+
+
+### 4.3.1 `@RestController`和`@RequestMapping`注解
+
+我们的`Example`类中的第一个注解就是`@RestController`，它被称为原型注解。它为人们阅读代码提供了提示，对于Spring来说，被注解的类扮演了特殊角色。在这种情况下，我们的类是一个Web `@Controller`，因此 Spring 在处理传入的 Web 请求时会考虑使用它。
+
+`@RequestMapping`注解提供“路由信息”，它告诉 Spring 任何`/`路径的 HTTP 请求都应该映射到`home`方法上。`@RestController`注解告诉 Spring 将结果字符串直接呈现给调用方。
+
+>[!tip]
+>
+>`@RestController`和`@RequestMapping`是 Spring MVC 的注解（它们对 SpringBoot 来说没有什么特殊的）。有关更多详细信息，请参见Spring参考文档中的[MVC部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc)。
+
+
+
 
 
 

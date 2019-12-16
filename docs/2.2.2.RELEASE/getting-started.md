@@ -481,7 +481,11 @@ public class Example {
 
 
 
+### 4.3.2 `@EnableAutoConfiguration`注解
 
+第二个类级的注解是`@EnableAutoConfiguration`，这个注释告诉 SpringBoot 根据所添加的 jar 依赖关系“猜测”你想如何配置 Spring。由于`spring-boot-starter-web`添加了 Tomcat 和 Spring MVC，因此自动配置会假定你正在开发 Web 应用程序并相应地设置 Spring。
+
+>自动配置旨在与“启动器”配合使用，但是这两个概念并没有直接联系在一起。你可以在启动器之外自由选择jar依赖项。SpringBoot 仍会尽其所能自动配置你的应用程序。
 
 
 

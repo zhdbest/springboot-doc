@@ -495,6 +495,36 @@ public class Example {
 
 
 
+## 4.4 运行`Example`
+
+此时，你的应用程序应该可以工作了。由于您使用了`spring-boot-starter-parent` POM，因此你具有一个有用的`run`的目标，可以用来启动该应用程序。从根项目目录键入`mvn spring-boot:run`以启动应用程序。你应该可以看到类似于以下内容的输出：
+
+```bash
+$ mvn spring-boot:run
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::  (v2.2.2.RELEASE)
+....... . . .
+....... . . . (log output here)
+....... . . .
+........ Started Example in 2.222 seconds (JVM running for 6.514)
+```
+
+如果你打开浏览器并访问[localhost:8080](http://localhost:8080/)，你将看到以下输出：
+
+```
+Hello World!
+```
+
+按下`ctrl-c`可以优雅的退出应用。
+
+
+
 # 5. 延伸阅读
 
 

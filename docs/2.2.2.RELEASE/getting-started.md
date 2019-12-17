@@ -1,16 +1,16 @@
-# 使用 SpringBoot
+# 使用 Spring Boot
 
-如果你准备开始使用 SpringBoot 或通常所说的“Spring”，可以从阅读此章节开始。本章节主要回答了“是什么？”、“怎么做？”和“为什么？”的问题。它包含了对 SpringBoot 的介绍以及安装说明。接下来，我们将引导您构建您的第一个 SpringBoot 应用，并在此过程中讨论一些核心原则。
-
-
-
-# 1. SpringBoot 介绍
-
-SpringBoot 可以非常简单的创建可独立运行、生产级、基于 Spring 的应用。我们对 Spring 平台和第三方库有自己的看法，这样您就可以轻松入门了。所有的 SpringBoot 应用都仅需要很少的 Spring 配置。
+如果你准备开始使用 Spring Boot 或通常所说的“Spring”，可以从阅读此章节开始。本章节主要回答了“是什么？”、“怎么做？”和“为什么？”的问题。它包含了对 Spring Boot 的介绍以及安装说明。接下来，我们将引导您构建您的第一个 Spring Boot 应用，并在此过程中讨论一些核心原则。
 
 
 
-你可以使用 SpringBoot 创建 Java 应用，然后使用`java -jar`运行，或者采取传统的 war 包发布。我们也提供了一个运行“Spring 脚本”的命令行工具。
+# 1. Spring Boot 介绍
+
+Spring Boot 可以非常简单的创建可独立运行、生产级、基于 Spring 的应用。我们对 Spring 平台和第三方库有自己的看法，这样您就可以轻松入门了。所有的 Spring Boot 应用都仅需要很少的 Spring 配置。
+
+
+
+你可以使用 Spring Boot 创建 Java 应用，然后使用`java -jar`运行，或者采取传统的 war 包发布。我们也提供了一个运行“Spring 脚本”的命令行工具。
 
 
 
@@ -26,7 +26,7 @@ SpringBoot 可以非常简单的创建可独立运行、生产级、基于 Sprin
 
 # 2. 系统要求
 
-SpringBoot 2.2.2.RELEASE 要求至少 Java8 ，并且可以兼容至 Java 13。并且还需要 [Spring Framework 5.2.2.RELEASE](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/) 及以上版本。
+Spring Boot 2.2.2.RELEASE 要求至少 Java8 ，并且可以兼容至 Java 13。并且还需要 [Spring Framework 5.2.2.RELEASE](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/) 及以上版本。
 
 以下构建工具提供构建支持：
 
@@ -39,7 +39,7 @@ SpringBoot 2.2.2.RELEASE 要求至少 Java8 ，并且可以兼容至 Java 13。�
 
 ## 2.1 Servlet 容器
 
-SpringBoot 支持以下嵌入式 Servlet 容器：
+Spring Boot 支持以下嵌入式 Servlet 容器：
 
 | 名称         | Servlet 容器 |
 | ------------ | ------------ |
@@ -47,12 +47,12 @@ SpringBoot 支持以下嵌入式 Servlet 容器：
 | Jetty 9.4    | 3.1          |
 | Undertow 2.0 | 4.0          |
 
-您也可以将 SpringBoot 应用发布至任意 Servlet3.1+ 的兼容容器上。
+您也可以将 Spring Boot 应用发布至任意 Servlet3.1+ 的兼容容器上。
 
 
 
 
-# 3. SpringBoot 安装
+# 3. Spring Boot 安装
 
 Spring Boot可以与“经典” Java开发工具一起使用，也可以作为命令行工具安装。无论哪种方式，都需要有 1.8 或更高版本的 Java SDK。你可以使用以下命令检查你当前安装的 Java：
 
@@ -66,20 +66,20 @@ $ java -version
 
 ## 3.1 Java 开发者安装说明
 
-您可以像使用其他标准 Java 库一样使用 SpringBoot。你可以通过引入`spring-boot-*.jar`到你的类路径来使用它。SpringBoot 不需要任何特殊的工具集成，因此您可以使用任何 IDE 或文本编辑器进行开发。同时，SpringBoot 应用也没有什么特殊的，所以你可以像运行、调试其他 Java 程序一样调试、运行 SpringBoot 应用。
+您可以像使用其他标准 Java 库一样使用 Spring Boot。你可以通过引入`spring-boot-*.jar`到你的类路径来使用它。Spring Boot 不需要任何特殊的工具集成，因此您可以使用任何 IDE 或文本编辑器进行开发。同时，Spring Boot 应用也没有什么特殊的，所以你可以像运行、调试其他 Java 程序一样调试、运行 Spring Boot 应用。
 
-虽然你可以直接复制 SpringBoot 的 jar 包，但是我们一般推荐您使用支持依赖管理的构建工具（例如：Maven、Gradle）。
+虽然你可以直接复制 Spring Boot 的 jar 包，但是我们一般推荐您使用支持依赖管理的构建工具（例如：Maven、Gradle）。
 
 
 
 ### 3.1.1 Maven 安装
 
-SpringBoot 兼容 Apache Maven 3.3 及以上版本，如果你还没有安装 Maven，可以参考[maven.apache.org](https://maven.apache.org/)的安装说明进行安装。
+Spring Boot 兼容 Apache Maven 3.3 及以上版本，如果你还没有安装 Maven，可以参考[maven.apache.org](https://maven.apache.org/)的安装说明进行安装。
 
 >[!tip]
 >在一些操作系统上，Maven 可以通过包管理器的方式进行安装。如果你使用的是 macOS，可以运行`brew install maven`。Ubuntu 用户可以使用`sudo apt-get install maven`，Windows 用户可以通过 Chocolatey 从高级的（管理员）提示符下运行`choco install maven`。
 
-SpringBoot 依赖使用的`groupId`为`org.springframework.boot`。通常的，你的 Maven POM 文件继承自`spring-boot-starter-parent`工程，并且声明一个或多个“启动器“的依赖。SpringBoot 也提供了可选的[Maven 插件](https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/html/build-tool-plugins.html#build-tool-plugins-maven-plugin)用于创建可执行 jar 包。
+Spring Boot 依赖使用的`groupId`为`org.springframework.boot`。通常的，你的 Maven POM 文件继承自`spring-boot-starter-parent`工程，并且声明一个或多个“启动器“的依赖。Spring Boot 也提供了可选的[Maven 插件](https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/html/build-tool-plugins.html#build-tool-plugins-maven-plugin)用于创建可执行 jar 包。
 
 如下是一个典型的 `pom.xml`文件：
 
@@ -136,25 +136,25 @@ SpringBoot 依赖使用的`groupId`为`org.springframework.boot`。通常的，�
 
 > [!tip]
 >
-> 继承`spring-boot-starter-parent`是一个非常棒的使用 SpringBoot 的方式，但可能不适合所有场景。有时，你可能需要继承其他的父 POM，或者你可能不喜欢我们默认的设置，在这种情况下，请参阅[使用 SpringBoot](docs/using-spring-boot.md)，了解使用`import`范围的 POM 替代解决方案。
+> 继承`spring-boot-starter-parent`是一个非常棒的使用 Spring Boot 的方式，但可能不适合所有场景。有时，你可能需要继承其他的父 POM，或者你可能不喜欢我们默认的设置，在这种情况下，请参阅[使用 Spring Boot](docs/using-spring-boot.md)，了解使用`import`范围的 POM 替代解决方案。
 
 
 
 ### 3.1.2 Gradle 安装
 
-SpringBoot 兼容 5.x 和 6.x 版本的 Gradle，虽然 4.0 版本的也支持，但已经被弃用了，并且会在未来的版本中删除。如果你还没有安装 Gradle，你可以参考[gradle.org](https://gradle.org/)的安装说明进行安装。
+Spring Boot 兼容 5.x 和 6.x 版本的 Gradle，虽然 4.0 版本的也支持，但已经被弃用了，并且会在未来的版本中删除。如果你还没有安装 Gradle，你可以参考[gradle.org](https://gradle.org/)的安装说明进行安装。
 
-SpringBoot 依赖使用 `org.springframework.boot` `group`进行声明。通常，你的项目会声明一个或多个“启动器”的依赖，SpringBoot 提供了非常有用的 Gradle 插件，可以用于简化依赖的声明和创建可执行 jar 包。
+Spring Boot 依赖使用 `org.springframework.boot` `group`进行声明。通常，你的项目会声明一个或多个“启动器”的依赖，Spring Boot 提供了非常有用的 Gradle 插件，可以用于简化依赖的声明和创建可执行 jar 包。
 
 Gradle Wrapper 提供了一种很棒的方式可以在你需要构建项目的时候“获取”Gradle。这是一个轻量级的脚本和库，您随代码一起提交以引导构建过程。更多细节可以查阅[docs.gradle.org/current/userguide/gradle_wrapper.html](https://docs.gradle.org/current/userguide/gradle_wrapper.html)。
 
-更多关于 SpringBoot 和 Gradle 使用说明的细节，可以参考 Gradle 插件使用说明的[开始]()章节。 
+更多关于 Spring Boot 和 Gradle 使用说明的细节，可以参考 Gradle 插件使用说明的[开始]()章节。 
 
 
 
-## 3.2 安装 SpringBoot CLI
+## 3.2 安装 Spring Boot CLI
 
-SpringBoot CLI (Command Line Interface) 是一个可用于快速使用Spring进行原型设计的命令行工具。它使你可以运行具有类似 Java 语法而没有太多样板代码的[Groovy](http://groovy-lang.org/)脚本。
+Spring Boot CLI (Command Line Interface) 是一个可用于快速使用 Spring 进行原型设计的命令行工具。它使你可以运行具有类似 Java 语法而没有太多样板代码的[Groovy](http://groovy-lang.org/)脚本。
 
 你无需使用 CLI 即可使用 Spring Boot，但这绝对是使 Spring 应用程序启动的最快方法。
 
@@ -308,9 +308,9 @@ Hello World!
 
 
 
-## 3.3 从老版本的 SpringBoot 升级
+## 3.3 从老版本的 Spring Boot 升级
 
-如果你从`1.x`版本的 SpringBoot 升级，可以查阅[Spring Boot 迁移指南](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide)，里面有详细的升级介绍。还请检查“版本说明”以获取每个发行版的“新功能和值得注意的功能”列表。
+如果你从`1.x`版本的 Spring Boot 升级，可以查阅[Spring Boot 迁移指南](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide)，里面有详细的升级介绍。还请检查“版本说明”以获取每个发行版的“新功能和值得注意的功能”列表。
 
 升级到新版本时，某些属性可能已被重命名或删除。 Spring Boot 提供了一种在启动时分析应用程序环境并打印出检查结果的方法，还可以在运行时为你临时迁移属性。要启用该功能，请将以下依赖项添加到你的项目中：
 
@@ -336,7 +336,7 @@ Hello World!
 
 
 
-# 4. 开发你的第一个 SpringBoot 应用
+# 4. 开发你的第一个 Spring Boot 应用
 
 本节介绍如何开发一个简单的“ Hello World！” Web应用程序，该应用程序突出 Spring Boot 的一些关键特性。我们使用 Maven 来构建该项目，因为大多数 IDE 都支持它。
 
@@ -415,7 +415,7 @@ Java version: 1.8.0_102, vendor: Oracle Corporation
 
 ## 4.2 添加类路径依赖
 
-SpringBoot 提供了一些“启动器”，你可以添加它们的 jar 包到你的类路径下。我们冒烟测试的应用程序使用到了 POM 中`parent`部分的` spring-boot-starter-parent `启动器。`spring-boot-starter-parent`是一个特殊的启动器，提供实用的 Maven 默认值。它还提供了一个[依赖项管理](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-dependency-management)部分，以便你可以忽略其“下属”依赖项的`version`标签。
+Spring Boot 提供了一些“启动器”，你可以添加它们的 jar 包到你的类路径下。我们冒烟测试的应用程序使用到了 POM 中`parent`部分的` spring-boot-starter-parent `启动器。`spring-boot-starter-parent`是一个特殊的启动器，提供实用的 Maven 默认值。它还提供了一个[依赖项管理](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-dependency-management)部分，以便你可以忽略其“下属”依赖项的`version`标签。
 
 当你开发一个特殊类型的应用的时候你可能还需要其他启动器提供的依赖。由于我们正在开发 Web 应用程序，因此我们添加了`spring-boot-starter-web`依赖项。在此之前，我们可以通过运行以下命令来查看当前的状态：
 
@@ -436,7 +436,7 @@ $ mvn dependency:tree
 </dependencies>
 ```
 
-如果你再次执行` mvn dependency:tree `命令，你将可以看到一些新增的依赖，包括 Tomcat web 服务器和 SpringBoot本身。
+如果你再次执行` mvn dependency:tree `命令，你将可以看到一些新增的依赖，包括 Tomcat web 服务器和 Spring Boot本身。
 
 
 
@@ -477,21 +477,21 @@ public class Example {
 
 >[!tip]
 >
->`@RestController`和`@RequestMapping`是 Spring MVC 的注解（它们对 SpringBoot 来说没有什么特殊的）。有关更多详细信息，请参见Spring参考文档中的[MVC部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc)。
+>`@RestController`和`@RequestMapping`是 Spring MVC 的注解（它们对 Spring Boot 来说没有什么特殊的）。有关更多详细信息，请参见Spring参考文档中的[MVC部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc)。
 
 
 
 ### 4.3.2 `@EnableAutoConfiguration`注解
 
-第二个类级的注解是`@EnableAutoConfiguration`，这个注释告诉 SpringBoot 根据所添加的 jar 依赖关系“猜测”你想如何配置 Spring。由于`spring-boot-starter-web`添加了 Tomcat 和 Spring MVC，因此自动配置会假定你正在开发 Web 应用程序并相应地设置 Spring。
+第二个类级的注解是`@EnableAutoConfiguration`，这个注释告诉 Spring Boot 根据所添加的 jar 依赖关系“猜测”你想如何配置 Spring。由于`spring-boot-starter-web`添加了 Tomcat 和 Spring MVC，因此自动配置会假定你正在开发 Web 应用程序并相应地设置 Spring。
 
->自动配置旨在与“启动器”配合使用，但是这两个概念并没有直接联系在一起。你可以在启动器之外自由选择jar依赖项。SpringBoot 仍会尽其所能自动配置你的应用程序。
+>自动配置旨在与“启动器”配合使用，但是这两个概念并没有直接联系在一起。你可以在启动器之外自由选择jar依赖项。Spring Boot 仍会尽其所能自动配置你的应用程序。
 
 
 
 ### 4.3.3 “main”方法
 
-我们的应用的最后一部分就是`main`方法，这只是遵循Java约定的应用程序入口的标准方法。我们的`main`方法通过调用`run`委托给 SpringBoot 的`SpringApplication`类。SpringApplication会引导我们的应用程序，并启动Spring，后者反过来又会启动自动配置的Tomcat Web服务器。我们需要将`Example.class`作为参数传递给`run`方法，以告诉`SpringApplication`哪个是主要的Spring组件。`args`数组会将任意公开的命令行参数传递给`run`方法。
+我们的应用的最后一部分就是`main`方法，这只是遵循Java约定的应用程序入口的标准方法。我们的`main`方法通过调用`run`委托给 Spring Boot 的`SpringApplication`类。SpringApplication会引导我们的应用程序，并启动Spring，后者反过来又会启动自动配置的Tomcat Web服务器。我们需要将`Example.class`作为参数传递给`run`方法，以告诉`SpringApplication`哪个是主要的Spring组件。`args`数组会将任意公开的命令行参数传递给`run`方法。
 
 
 
@@ -580,7 +580,7 @@ $ mvn package
 $ jar tvf target/myproject-0.0.1-SNAPSHOT.jar
 ```
 
-在`target`包下，你也可以发现一个小得多文件叫`myproject-0.0.1-SNAPSHOT.jar.original`，这是 Maven 在SpringBoot 重新打包之前创建的原始 jar 文件。
+在`target`包下，你也可以发现一个小得多文件叫`myproject-0.0.1-SNAPSHOT.jar.original`，这是 Maven 在Spring Boot 重新打包之前创建的原始 jar 文件。
 
 使用`java -jar`命令启动程序，如下：
 
@@ -606,6 +606,6 @@ $ java -jar target/myproject-0.0.1-SNAPSHOT.jar
 
 # 5. 延伸阅读
 
-希望本节提供了一些Spring Boot基础知识，并带你逐步编写自己的应用程序。如果你是一个“任务导向”的开发者，则可能要跳到[spring.io](https://spring.io/)并查看一些入门指南，这些指南可以解决特定的“我该如何使用 Spring？”问题。我们也有特定于 SpringBoot 的“[操作方法](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto)”参考文档。
+希望本节提供了一些Spring Boot基础知识，并带你逐步编写自己的应用程序。如果你是一个“任务导向”的开发者，则可能要跳到[spring.io](https://spring.io/)并查看一些入门指南，这些指南可以解决特定的“我该如何使用 Spring？”问题。我们也有特定于 Spring Boot 的“[操作方法](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto)”参考文档。
 
 不然，下一个符合的逻辑步骤是阅读*[using-spring-boot.html](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot)*。 如果您真的不耐烦，还可以继续阅读有关*[Spring Boot功能](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features)*的信息。

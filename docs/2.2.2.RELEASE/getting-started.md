@@ -525,6 +525,85 @@ Hello World!
 
 
 
+## 4.5 生成可执行 Jar
+
+我们通过创建可以在生产环境中运行的完全独立的可执行 jar 文件来结束示例。可执行 jars（有时称为“fat jars”）是包含你已编译的类以及代码需要运行的所有jar依赖项的归档文件。
+
+>**可执行 jars 和 Java**
+>
+>Java 没有提供加载嵌套 jar文件（jar 中本身包含的 jar 文件）的标准方法。如果你想发布独立的应用程序，则可能会出现问题。
+>
+>为了解决这个问题，许多开发人员使用“超级”jars。超级 jar 将应用程序内所有依赖项的所有类打包到一个存档中。这种方法的问题在于很难查看应用程序中包含哪些库。如果在多个 jar 中使用相同的文件名（但具有不同的内容），也可能会产生问题。
+>
+>Spring Boot采用了[另一种方法](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-executable-jar-format.html#executable-jar)，允许你真正的直接嵌套jar。
+
+为了创建可执行 jar，我们需要添加`spring-boot-maven-plugin`到我们的`pom.xml`文件中，然后把下面的代码添加到`dependencies`部分的下面：
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+```
+
+>[!note]
+>
+>`spring-boot-starter-parent`的POM包含`<executions>`配置以绑定重新打包的目标。如果你未使用父POM，则需要自己声明此配置。更多详情参考[插件文档](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/maven-plugin//usage.html)。
+
+保存你的`pom.xml`然后在命令行执行`mvn package`，如下：
+
+```bash
+$ mvn package
+
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building myproject 0.0.1-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] .... ..
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ myproject ---
+[INFO] Building jar: /Users/developer/example/spring-boot-example/target/myproject-0.0.1-SNAPSHOT.jar
+[INFO]
+[INFO] --- spring-boot-maven-plugin:2.2.2.RELEASE:repackage (default) @ myproject ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+```
+
+在`target`包下，你可以发现`myproject-0.0.1-SNAPSHOT.jar`，这个文件应该在10M左右，如果你想看一下里面的内容，可以执行`jar tvf`，如下：
+
+```bash
+$ jar tvf target/myproject-0.0.1-SNAPSHOT.jar
+```
+
+在`target`包下，你也可以发现一个小得多文件叫`myproject-0.0.1-SNAPSHOT.jar.original`，这是 Maven 在SpringBoot 重新打包之前创建的原始 jar 文件。
+
+使用`java -jar`命令启动程序，如下：
+
+```bash
+$ java -jar target/myproject-0.0.1-SNAPSHOT.jar
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::  (v2.2.2.RELEASE)
+....... . . .
+....... . . . (log output here)
+....... . . .
+........ Started Example in 2.536 seconds (JVM running for 2.864)
+```
+
+和以前一样，要退出该应用程序，请按ctrl-c。
+
+
+
 # 5. 延伸阅读
 
 

@@ -499,7 +499,7 @@ public class Example {
 
 此时，你的应用程序应该可以工作了。由于您使用了`spring-boot-starter-parent` POM，因此你具有一个有用的`run`的目标，可以用来启动该应用程序。从根项目目录键入`mvn spring-boot:run`以启动应用程序。你应该可以看到类似于以下内容的输出：
 
-```bash
+```
 $ mvn spring-boot:run
 
   .   ____          _            __ _ _
@@ -584,7 +584,7 @@ $ jar tvf target/myproject-0.0.1-SNAPSHOT.jar
 
 使用`java -jar`命令启动程序，如下：
 
-```bash
+```
 $ java -jar target/myproject-0.0.1-SNAPSHOT.jar
 
   .   ____          _            __ _ _

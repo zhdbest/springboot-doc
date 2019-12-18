@@ -14,7 +14,7 @@
 
   关于文档、获取帮助、入门等等
 
-* [2. 准备开始](docs/2.2.2.RELEASE/getting-started.md)
+* [2. 入门指南](docs/2.2.2.RELEASE/getting-started.md)
 
   介绍 SpringBoot、系统要求、Servlet 容器、安装 Spring Boot 、开发你的第一个 SpringBoot 应用
 

@@ -29,6 +29,11 @@
             },
             "warning" : {
                 "className" : "warning-spring"
+            },
+            "important" : {
+                "label" : "Important",
+                "icon" : "fa fa-exclamation-circle",
+                "className" : "important-spring"
             }
         }
     }

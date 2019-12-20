@@ -35,4 +35,15 @@
 .alert.flat.warning-spring .title {
     color: #d88400;
 }
+
+.alert.flat.important-spring {
+    color: #7f231c;
+    background-color: #f9ebeb;
+    border-color: white;
+    border-radius: 0.5em;
+}
+
+.alert.flat.important-spring .title {
+    color: #bf0000;
+}
 /* flexible-alerts 插件相关样式 end */

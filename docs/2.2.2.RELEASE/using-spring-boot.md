@@ -380,15 +380,25 @@ public class Application {
 
 
 
+# 3. 配置类
+
+Spring Boot 支持基于 Java 的配置。尽管可以采用 XML 代码来使用`SpringApplication `，但是我们通常建议您直接使用单个`@Configuration`类。 通常，定义 main 方法的类是首选的`@Configuration`类。
+
+>[!tip]
+>
+>在网上有许多使用 XML 配置的 Spring 配置示例。如果可以的话，请始终尝试使用等效的基于 Java 的配置。 搜索`Enable*`注解是一个不错的起点。
 
 
 
+## 3.1 导入其他配置类
+
+您无需将所有`@Configuration`放在单个类中。`@Import`注解可用于导入其他配置类。或者，您可以使用`@ComponentScan`自动获取所有 Spring 组件，包括`@Configuration`类。
 
 
 
+## 3.2 导入 XML 配置
 
-
-
+如果必须要使用基于 XML 的配置，我们建议您仍然从`@Configuration`类开始。然后，您可以使用`@ImportResource`注解来加载 XML 配置文件。
 
 
 

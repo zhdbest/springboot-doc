@@ -402,13 +402,49 @@ Spring Boot 支持基于 Java 的配置。尽管可以采用 XML 代码来使用
 
 
 
+# 4. 自动配置
+
+Spring Boot 自动配置会尝试根据你添加的 jar 包依赖项自动配置 Spring 应用程序。例如，如果`HSQLDB`在类路径上，并且您尚未手动配置任何数据库连接 bean，则 Spring Boot 会自动配置内存数据库。
+
+您需要通过将`@EnableAutoConfiguration`或`@SpringBootApplication`注解添加到您的一个`@Configuration`类以加入自动配置。
+
+>[!tip]
+>
+>您应该只添加一个`@SpringBootApplication`或`@EnableAutoConfiguration`批注。 我们通常建议您仅将一个或另一个添加到您的主`@Configuration`类中。
 
 
 
+## 4.1 逐渐取代自动配置
+
+自动配置是非侵入性的。在任何时候，您都可以开始定义自己的配置，以替换自动配置的特定部分。 例如，如果您添加自己的 DataSource bean，则默认的嵌入式数据库支持将被放弃。
+
+如果您需要了解当前正在应用哪些自动配置以及原因，请使用`--debug`开关启动您的应用程序。这样做可以启用调试日志以供选择核心记录器，并将条件报告记录到控制台。
 
 
 
+## 4.2 禁用特定的自动配置类
 
+如果发现正在应用不需要的特定自动配置类，则可以使用`@EnableAutoConfiguration`的 exclude 属性禁用它们，如以下示例所示：
 
+```java
+import org.springframework.boot.autoconfigure.*;
+import org.springframework.boot.autoconfigure.jdbc.*;
+import org.springframework.context.annotation.*;
 
+@Configuration(proxyBeanMethods = false)
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+public class MyConfiguration {
+}
+```
 
+如果该类不在类路径中，则可以使用注解的`excludeName`属性，并指定完全限定的名称。最后，您还可以使用`spring.autoconfigure.exclude`属性控制要排除自动配置类的列表。
+
+>[!tip]
+>
+>您可以在注解级别和使用属性来定义排除项。
+
+<p></p>
+
+>[!note]
+>
+>尽管自动配置类是公共的，该类的唯一被认为是公共 API 的方面是可用于禁用自动配置的类的名称。这些类的实际内容（例如嵌套配置类或 Bean 方法）仅供内部使用，我们不建议直接使用它们。

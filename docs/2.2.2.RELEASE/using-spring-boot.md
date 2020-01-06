@@ -444,7 +444,67 @@ public class MyConfiguration {
 >您可以在注解级别和使用属性来定义排除项。
 
 <p></p>
-
 >[!note]
 >
 >尽管自动配置类是公共的，该类的唯一被认为是公共 API 的方面是可用于禁用自动配置的类的名称。这些类的实际内容（例如嵌套配置类或 Bean 方法）仅供内部使用，我们不建议直接使用它们。
+
+
+
+# 5. Spring Bean 和依赖注入
+
+您可以自由使用任何标准 Spring Framework 的技术来定义 bean 及其注入的依赖关系。为简单起见，我们发现使用`@ComponentScan`（查找您的bean）和使用`@Autowired`（进行构造函数注入）效果很好。
+
+如果按照上面的建议组织代码（将应用程序类放在根包下），则可以添加`@ComponentScan`，而不添加任何参数。 您的所有应用程序组件（`@Component`，`@Service`，`@Repository`，`@Controller`等）都将自动注册为 Spring Bean。
+
+以下示例展示了一个`@Service` Bean，它使用构造函数注入来获取所需的`RiskAssessor` Bean：
+
+```java
+package com.example.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DatabaseAccountService implements AccountService {
+
+    private final RiskAssessor riskAssessor;
+
+    @Autowired
+    public DatabaseAccountService(RiskAssessor riskAssessor) {
+        this.riskAssessor = riskAssessor;
+    }
+
+    // ...
+
+}
+```
+
+如果 bean 只具有一个构造函数，则可以省略`@Autowired`，如以下示例所示：
+
+```java
+@Service
+public class DatabaseAccountService implements AccountService {
+
+    private final RiskAssessor riskAssessor;
+
+    public DatabaseAccountService(RiskAssessor riskAssessor) {
+        this.riskAssessor = riskAssessor;
+    }
+
+    // ...
+
+}
+```
+
+>[!tip]
+>
+>请注意，使用构造函数注入会使得`riskAssessor`字段被标记为`final`，表示其以后无法更改。
+
+
+
+
+
+
+
+
+

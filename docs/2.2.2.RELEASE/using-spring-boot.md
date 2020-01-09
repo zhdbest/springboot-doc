@@ -444,6 +444,8 @@ public class MyConfiguration {
 >您可以在注解级别和使用属性来定义排除项。
 
 <p></p>
+
+
 >[!note]
 >
 >尽管自动配置类是公共的，该类的唯一被认为是公共 API 的方面是可用于禁用自动配置的类的名称。这些类的实际内容（例如嵌套配置类或 Bean 方法）仅供内部使用，我们不建议直接使用它们。
@@ -499,6 +501,115 @@ public class DatabaseAccountService implements AccountService {
 >[!tip]
 >
 >请注意，使用构造函数注入会使得`riskAssessor`字段被标记为`final`，表示其以后无法更改。
+
+
+
+# 6. 使用@SpringBootApplication注解
+
+许多 Spring Boot 开发者喜欢在他们的应用程序使用自动配置，组件扫描，并能够在其“应用程序类”上定义额外的配置。单个`@SpringBootApplication`注解可用于启用这三个功能，即：
+
+* `@EnableAutoConfiguration`：启用[Spring Boot的自动配置机制](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-auto-configuration)
+* `@ComponentScan`：在应用程序所在的包上启用@Component扫描（请参阅[最佳实践](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-structuring-your-code)）
+* `@Configuration`：允许在上下文中注册额外的bean或导入其他配置类
+
+```java
+package com.example.myapplication;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication // same as @Configuration @EnableAutoConfiguration @ComponentScan
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+```
+
+>[!note]
+>
+>`@SpringBootApplication`还提供别名以自定义`@EnableAutoConfiguration`和`@ComponentScan`的属性。
+
+<p></p>
+
+>[!note]
+>
+>这些功能都不是强制性的，您可以选择用所启用的任何功能替换此单个注解。例如，您可能不想在应用程序中使用组件扫描或配置属性扫描：
+>
+>```java
+>package com.example.myapplication;
+>
+>import org.springframework.boot.SpringApplication;
+>import org.springframework.context.annotation.ComponentScan
+>import org.springframework.context.annotation.Configuration;
+>import org.springframework.context.annotation.Import;
+>
+>@Configuration(proxyBeanMethods = false)
+>@EnableAutoConfiguration
+>@Import({ MyConfig.class, MyAnotherConfig.class })
+>public class Application {
+>
+>    public static void main(String[] args) {
+>            SpringApplication.run(Application.class, args);
+>    }
+>
+>}
+>```
+>
+>在此示例中，除了没有自动检测`@Component`所注解的类和`@ConfigurationProperties`所注解的类以及显式导入了用户自定义的 Bean 外，`Application`就像其他任何 Spring Boot 应用程序一样（请参阅`@Import`）。
+
+
+
+# 7. 运行你的应用
+
+将应用程序打包为 jar 并使用嵌入式 HTTP 服务器的最大优势之一是，您可以像运行其他应用程序一样运行你的应用。调试Spring Boot应用程序也很容易，您不需要任何特殊的 IDE 插件或扩展。
+
+>[!note]
+>
+>本节仅介绍 jar 包。如果选择将应用程序打包为 war 文件，则应参考你的服务器和 IDE 文档。
+
+
+
+## 7.1 从 IDE 运行
+
+您可以将 IDE 中的 Spring Boot 应用程序作为简单的 Java 应用程序运行。但是，您首先需要导入您的项目。导入步骤因您的 IDE 和构建系统而异。大多数 IDE 都可以直接导入 Maven 项目。例如，Eclipse 用户可以从`File`菜单中选择`Import...`→`Existing Maven Projects`来进行导入。
+
+如果您不能直接将项目导入IDE，则可以使用构建插件生成 IDE 元数据。Maven 包括用于[Eclipse](https://maven.apache.org/plugins/maven-eclipse-plugin/)和[IDEA](https://maven.apache.org/plugins/maven-idea-plugin/)的插件。 Gradle提供了用于[各种 IDE](https://docs.gradle.org/current/userguide/userguide.html)的插件。
+
+>[!tip]
+>
+>如果不小心运行了两次 Web 应用程序，则会看到“Port already in use”的错误。STS用户可以使用`Relaunch`按钮而不是`Run`按钮来确保关闭任何现有实例。
+
+
+
+## 7.2 作为打包的应用程序运行
+
+如果使用 Spring Boot 的 Maven 或 Gradle 插件创建可执行jar，则可以使用`java -jar`运行应用程序，如以下示例所示：
+
+```bash
+$ java -jar target/myapplication-0.0.1-SNAPSHOT.jar
+```
+
+也可以在启用了远程调试支持的情况下运行打包的应用程序。这样做使您可以将调试器附加到打包的应用程序，如以下示例所示：
+
+```bash
+$ java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n \
+       -jar target/myapplication-0.0.1-SNAPSHOT.jar
+```
+
+
+
+## 7.3 使用 Maven 插件
+
+Spring Boot Maven 插件包含一个`run`目标，可用于快速编译和运行您的应用程序。应用程序以exploded形式运行，就像在IDE中一样。以下示例展示了运行 Spring Boot 应用程序的典型 Maven 命令：
+
+```bash
+$ mvn spring-boot:run
+```
+
+
 
 
 

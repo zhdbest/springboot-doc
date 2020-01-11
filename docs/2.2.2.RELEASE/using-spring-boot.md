@@ -534,6 +534,7 @@ public class Application {
 
 <p></p>
 
+
 >[!note]
 >
 >这些功能都不是强制性的，您可以选择用所启用的任何功能替换此单个注解。例如，您可能不想在应用程序中使用组件扫描或配置属性扫描：
@@ -608,6 +609,98 @@ Spring Boot Maven 插件包含一个`run`目标，可用于快速编译和运行
 ```bash
 $ mvn spring-boot:run
 ```
+
+您可能还想使用`MAVEN_OPTS`操作系统环境变量，如以下示例所示：
+
+```bash
+$ export MAVEN_OPTS=-Xmx1024m
+```
+
+
+
+## 7.4 使用 Gradle 插件
+
+Spring Boot Gradle 插件也包含一个`bootRun`任务，该任务可用于以 exploded 形式运行您的应用程序。每当您应用`org.springframework.boot`和`java`插件时，都会添加`bootRun`任务，并在以下示例中显示：
+
+```bash
+$ gradle bootRun
+```
+
+您可能还想使用`JAVA_OPTS`操作系统环境变量，如以下示例所示：
+
+```bash
+$ export JAVA_OPTS=-Xmx1024m
+```
+
+
+
+## 7.5 热部署
+
+由于 Spring Boot 应用程序只是普通的 Java 应用程序，因此 JVM 热部署应该可以开箱即用。JVM 热部署在一定程度上受到它可以替换的字节码的限制。对于更完整的解决方案，可以使用[JRebel](https://jrebel.com/software/jrebel/)。
+
+`spring-boot-devtools`模块还包括对应用程序快速重启的支持。有关详细信息，请参见本章后面的[开发者工具](using-spring-boot.md#8-开发者工具)部分和[热编译-操作方法](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-hotswapping)。
+
+
+
+# 8. 开发者工具
+
+Spring Boot 包含一组额外的工具，这组工具可以使应用程序开发体验更加愉快。`spring-boot-devtools`模块可以包含在任何项目中，以提供其他开发时功能。要获取 devtools 支持，请将模块依赖项添加到您的构建中，如以下 Maven 和 Gradle 清单所示：
+
+**Maven**
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <optional>true</optional>
+    </dependency>
+</dependencies>
+```
+
+**Gradle**
+
+```groovy
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+}
+```
+
+>[!note]
+>
+>运行完全打包的应用程序时，将自动禁用开发者工具。如果您的应用程序是使用`java -jar`启动的，或者是从特殊的类加载器启动的，则将其视为“生产应用程序”。如果这不适用于您（即，如果您从容器中运行应用程序），请考虑排除 devtools 或设置系统属性`-Dspring.devtools.restart.enabled = false`。
+
+<p></p>
+
+
+>[!tip]
+>
+>在 Maven 中将依赖项标记为可选或在 Gradle 中使用自定义`developmentOnly`配置（如上所示）是一种最佳实践，它可以防止将 devtools 传递应用到使用您项目的其他模块。
+
+<p></p>
+
+
+>[!tip]
+>
+>重新打包的存档默认情况下不包含 devtools。如果要使用[某个远程 devtools 功能](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-devtools-remote)，则需要禁用`excludeDevtools`构建属性以获取该功能。Maven 和 Gradle 插件均支持该属性。
+
+
+
+## 8.1 属性默认值
+
+
+
+
+
+
+
+
 
 
 

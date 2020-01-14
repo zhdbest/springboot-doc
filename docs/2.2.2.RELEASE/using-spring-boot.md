@@ -444,7 +444,6 @@ public class MyConfiguration {
 >您可以在注解级别和使用属性来定义排除项。
 
 <p></p>
-
 >[!note]
 >
 >尽管自动配置类是公共的，该类的唯一被认为是公共 API 的方面是可用于禁用自动配置的类的名称。这些类的实际内容（例如嵌套配置类或 Bean 方法）仅供内部使用，我们不建议直接使用它们。
@@ -532,7 +531,6 @@ public class Application {
 >`@SpringBootApplication`还提供别名以自定义`@EnableAutoConfiguration`和`@ComponentScan`的属性。
 
 <p></p>
-
 >[!note]
 >
 >这些功能都不是强制性的，您可以选择用所启用的任何功能替换此单个注解。例如，您可能不想在应用程序中使用组件扫描或配置属性扫描：
@@ -675,13 +673,11 @@ dependencies {
 >运行完全打包的应用程序时，将自动禁用开发者工具。如果您的应用程序是使用`java -jar`启动的，或者是从特殊的类加载器启动的，则将其视为“生产应用程序”。如果这不适用于您（即，如果您从容器中运行应用程序），请考虑排除 devtools 或设置系统属性`-Dspring.devtools.restart.enabled = false`。
 
 <p></p>
-
 >[!tip]
 >
 >在 Maven 中将依赖项标记为可选或在 Gradle 中使用自定义`developmentOnly`配置（如上所示）是一种最佳实践，它可以防止将 devtools 传递应用到使用您项目的其他模块。
 
 <p></p>
-
 >[!tip]
 >
 >重新打包的存档默认情况下不包含 devtools。如果要使用[某个远程 devtools 功能](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-devtools-remote)，则需要禁用`excludeDevtools`构建属性以获取该功能。Maven 和 Gradle 插件均支持该属性。
@@ -705,7 +701,6 @@ Spring Boot 支持的一些库使用缓存来提高性能。例如，[模板引�
 <p></p>
 
 
-
 >[!tip]
 >
 >有关 devtools 所使用属性的完整列表，请参见[DevToolsPropertyDefaultsPostProcessor](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-devtools/src/main/java/org/springframework/boot/devtools/env/DevToolsPropertyDefaultsPostProcessor.java)。
@@ -724,10 +719,52 @@ Spring Boot 支持的一些库使用缓存来提高性能。例如，[模板引�
 
 
 
+
 >[!note]
 >
 >只要启用了分叉，您还可以使用受支持的构建插件（Maven 和 Gradle）启动应用程序，因为 DevTools 需要隔离的应用程序类加载器才能正常运行。默认情况下，Gradle 和 Maven 插件会分叉应用程序进程。
 
+<p></p>
+
+
+
+>[!tip]
+>
+>与 LiveReload 一起使用时，自动重新启动的效果很好。更多详细信息，请参见[LiveReload 部分](using-spring-boot.md#83-LiveReload)。如果使用 JRebel，则禁用自动重新启动，而支持动态类重新加载。其他 devtools 功能（例如 LiveReload 和属性覆盖）仍可以使用。
+
+<p></p>
+
+
+
+>[!note]
+>
+>DevTools 依赖于应用程序上下文的关闭钩子以在重新启动期间将其关闭。如果您禁用了关闭钩子（`SpringApplication.setRegisterShutdownHook(false)`），它将无法正常工作。
+
+<p></p>
+
+
+
+>[!note]
+>
+>在确定类路径上的条目是否应在更改后触发重新启动时，DevTools 会自动忽略名为`spring-boot`，`spring-boot-devtools`，`spring-boot-autoconfigure`，`spring-boot-actuator`和`spring-boot-starter`的项目。
+
+<p></p>
+
+
+
+>[!note]
+>
+>DevTools 需要自定义`ApplicationContext`使用的`ResourceLoader`。如果您的应用程序已经提供了，它将被包装起来。在`ApplicationContext`上直接重写`getResource`方法是不支持的。
+
+<p></p>
+
+
+
+>**重启与重载**
+>
+>Spring Boot 提供的重启技术是通过使用两个类加载器来实现的。不变的类（例如，来自第三方 jar 的类）将被加载到基类加载器中。您正在积极开发的类将加载到重启类加载器中。重新启动应用程序时，将丢弃重启类加载器，并创建一个新的类加载器。这种方法意味着应用程序的重启通常比“冷启动”要快得多，因为基本类加载器已经可用并已填充。
+>
+>如果发现重启对于您的应用程序来说不够快，或者遇到类加载问题，则可以考虑重新加载技术，例如来自 ZeroTurnaround 的 JRebel。 这些方法通过在加载类时重写类来使其更易于重新加载。
 
 
 
@@ -737,12 +774,7 @@ Spring Boot 支持的一些库使用缓存来提高性能。例如，[模板引�
 
 
 
-
-
-
-
-
-
+## 8.3 LiveReload
 
 
 

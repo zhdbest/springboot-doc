@@ -4,7 +4,7 @@
 
 /* flexible-alerts 插件相关样式 start */
 .alert.flat.tip-spring {
-    color: #02587f;
+    color: black;
     background-color: #e9f1f6;
     border-color: white;
     border-radius: 0.5em;
@@ -15,7 +15,7 @@
 }
 
 .alert.flat.note-spring {
-    color: #285b2a;
+    color: black;
     background-color: #ecf1e8;
     border-color: white;
     border-radius: 0.5em;
@@ -26,7 +26,7 @@
 }
 
 .alert.flat.warning-spring {
-    color: #852d12;
+    color: black;
     background-color: #fff9e4;
     border-color: white;
     border-radius: 0.5em;
@@ -37,13 +37,24 @@
 }
 
 .alert.flat.important-spring {
-    color: #7f231c;
+    color: black;
     background-color: #f9ebeb;
     border-color: white;
     border-radius: 0.5em;
 }
 
 .alert.flat.important-spring .title {
+    color: #bf0000;
+}
+
+.alert.flat.caution-spring {
+    color: black;
+    background-color: #f9ebeb;
+    border-color: white;
+    border-radius: 0.5em;
+}
+
+.alert.flat.caution-spring .title {
     color: #bf0000;
 }
 /* flexible-alerts 插件相关样式 end */

@@ -13,7 +13,8 @@
         "-lunr",
         "search-pro",
         "ancre-navigation",
-        "flexible-alerts"
+        "flexible-alerts",
+        "advanced-emoji"
     ],
     "pluginsConfig": {
         "github": {
@@ -34,6 +35,11 @@
                 "label" : "Important",
                 "icon" : "fa fa-exclamation-circle",
                 "className" : "important-spring"
+            },
+            "caution": {
+                "label" : "Caution",
+                "icon" : "fa fa-fire",
+                "className" : "caution-spring"
             }
         }
     }

@@ -444,7 +444,6 @@ public class MyConfiguration {
 >您可以在注解级别和使用属性来定义排除项。
 
 <p></p>
-
 >[!note]
 >
 >尽管自动配置类是公共的，该类的唯一被认为是公共 API 的方面是可用于禁用自动配置的类的名称。这些类的实际内容（例如嵌套配置类或 Bean 方法）仅供内部使用，我们不建议直接使用它们。
@@ -532,7 +531,6 @@ public class Application {
 >`@SpringBootApplication`还提供别名以自定义`@EnableAutoConfiguration`和`@ComponentScan`的属性。
 
 <p></p>
-
 >[!note]
 >
 >这些功能都不是强制性的，您可以选择用所启用的任何功能替换此单个注解。例如，您可能不想在应用程序中使用组件扫描或配置属性扫描：
@@ -675,13 +673,11 @@ dependencies {
 >运行完全打包的应用程序时，将自动禁用开发者工具。如果您的应用程序是使用`java -jar`启动的，或者是从特殊的类加载器启动的，则将其视为“生产应用程序”。如果这不适用于您（即，如果您从容器中运行应用程序），请考虑排除 devtools 或设置系统属性`-Dspring.devtools.restart.enabled = false`。
 
 <p></p>
-
 >[!tip]
 >
 >在 Maven 中将依赖项标记为可选或在 Gradle 中使用自定义`developmentOnly`配置（如上所示）是一种最佳实践，它可以防止将 devtools 传递应用到使用您项目的其他模块。
 
 <p></p>
-
 >[!tip]
 >
 >重新打包的存档默认情况下不包含 devtools。如果要使用[某个远程 devtools 功能](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-devtools-remote)，则需要禁用`excludeDevtools`构建属性以获取该功能。Maven 和 Gradle 插件均支持该属性。
@@ -704,7 +700,6 @@ Spring Boot 支持的一些库使用缓存来提高性能。例如，[模板引�
 
 <p></p>
 
-
 >[!tip]
 >
 >有关 devtools 所使用属性的完整列表，请参见[DevToolsPropertyDefaultsPostProcessor](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-devtools/src/main/java/org/springframework/boot/devtools/env/DevToolsPropertyDefaultsPostProcessor.java)。
@@ -721,13 +716,11 @@ Spring Boot 支持的一些库使用缓存来提高性能。例如，[模板引�
 
 <p></p>
 
-
 >[!note]
 >
 >只要启用了分叉，您还可以使用受支持的构建插件（Maven 和 Gradle）启动应用程序，因为 DevTools 需要隔离的应用程序类加载器才能正常运行。默认情况下，Gradle 和 Maven 插件会分叉应用程序进程。
 
 <p></p>
-
 
 
 >[!tip]
@@ -737,13 +730,11 @@ Spring Boot 支持的一些库使用缓存来提高性能。例如，[模板引�
 <p></p>
 
 
-
 >[!note]
 >
 >DevTools 依赖于应用程序上下文的关闭钩子以在重新启动期间将其关闭。如果您禁用了关闭钩子（`SpringApplication.setRegisterShutdownHook(false)`），它将无法正常工作。
 
 <p></p>
-
 
 
 >[!note]
@@ -753,13 +744,11 @@ Spring Boot 支持的一些库使用缓存来提高性能。例如，[模板引�
 <p></p>
 
 
-
 >[!note]
 >
 >DevTools 需要自定义`ApplicationContext`使用的`ResourceLoader`。如果您的应用程序已经提供了，它将被包装起来。在`ApplicationContext`上直接重写`getResource`方法是不支持的。
 
 <p></p>
-
 
 
 >**重启与重载**
@@ -873,7 +862,6 @@ restart.include.projectcommon=/mycorp-myproj-[\\w\\d-\.]+\.jar
 
 
 
-
 >[!tip]
 >
 >类路径中的所有`META-INF/spring-devtools.properties`都将被加载。您可以将文件打包到项目内部，也可以打包到项目使用的库中。
@@ -901,6 +889,153 @@ restart.include.projectcommon=/mycorp-myproj-[\\w\\d-\.]+\.jar
 
 
 ## 8.4 全局设置
+
+您可以通过将以下任何文件添加到`$HOME/.config/spring-boot`文件夹来配置全局 devtools 设置：
+
+1. `spring-boot-devtools.properties`
+2. `spring-boot-devtools.yaml`
+3. `spring-boot-devtools.yml`
+
+添加到这些文件的任何属性都将应用于计算机上*所有*使用 devtools 的 Spring Boot 应用程序。例如，要将重新启动配置为始终使用触发文件，应添加以下属性：
+
+**~/.config/spring-boot/spring-boot-devtools.properties**
+
+```properties
+spring.devtools.restart.trigger-file=.reloadtrigger
+```
+
+>[!note]
+>
+>如果在`$HOME/.config/spring-boot`中找不到 devtools 配置文件，则在`$HOME`文件夹的根目录中搜索是否存在`.spring-boot-devtools.properties`文件。这使您可以与不支持`$HOME/.config/spring-boot`位置的较旧版本的 Spring Boot 上的应用程序共享 devtools 全局配置。
+
+<p></p>
+
+
+
+>[!note]
+>
+>在上述文件中激活的配置文件不会影响[特定配置的配置文件](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-external-config-profile-specific-properties)的加载。
+
+
+
+## 8.5 远程应用
+
+Spring Boot 开发者工具不仅限于本地开发。远程运行应用程序时，您还可以使用它的多种功能。选择启用远程支持可能会带来安全风险。应该仅在受信任的网络上运行或使用SSL保护时，才应启用它。除了这两种场景，则不应使用 DevTools 的远程支持。您永远不要在生产部署上启用远程支持。
+
+要启用它，您需要确保在重新打包的档案中包含 devtools，如以下清单所示：
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <excludeDevtools>false</excludeDevtools>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+然后，您需要设置`spring.devtools.remote.secret`属性。像任何重要的密码或机密一样，该值应唯一且安全，以免被猜测或穷举出来。
+
+远程 devtools 支持分为两部分：接受连接的服务器端端点和在 IDE 中运行的客户端应用程序。 设置`spring.devtools.remote.secret`属性后，将自动启用服务器组件。客户端组件必须手动启动。
+
+
+
+### 8.5.1 运行远程客户端应用程序
+
+远程客户端应用程序在您的IDE中运行。您需要使用与您连接到的远程项目相同的类路径来运行`org.springframework.boot.devtools.RemoteSpringApplication`。该应用程序的唯一必需参数是它连接到的远程 URL。
+
+例如，如果您使用的是 Eclipse 或 STS，并且有一个名为`my-app`的项目已部署到 Cloud Foundry，则可以执行以下操作：
+
+* 从`Run`菜单中找到`Run Configurations…`
+
+* 创建一个新的`Java Application` “launch configuration”
+
+* 查看`my-app`项目
+* 使用`org.springframework.boot.devtools.RemoteSpringApplication`作为主类
+* 添加`https://myapp.cfapps.io`到`Program arguments`（或者你的远程 URL）
+
+正在运行的远程客户端可能类似于以下清单：
+
+```
+  .   ____          _                                              __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _          ___               _      \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` |        | _ \___ _ __  ___| |_ ___ \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| []::::::[]   / -_) '  \/ _ \  _/ -_) ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, |        |_|_\___|_|_|_\___/\__\___|/ / / /
+ =========|_|==============|___/===================================/_/_/_/
+ :: Spring Boot Remote :: 2.2.2.RELEASE
+
+2015-06-10 18:25:06.632  INFO 14938 --- [           main] o.s.b.devtools.RemoteSpringApplication   : Starting RemoteSpringApplication on pwmbp with PID 14938 (/Users/pwebb/projects/spring-boot/code/spring-boot-project/spring-boot-devtools/target/classes started by pwebb in /Users/pwebb/projects/spring-boot/code)
+2015-06-10 18:25:06.671  INFO 14938 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@2a17b7b6: startup date [Wed Jun 10 18:25:06 PDT 2015]; root of context hierarchy
+2015-06-10 18:25:07.043  WARN 14938 --- [           main] o.s.b.d.r.c.RemoteClientConfiguration    : The connection to http://localhost:8080 is insecure. You should use a URL starting with 'https://'.
+2015-06-10 18:25:07.074  INFO 14938 --- [           main] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2015-06-10 18:25:07.130  INFO 14938 --- [           main] o.s.b.devtools.RemoteSpringApplication   : Started RemoteSpringApplication in 0.74 seconds (JVM running for 1.105)
+```
+
+>[!note]
+>
+>因为远程客户端使用与真实应用程序相同的类路径，所以它可以直接读取应用程序配置。这就是`spring.devtools.remote.secret`属性被读取并将其传递给服务器进行身份验证的方式。
+
+<p></p>
+
+
+
+>[!tip]
+>
+>始终建议使用`https://`作为连接协议，以便对通信进行加密并且不能截获密码。
+
+<p></p>
+
+
+
+>[!tip]
+>
+>如果需要使用代理来访问远程应用程序，请配置`spring.devtools.remote.proxy.host`和`spring.devtools.remote.proxy.port`属性。
+
+
+
+### 8.5.2 远程更新
+
+远程客户端以与[本地重新启动](using-spring-boot.md#82-自动重启)相同的方式监视应用程序类路径中的更改。任何更新的资源都会推送到远程应用程序，并且（如果需要）会触发重新启动。如果您反复使用本地没有的云服务的功能，这将很有帮助。通常，远程更新和重新启动比完整的重建和部署周期快得多。
+
+>[!note]
+>
+>仅在远程客户端正在运行时监视文件。如果在启动远程客户端之前更改文件，则不会将其推送到远程服务器。
+
+
+
+### 8.5.3 配置文件系统观察器
+
+[FileSystemWatcher](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-devtools/src/main/java/org/springframework/boot/devtools/filewatch/FileSystemWatcher.java)的工作方式是按一定的时间间隔轮询类更改，然后等待预定义的静默期以确保没有更多更改。然后将更改上传到远程应用程序。在较慢的开发环境中，可能会发生静默期不够的情况，并且类中的更改可能会分为几批。第一批类更改上传后，服务器将重新启动。由于服务器正在重新启动，因此下一批不能发送到应用程序。
+
+这通常通过`RemoteSpringApplication`日志中的警告来显现，即有关上传某些类失败的消息，然后进行重试。 但是，这也可能导致应用程序代码不一致，并且在上传第一批更改后无法重新启动。
+
+如果您经常观察到此类问题，请尝试将`spring.devtools.restart.poll-interval`和`spring.devtools.restart.quiet-period`参数增加到适合您的开发环境的值：
+
+```properties
+spring.devtools.restart.poll-interval=2s
+spring.devtools.restart.quiet-period=1s
+```
+
+现在每2秒轮询一次受监视的classpath文件夹以进行更改，并保持1秒钟的静默时间以确保没有其他类更改。
+
+
+
+# 9. 打包您的生产应用
+
+可执行 jar 可以用于生产部署。由于它们是独立的，因此它们也非常适合基于云的部署。
+
+对于其他“production ready”功能，例如运行状况，审核和度量 REST 或 JMX 端点，请考虑添加`spring-boot-actuator`。有关详细信息，请参见[production-ready-features.html](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/production-ready-features.html#production-ready)。
+
+
+
+# 10. 延伸阅读
+
+现在，您应该了解如何使用 Spring Boot 以及应遵循的一些最佳实践。 现在，您可以继续深入了解特定的Spring Boot功能，或者可以跳过并阅读有关Spring Boot的“[production ready](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/production-ready-features.html#production-ready)”方面的信息。
 
 
 

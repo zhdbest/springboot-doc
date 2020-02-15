@@ -215,6 +215,34 @@ new SpringApplicationBuilder()
 
 
 
+## 1.8 访问应用程序参数
+
+如果您需要访问传递给` SpringApplication.run(…) `的应用程序参数，则可以注入`org.springframework.boot.ApplicationArguments` bean。`ApplicationArguments`接口提供对原始`String[]`参数以及已解析的` option `和` non-option `参数的访问，如以下示例所示：
+
+```java
+import org.springframework.boot.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+
+@Component
+public class MyBean {
+
+    @Autowired
+    public MyBean(ApplicationArguments args) {
+        boolean debug = args.containsOption("debug");
+        List<String> files = args.getNonOptionArgs();
+        // if run with "--debug logfile.txt" debug=true, files=["logfile.txt"]
+    }
+
+}
+```
+
+>[!tip]
+>
+>Spring Boot 还向Spring 环境注册了`CommandLinePropertySource`。这样，您还可以使用`@Value`注解注入单个应用程序参数。
+
+
+
 # 2. 外部化配置
 
 

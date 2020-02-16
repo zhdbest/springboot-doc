@@ -293,7 +293,38 @@ public class ExitCodeApplication {
 
 
 
+## 1.11 管理员功能
+
+通过指定`spring.application.admin.enabled`属性，可以为应用启用与管理员相关的功能。这将在平台`MBeanServer`上公开[`SpringApplicationAdminMXBean`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/admin/SpringApplicationAdminMXBean.java)。您可以使用此功能来远程管理 Spring Boot 应用。对于任何服务包装器实现，此功能也可能很有用。
+
+>[!tip]
+>
+>如果您想知道应用程序在哪个HTTP端口上运行，请使用`local.server.port`键获取属性。
+
+
+
 # 2. 外部化配置
+
+Spring Boot 使您可以使配置外部化，以便可以在不同环境中使用相同的应用程序代码。您可以使用属性文件、YAML 文件、环境变量和命令行参数来外部化配置。属性值可以使用`@Value`注解直接注入到您的 bean 中，可以通过 Spring 的`Environment`抽象访问，也可以通过`@ConfigurationProperties`[绑定到结构化对象](spring-boot-features.md#2.8-类型安全的配置属性)。
+
+Spring Boot 使用一个非常特殊的`PropertySource`顺序，该顺序旨在允许合理地覆盖值。顺序如下：
+
+1. 当 devtools 处于可用状态时，`$HOME/.config/spring-boot`文件夹中的 [Devtools 全局设置属性](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/using-spring-boot.html#using-boot-devtools-globalsettings)
+2. 测试用例上的[`@TestPropertySource`](https://docs.spring.io/spring/docs/5.2.2.RELEASE/javadoc-api/org/springframework/test/context/TestPropertySource.html)注解
+3. 测试用例中的`properties`属性。 在`@SpringBootTest`和测试注解上可用，用于测试应用程序的特定部分
+4. 命令行参数
+5. 来自`SPRING_APPLICATION_JSON`（嵌入在环境变量或系统属性中的内联JSON）的属性。
+6. `ServletConfig`初始化参数
+7. `ServletContext`初始化参数
+8. 来自`java:comp/env`的 JNDI 属性
+9. Java 系统配置（`System.getProperties()`）
+10. 操作系统环境变量
+11. 仅在`random.*`中具有属性的`RandomValuePropertySource`
+12. 
+
+
+
+## 2.8 类型安全的配置属性
 
 
 

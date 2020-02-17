@@ -391,6 +391,14 @@ my.number.in.range=${random.int[1024,65536]}
 
 ## 2.2 访问命令行属性
 
+默认情况下，`SpringApplication`将所有命令行选项参数（即以`--`开头的参数，例如`--server.port=9000`）转换为`property`，并将其添加到Spring `Environment`中。如前所述，命令行属性始终优先于其他属性源。
+
+如果您不希望将命令行属性添加到`Environment`中，则可以使用`SpringApplication.setAddCommandLineProperties(false)`禁用它们。
+
+
+
+## 2.3 应用属性文件
+
 
 
 

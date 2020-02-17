@@ -399,6 +399,37 @@ my.number.in.range=${random.int[1024,65536]}
 
 ## 2.3 应用属性文件
 
+`SpringApplication`在以下位置从`application.properties`文件加载属性，并将它们添加到Spring `Environment`：
+
+1. 当前目录的`/config`子目录
+2. 当前目录
+3. 类路径`/config`包
+4. 类路径根目录
+
+该列表按优先级排序（在列表较高位置定义的属性会覆盖在较低位置定义的属性）。
+
+>[!note]
+>
+>您还可以使用YAML（.yml）文件来替代 .properties。
+
+如果您不喜欢`application.properties`作为配置文件名，则可以通过指定`spring.config.name`环境属性来切换到另一个文件名。您还可以通过使用`spring.config.location`环境属性（这是目录位置或文件路径的逗号分隔列表）来引用显式位置。以下示例展示如何指定其他文件名：
+
+```shell
+$ java -jar myproject.jar --spring.config.name=myproject
+```
+
+下面的示例演示如何指定两个位置：
+
+```shell
+$ java -jar myproject.jar --spring.config.location=classpath:/default.properties,classpath:/override.properties
+```
+
+>[!warning]
+>
+>`spring.config.name`和`spring.config.location`很早就用于确定必须加载的文件。必须将它们定义为环境属性（通常是OS环境变量，系统属性或命令行参数）。
+
+如果`spring.config.location`包含目录（而不是文件），则它们应以`/`结尾（并且在运行时，会在加载之前附加从`spring.config.name`生成的名称，包括特定配置文件的文件名）。`spring.config.location`中指定的文件按原样使用，不支持特定配置文件的变体，并且被任何特定配置文件的属性覆盖。
+
 
 
 

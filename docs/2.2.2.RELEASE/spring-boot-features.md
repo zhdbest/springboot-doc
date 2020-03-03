@@ -458,6 +458,162 @@ $ java -jar myproject.jar --spring.config.location=classpath:/default.properties
 
 
 
+# 10 使用 SQL 数据库
+
+[Spring 框架](https://spring.io/projects/spring-framework)为使用 SQL 数据库提供了广泛的支持，从使用 JdbcTemplate 的直接 JDBC 访问到完整的“对象关系映射”技术（例如Hibernate）。[Spring Data](https://spring.io/projects/spring-data)提供了更高级别的功能：直接从接口创建存储库实现，并使用约定从您的方法名称生成查询语句。
+
+
+
+## 10.1 配置数据源
+
+Java 的`javax.sql.DataSource`接口提供了使用数据库连接的标准方法。传统上，“数据源”使用 URL 和一些凭据来建立数据库连接。
+
+>[!tip]
+>
+>有关更多高级示例，请参见[“操作方法”部分](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-configure-a-datasource)，通常可以完全控制 DataSource 的配置。
+
+
+
+### 10.1.1 嵌入式数据库支持
+
+通过使用内存嵌入式数据库来开发应用程序通常很方便。显然，内存数据库不提供持久存储。您需要在应用程序启动时填充数据库，并准备在应用程序结束时丢弃数据。
+
+>[!tip]
+>
+>“操作方法”部分包括有关[如何初始化数据库的部分](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-database-initialization)。
+
+Spring Boot 可以自动配置嵌入式[H2](https://www.h2database.com/)，[HSQL](http://hsqldb.org/)和[Derby](https://db.apache.org/derby/)数据库。您无需提供任何连接URL。您只需要引入要使用的嵌入式数据库的构建依赖项即可。
+
+>[!note]
+>
+>如果您在测试中使用此功能，则可能会注意到，无论你使用多少应用程序上下文，整个测试套件都会重复使用同一数据库。如果要确保每个上下文都有一个单独的嵌入式数据库，则应将`spring.datasource.generate-unique-name`设置为`true`。
+
+例如，典型的 POM 依赖关系如下：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.hsqldb</groupId>
+    <artifactId>hsqldb</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+>[!note]
+>
+>您需要依赖`spring-jdbc`来自动配置嵌入式数据库。在此示例中，它通过`spring-boot-starter-data-jpa`可传递地引入。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>如果出于某种原因为嵌入式数据库配置了连接 URL，请务必确保禁用了数据库的自动关闭功能。 如果使用H2，则应使用`DB_CLOSE_ON_EXIT=FALSE`进行操作。如果使用 HSQLDB，则应确保未使用`shutdown=true`。 通过禁用数据库的自动关闭功能，Spring Boot 可以控制何时关闭数据库，从而确保一旦不再需要访问数据库时就可以执行该操作。
+
+
+
+### 10.1.2 连接到生产数据库
+
+生产数据库连接也可以通过使用池化`DataSource`进行自动配置。 Spring Boot使用以下算法来选择特定的实现：
+
+1. 我们更喜欢[HikariCP](https://github.com/brettwooldridge/HikariCP)的性能和并发性。 如果有 HikariCP，我们总是选择它。
+2. 否则，如果 Tomcat 池化`DataSource`可用，我们将使用它。
+3. 如果 HikariCP 和 Tomcat 池化数据源均不可用，并且[Commons DBCP2](https://commons.apache.org/proper/commons-dbcp/)可用，我们将使用 Commons DBCP2。
+
+如果您使用`spring-boot-starter-jdbc`或`spring-boot-starter-data-jpa`“启动器”，则会自动获得对 HikariCP 的依赖。
+
+>[!note]
+>
+>您可以通过设置`spring.datasource.type`属性来完全绕过该算法，并指定要使用的连接池。如果您在 Tomcat 容器中运行应用程序，则这一点尤其重要，因为默认情况下提供了`tomcat-jdbc`。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>其他连接池始终可以手动配置。 如果定义自己的`DataSource` bean，则不会进行自动配置。
+
+
+
+数据源配置由`spring.datasource.*`中的外部配置属性控制。例如，您可以在`application.properties`中声明以下部分：
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost/test
+spring.datasource.username=dbuser
+spring.datasource.password=dbpass
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+```
+
+>[!note]
+>
+>您至少应通过设置`spring.datasource.url`属性来指定 URL。否则，Spring Boot 会尝试自动配置嵌入式数据库。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>您通常不需要指定`driver-class-name`，因为 Spring Boot 可以从`url`为大多数数据库推断出它。
+
+<span></span>
+
+
+
+>[!note]
+>
+>对于要创建池化数据源，我们需要能够验证有效的`Driver`类是否可用，因此我们在进行任何操作之前都要进行检查。换句话说，如果设置`spring.datasource.driver-class-name=com.mysql.jdbc.Driver`，则该类必须是可加载的。
+
+
+
+有关更多支持的选项，请参见`DataSourceProperties`，这些是不管实际实现如何都起作用的标准选项。也可以使用它们各自的前缀（`spring.datasource.hikari.*`，`spring.datasource.tomcat.*`和`spring.datasource.dbcp2.*`）微调实现特定的设置。有关更多详细信息，请参考所用连接池实现的文档。
+
+例如，如果使用[Tomcat连接池](https://tomcat.apache.org/tomcat-8.0-doc/jdbc-pool.html#Common_Attributes)，则可以自定义一些其他设置，如以下示例所示：
+
+```properties
+# Number of ms to wait before throwing an exception if no connection is available.
+spring.datasource.tomcat.max-wait=10000
+
+# Maximum number of active connections that can be allocated from this pool at the same time.
+spring.datasource.tomcat.max-active=50
+
+# Validate the connection before borrowing it from the pool.
+spring.datasource.tomcat.test-on-borrow=true
+```
+
+
+
+### 10.1.3 连接到 JNDI 数据源
+
+如果您将 Spring Boot 应用程序部署到应用服务器，则可能要使用应用服务器的内置功能来配置和管理数据源，并使用 JNDI 对其进行访问。
+
+`spring.datasource.jndi-name`属性可以用作`spring.datasource.url`，`spring.datasource.username`和`spring.datasource.password`属性的替代方案，以从特定的 JNDI 位置访问`DataSource`。例如，`application.properties`中的以下部分显示了如何访问 JBoss AS 定义的数据源：
+
+```properties
+spring.datasource.jndi-name=java:jboss/datasources/customers
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

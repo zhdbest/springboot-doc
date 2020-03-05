@@ -600,6 +600,177 @@ spring.datasource.jndi-name=java:jboss/datasources/customers
 
 
 
+## 10.2 使用 JdbcTemplate
+
+Spring 的`JdbcTemplate`和`NamedParameterJdbcTemplate`类是自动配置的，您可以将它们直接使用`@Autowire`注入到自己的 bean 中，如以下示例所示：
+
+``` java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyBean {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public MyBean(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    // ...
+
+}
+```
+
+
+
+您可以使用`spring.jdbc.template.*`属性来自定义模板的某些属性，如以下示例所示：
+
+```properties
+spring.jdbc.template.max-rows=500
+```
+
+>[!note]
+>
+>`NamedParameterJdbcTemplate`在后台重用相同的`JdbcTemplate`实例。如果定义了多个`JdbcTemplate`并且不存在主要候选对象，则不会自动配置`NamedParameterJdbcTemplate`。
+
+
+
+## 10.3 JPA 和 Spring Data JPA
+
+Java Persistence API 是一种标准技术，可让您将对象“映射”到关系型数据库。`spring-boot-starter-data-jpa` POM 提供了一种快速开始的方法。它提供以下关键依赖：
+
+* Hibernate：最流行的 JPA 实现之一
+* Spring Data JPA：让实现基于 JPA 的存储库变得容易
+* Spring ORM：Spring Framework 提供的核心 ORM 支持
+
+>[!tip]
+>
+>在这里，我们不会过多讨论 JPA 或 [Spring Data](https://spring.io/projects/spring-data)。您可以查阅[spring.io](https://spring.io/)的[“使用 JPA 访问数据”](https://spring.io/guides/gs/accessing-data-jpa/)指南，并阅读[Spring Data JPA](https://spring.io/projects/spring-data-jpa)和[Hibernate](https://hibernate.org/orm/documentation/)参考文档。
+
+
+
+### 10.3.1 实体类
+
+传统上的 JPA “实体”类在`persistence.xml`文件中指定。在 Spring Boot 中，此文件不是必需的，而是使用“实体扫描”。默认情况下，将搜索主配置类（使用`@EnableAutoConfiguration`或`@SpringBootApplication`注解的）下的所有包。
+
+任何带有`@Entity`，`@Embeddable`或`@MappedSuperclass`注解的类都将被扫描。典型的实体类类似于以下示例：
+
+```java
+package com.example.myapp.domain;
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+@Entity
+public class City implements Serializable {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String state;
+
+    // ... additional members, often include @OneToMany mappings
+
+    protected City() {
+        // no-args constructor required by JPA spec
+        // this one is protected since it shouldn't be used directly
+    }
+
+    public City(String name, String state) {
+        this.name = name;
+        this.state = state;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getState() {
+        return this.state;
+    }
+
+    // ... etc
+
+}
+```
+
+>[!tip]
+>
+>您可以使用`@EntityScan`注解来自定义实体扫描位置。请参阅“ [howto.html](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-separate-entity-definitions-from-spring-configuration)”。
+
+
+
+### 10.3.2 Spring Data JPA 存储库
+
+Spring Data JPA 存储库是个可以定义访问数据的接口。JPA 查询是根据您的方法名称自动创建的。例如，`CityRepository`接口可能声明了`findAllByState(String state)`方法来查找给定状态下的所有城市。
+
+对于更复杂的查询，可以使用Spring Data 的[`Query`](https://docs.spring.io/spring-data/jpa/docs/2.2.3.RELEASE/api/org/springframework/data/jpa/repository/Query.html)注解对方法进行标注。
+
+Spring Data 存储库通常继承`Repository`或`CrudRepository`接口。如果您使用自动配置，则会从您的主配置类（用`@EnableAutoConfiguration`或`@SpringBootApplication`注解标注的类）所在的包中搜索存储库。
+
+以下示例显示了典型的 Spring Data 存储库接口定义：
+
+```java
+package com.example.myapp.domain;
+
+import org.springframework.data.domain.*;
+import org.springframework.data.repository.*;
+
+public interface CityRepository extends Repository<City, Long> {
+
+    Page<City> findAll(Pageable pageable);
+
+    City findByNameAndStateAllIgnoringCase(String name, String state);
+
+}
+```
+
+Spring Data JPA 存储库支持三种不同的引导模式：default，deferred 和 lazy。要启用 deferred 引导或 lazy 引导，请将`spring.data.jpa.repositories.bootstrap-mode`属性分别设置为`deferred`或`lazy`。使用 deferred 或 lazy 启动时，自动配置的`EntityManagerFactoryBuilder`将使用上下文的`AsyncTaskExecutor`作为引导执行程序。如果存在多个，则将使用一个名为`applicationTaskExecutor`的。
+
+>[!tip]
+>
+>我们才仅仅触及 Spring Data JPA 的表面，有关完整的详细信息，请参见[Spring Data JPA 参考文档](https://docs.spring.io/spring-data/jdbc/docs/1.1.3.RELEASE/reference/html/)。
+
+
+
+### 10.3.3 创建和删除 JPA 数据库
+
+默认情况下，仅当您使用嵌入式数据库（H2，HSQL 或 Derby）时，才会自动创建 JPA 数据库。您可以使用`spring.jpa.*`属性显式配置 JPA 设置。例如，要创建和删除表，可以将以下行添加到`application.properties`：
+
+```properties
+spring.jpa.hibernate.ddl-auto=create-drop
+```
+
+>[!note]
+>
+>为此，Hibernate 自己的内部属性名称是`hibernate.hbm2ddl.auto`。您可以使用`spring.jpa.properties.*`（在将前缀添加到实体管理器之前，先去除前缀）来与其他 Hibernate 本地属性一起进行设置。下面的行显示了为 Hibernate 设置 JPA 属性的示例：
+
+```properties
+spring.jpa.properties.hibernate.globally_quoted_identifiers=true
+```
+
+前面示例中的行将`hibernate.globally_quoted_identifiers`属性的值`true`传递给 Hibernate 实体管理器。
+
+默认情况下，DDL 执行（或验证）推迟到`ApplicationContext`启动之前。还有一个`spring.jpa.generate-ddl`标志，但是如果 Hibernate 自动配置处于可用状态，则不使用它，因为`ddl-auto`设置更细粒度。
+
+
+
+### 10.3.4 在视图中打开 EntityManager
+
+如果您正在运行 Web 应用程序，则 Spring Boot 默认情况下会注册[`OpenEntityManagerInViewInterceptor`](https://docs.spring.io/spring/docs/5.2.2.RELEASE/javadoc-api/org/springframework/orm/jpa/support/OpenEntityManagerInViewInterceptor.html)以应用“在视图中打开EntityManager”模式，以允许在 Web 视图中进行延迟加载。如果您不希望出现这种情况，则应在`application.properties`中将`spring.jpa.open-in-view`设置为`false`。
+
+
+
+
+
 
 
 

@@ -769,25 +769,47 @@ spring.jpa.properties.hibernate.globally_quoted_identifiers=true
 
 
 
+## 10.4 Spring Data JDBC
+
+Spring Data 包括对 JDBC 的存储库支持，并将为`CrudRepository`上的方法自动生成 SQL。对于更高级的查询，提供了`@Query`注解。
+
+当必要的依赖项位于类路径上时，Spring Boot 将自动配置 Spring Data 的 JDBC 存储库。只需引入依赖`spring-boot-starter-data-jdbc`，就可以将它们添加到您的项目中。如有必要，您可以通过在应用程序中添加`@EnableJdbcRepositories`注解或`JdbcConfiguration`子类来控制 Spring Data JDBC 的配置。
+
+>[!tip]
+>
+>有关 Spring Data JDBC 的完整详细信息，请参阅[参考文档](https://docs.spring.io/spring-data/jdbc/docs/1.1.3.RELEASE/reference/html/)。
 
 
 
+## 10.5 使用 H2 的 Web 控制台
+
+[H2 数据库](https://www.h2database.com/)提供了一个[基于浏览器的控制台](https://www.h2database.com/html/quickstart.html#h2_console)，Spring Boot 可以为您自动配置该控制台。满足以下条件时，将自动配置控制台：
+
+* 您正在开发基于 servlet 的 Web 应用程序。
+* `com.h2database:h2`在类路径上。
+* 您正在使用 [Spring Boot 的开发者工具](/using-spring-boot.md#8-开发者工具)。
+
+>[!tip]
+>
+>如果您不使用 Spring Boot 的开发者工具，但仍想使用H2的控制台，则可以将`spring.h2.console.enabled`属性配置为`true`。
+
+<span></span>
 
 
 
+>[!note]
+>
+>H2 控制台仅在开发期间使用，因此应注意确保在生产中未将`spring.h2.console.enabled`设置为`true`。
 
 
 
+### 10.5.1 更改 H2 控制台的路径
+
+默认情况下，该控制台在`/h2-console`l路径下可用。您可以使用`spring.h2.console.path`属性来自定义控制台的路径。
 
 
 
-
-
-
-
-
-
-
+## 10.6 使用 jOOQ
 
 
 

@@ -430,7 +430,40 @@ $ java -jar myproject.jar --spring.config.location=classpath:/default.properties
 
 如果`spring.config.location`包含目录（而不是文件），则它们应以`/`结尾（并且在运行时，会在加载之前附加从`spring.config.name`生成的名称，包括特定配置文件的文件名）。`spring.config.location`中指定的文件按原样使用，不支持特定配置文件的变体，并且被任何特定配置文件的属性覆盖。
 
+配置位置以相反的顺序检索。默认情况下，配置的位置是`classpath:/,classpath:/config /,file:./,file:./config/`。 结果检索顺序如下：
 
+1. `file:./config/`
+2. `file:./`
+3. `classpath:/config/`
+4. `classpath:/`
+
+使用`spring.config.location`配置自定义配置位置后，它们将取代默认位置。例如，如果将`spring.config.location`的值配置为`classpath:/custom-config/,file:./custom-config/`，则搜索顺序如下：
+
+1. `file:./custom-config/`
+2. `classpath:custom-config/`
+
+另外，当使用`spring.config.additional-location`配置自定义配置的位置时，除默认位置外，还会使用这些自定义配置。附加位置在默认位置之前被检索。例如，如果配置了`classpath:/custom-config/,file:./custom-config/`的附加位置，则检索顺序如下：
+
+1. `file:./custom-config/`
+2. `classpath:custom-config/`
+3. `file:./config/`
+4. `file:./`
+5. `classpath:/config/`
+6. `classpath:/`
+
+通过此检索顺序，您可以在一个配置文件中指定默认值，然后在另一个配置文件中有选择地覆盖这些值。您可以在默认位置之一的`application.properties`（或使用`spring.config.name`选择的其他任何基本名称）中为应用程序提供默认值。然后，可以在运行时使用任一自定义位置中的其他文件覆盖这些默认值。
+
+>[!note]
+>
+>如果使用环境变量而不是系统属性，则大多数操作系统不允许使用句点分隔的键名，但是可以使用下划线代替（例如，使用`SPRING_CONFIG_NAME`代替`spring.config.name`）。
+
+<span></span>
+
+
+
+>[!note]
+>
+>如果您的应用程序在容器中运行，则可以使用 JNDI 属性（在`java:comp/env`中）或 servlet 上下文初始化参数代替环境变量或系统属性，或者也可以使用环境变量或系统属性。
 
 
 

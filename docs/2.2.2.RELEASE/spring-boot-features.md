@@ -811,6 +811,207 @@ Spring Data 包括对 JDBC 的存储库支持，并将为`CrudRepository`上的�
 
 ## 10.6 使用 jOOQ
 
+jOOQ 面向对象查询（[jOOQ](https://www.jooq.org/)）是[Data Geekery](https://www.datageekery.com/)的一个很流行的产品，它可以从数据库中生成 Java 代码，并允许您通过其流畅的 API 构建类型安全的 SQL 查询。商业版和开源版都可以与 Spring Boot 一起使用。
+
+
+
+### 10.6.1 代码生成
+
+为了使用 jOOQ 类型安全查询，您需要依据数据库的组织结构生成 Java 类。您可以按照[jOOQ 用户手册](https://www.jooq.org/doc/3.12.3/manual-single-page/#jooq-in-7-steps-step3)中的说明进行操作。如果您使用`jooq-codegen-maven`插件，并且还使用`spring-boot-starter-parent`“父POM”，则可以安全地忽略该插件的`<version>`标签。您还可以使用 Spring Boot 定义的版本变量（例如`h2.version`）来声明插件的数据库依赖关系。以下清单显示了一个示例：
+
+```xml
+<plugin>
+    <groupId>org.jooq</groupId>
+    <artifactId>jooq-codegen-maven</artifactId>
+    <executions>
+        ...
+    </executions>
+    <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+    </dependencies>
+    <configuration>
+        <jdbc>
+            <driver>org.h2.Driver</driver>
+            <url>jdbc:h2:~/yourdatabase</url>
+        </jdbc>
+        <generator>
+            ...
+        </generator>
+    </configuration>
+</plugin>
+```
+
+
+
+### 10.6.2 使用 DSLContext
+
+jOOQ 所提供的流畅的 API 是通过`org.jooq.DSLContext`接口创建的。Spring Boot 将`DSLContext`自动配置为 Spring Bean，并将其连接到应用的`DataSource`。要使用` DSLContext `，可以使用`@Autowire`注入它，如下例所示：
+
+```java
+@Component
+public class JooqExample implements CommandLineRunner {
+
+    private final DSLContext create;
+
+    @Autowired
+    public JooqExample(DSLContext dslContext) {
+        this.create = dslContext;
+    }
+
+}
+```
+
+>[!tip]
+>
+>jOOQ 手册上倾向于使用名为`create`的变量来保存`DSLContext`。
+
+然后，您可以使用`DSLContext`构建查询，如以下示例所示：
+
+```java
+public List<GregorianCalendar> authorsBornAfter1980() {
+    return this.create.selectFrom(AUTHOR)
+        .where(AUTHOR.DATE_OF_BIRTH.greaterThan(new GregorianCalendar(1980, 0, 1)))
+        .fetch(AUTHOR.DATE_OF_BIRTH);
+}
+```
+
+
+
+### 10.6.3 jOOQ SQL 方言
+
+除非已配置`spring.jooq.sql-dialect`属性，否则 Spring Boot 要确定要用于数据源的 SQL 方言。如果 Spring Boot 无法检测到方言，则使用`DEFAULT`。
+
+>[!note]
+>
+>Spring Boot 只能自动配置开源版本的 jOOQ 支持的方言。
+
+
+
+### 10.6.4 自定义 jOOQ
+
+通过定义自己的`@Bean`定义（在创建 jOOQ `Configuration`时使用），可以实现更高级的自定义。 您可以为以下jOOQ 类型定义 bean：
+
+* `ConnectionProvider`
+* `ExecutorProvider`
+* `TransactionProvider`
+* `RecordMapperProvider`
+* `RecordUnmapperProvider`
+* `Settings`
+* `RecordListenerProvider`
+* `ExecuteListenerProvider`
+* `VisitListenerProvider`
+* `TransactionListenerProvider`
+
+如果要完全控制 jOOQ 配置，还可以创建自己的`org.jooq.Configuration` `@Bean`。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

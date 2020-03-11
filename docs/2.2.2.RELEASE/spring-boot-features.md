@@ -481,6 +481,29 @@ $ java -jar myproject.jar --spring.config.location=classpath:/default.properties
 
 
 
+## 2.5 属性中的占位符
+
+使用`application.properties`中的值时，它们会通过现有`Environment`进行过滤，因此您可以参考以前定义的值（例如，从System属性中）。
+
+```properties
+app.name=MyApp
+app.description=${app.name} is a Spring Boot application
+```
+
+>[!tip]
+>
+>您还可以使用此技术来创建现有 Spring Boot 属性的“简短”变体。有关详细信息，请参见[howto.html](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-use-short-command-line-arguments)操作方法。
+
+
+
+## 2.6 加密属性
+
+Spring Boot 不提供对加密属性值的任何内置支持，但是，它提供了修改 Spring `Environment`中包含的值所必需的挂钩点。 `EnvironmentPostProcessor`接口允许您在应用程序启动之前操纵`EnvironmentPostProcessor`。 有关详细信息，请参见[howto.html](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-customize-the-environment-or-application-context)。
+
+如果您正在寻找一种安全的方式来存储凭据和密码，则[Spring Cloud Vault](https://cloud.spring.io/spring-cloud-vault/)项目提供了对在[HashiCorp Vault](https://www.vaultproject.io/)中存储外部化配置的支持。
+
+
+
 ## 2.8 类型安全的配置属性
 
 

@@ -504,6 +504,83 @@ Spring Boot 不提供对加密属性值的任何内置支持，但是，它提�
 
 
 
+## 2.7 使用 YAML 代替 Properties
+
+[YAML](https://yaml.org/)是 JSON 的超集，因此它是一种用于指定层次结构配置数据的便捷格式。只要在类路径上具有[SnakeYAML](https://bitbucket.org/asomov/snakeyaml)库，SpringApplication 类就会自动支持 YAML 作为 properties 的替代方法。
+
+>[!note]
+>
+>如果您使用“启动器”，则`spring-boot-starter`会自动提供 SnakeYAML。
+
+
+
+### 2.7.1 加载 YAML
+
+Spring Framework 提供了两个合适的类，可用于加载 YAML 文档。`YamlPropertiesFactoryBean`将 YAML 作为`Properties`加载，而`YamlMapFactoryBean`将YAML作为`Map`加载。
+
+例如，考虑以下 YAML 文档：
+
+```yaml
+environments:
+    dev:
+        url: https://dev.example.com
+        name: Developer Setup
+    prod:
+        url: https://another.example.com
+        name: My Cool App
+```
+
+前面的示例可以转换为以下属性：
+
+```properties
+environments.dev.url=https://dev.example.com
+environments.dev.name=Developer Setup
+environments.prod.url=https://another.example.com
+environments.prod.name=My Cool App
+```
+
+YAML 列表用`[index]`间接引用表示为属性键。例如，考虑如下YAML：
+
+```yaml
+my:
+   servers:
+       - dev.example.com
+       - another.example.com
+```
+
+前面的示例将转换为以下属性：
+
+```properties
+my.servers[0]=dev.example.com
+my.servers[1]=another.example.com
+```
+
+要使用 Spring Boot 的 `Binder`公用程序（`@ConfigurationProperties`所做的）绑定到类似的属性，您需要在类型为`java.util.List`（或`Set`）的目标 bean 中拥有一个属性，或者您需要提供一个`setter`或使用可变值对其进行初始化。例如，以下示例绑定到前面显示的属性：
+
+```java
+@ConfigurationProperties(prefix="my")
+public class Config {
+
+    private List<String> servers = new ArrayList<String>();
+
+    public List<String> getServers() {
+        return this.servers;
+    }
+}
+```
+
+
+
+### 2.7.2 在 Spring `Environment`中暴露 YAML 为属性
+
+`YamlPropertySourceLoader`类可用于在 Spring `Environment`中将 YAML 暴露为`PropertySource`。这样做可以让您使用`@Value`注解和占位符语法来访问 YAML 属性。
+
+
+
+### 2.7.3 多配置文件 YAML 文档
+
+
+
 ## 2.8 类型安全的配置属性
 
 

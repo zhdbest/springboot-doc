@@ -577,7 +577,85 @@ public class Config {
 
 
 
-### 2.7.3 多配置文件 YAML 文档
+### 2.7.3 多配置 YAML 文档
+
+您可以使用`spring.profiles`键在一个文件中指定多个特定配置的 YAML 文档，以指示何时应用该文档，如以下示例所示：
+
+```yaml
+server:
+    address: 192.168.1.100
+---
+spring:
+    profiles: development
+server:
+    address: 127.0.0.1
+---
+spring:
+    profiles: production & eu-central
+server:
+    address: 192.168.1.120
+```
+
+在前面的示例中，如果`development`配置文件处于生效状态，则`server.address`属性为`127.0.0.1`。同样，如果`production`和`eu-central`配置文件处于生效状态，则`server.address`属性为`192.168.1.120`。如果未启用 `development`，`production`和`eu-central` 配置文件，则该属性的值为`192.168.1.100`。
+
+>[!note]
+>
+>因此`spring.profiles`可以包含一个简单的环境名称（例如`production`）或场景表达式。环境表达式允许表达更复杂的场景逻辑，例如`production & (eu-central | eu-west)`。有关更多详细信息，请参阅[参考指南](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/core.html#beans-definition-profiles-java)。
+
+如果在启动应用程序上下文时未显式激活任何环境的配置，则会激活默认配置文件。因此，在以下 YAML 中，我们为`spring.security.user.password`设置了一个值，该值仅在“默认”环境下可用：
+
+```yaml
+server:
+  port: 8000
+---
+spring:
+  profiles: default
+  security:
+    user:
+      password: weak
+```
+
+而在以下示例中，能够始终设置密码是因为该密码未附加到任何环境，并且必须根据需要在所有其他环境配置中将其显式重置：
+
+```yaml
+server:
+  port: 8000
+spring:
+  security:
+    user:
+      password: weak
+```
+
+使用`spring.profiles`元素指定的 Spring 配置可以很随意的使用`!`字符来否定。如果为单个文档指定了否定配置和非否定配置，则至少一个非否定配置文件必须匹配，并且否定配置文件不能匹配。
+
+
+
+### 2.7.4 YAML 的缺点
+
+YAML 文件无法使用`@PropertySource`注解加载。因此，在需要以这种方式加载值的情况下，需要使用属性文件。
+
+在特定环境的 YAML 文件中使用多 YAML 文档语法可能会导致意外。例如，考虑文件中的以下配置：
+
+**application-dev.yml**
+
+```yaml
+server:
+  port: 8000
+---
+spring:
+  profiles: "!test"
+  security:
+    user:
+      password: "secret"
+```
+
+如果使用参数`--spring.profiles.active=dev`运行应用程序，则可能希望将`security.user.password`设置为“ secret”，但事实并非如此。
+
+嵌套文档将被过滤，因为主文件名为`application-dev.yml`。它已经被认为是特定配置文件了，所以嵌套文档将被忽略。
+
+>[!tip]
+>
+>我们建议您不要混用特定环境的 YAML 文件和多个 YAML 文档。坚持只使用其中之一。
 
 
 

@@ -661,6 +661,191 @@ spring:
 
 ## 2.8 类型安全的配置属性
 
+使用`@Value("${property}")`注解来注入配置属性有时会很麻烦，尤其是当您	使用多个属性或数据本质上是分层的时。 Spring Boot 提供了一种使用属性的替代方法，该方法使强类型的 Bean 可以管理和验证应用程序的配置。
+
+>[!tip]
+>
+>另请参见[`@Value`和类型安全的配置属性之间的区别](spring-boot-features.md#2810-configurationproperties和value)。
+
+
+
+### 2.8.1 JavaBean属性绑定
+
+可以如以下示例所示绑定一个 bean 声明标准 JavaBean 属性：
+
+```java
+package com.example;
+
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties("acme")
+public class AcmeProperties {
+
+    private boolean enabled;
+
+    private InetAddress remoteAddress;
+
+    private final Security security = new Security();
+
+    public boolean isEnabled() { ... }
+
+    public void setEnabled(boolean enabled) { ... }
+
+    public InetAddress getRemoteAddress() { ... }
+
+    public void setRemoteAddress(InetAddress remoteAddress) { ... }
+
+    public Security getSecurity() { ... }
+
+    public static class Security {
+
+        private String username;
+
+        private String password;
+
+        private List<String> roles = new ArrayList<>(Collections.singleton("USER"));
+
+        public String getUsername() { ... }
+
+        public void setUsername(String username) { ... }
+
+        public String getPassword() { ... }
+
+        public void setPassword(String password) { ... }
+
+        public List<String> getRoles() { ... }
+
+        public void setRoles(List<String> roles) { ... }
+
+    }
+}
+```
+
+前面的 POJO 定义了以下属性：
+
+* `acme.enabled`，默认值为`false`。
+* `acme.remote-address`，可以从`String`强制转换的类型。
+* `acme.security.username`，嵌套的“security”对象，其名称由属性名称决定。特别是，返回类型在此根本不使用，可能是SecurityProperties。
+* `acme.security.password`
+* `acme.security.roles`，带有默认为`USER`的`String`集合。
+
+>[!note]
+>
+>Spring Boot 自动配置大量利用`@ConfigurationProperties`来轻松配置自动配置的 bean。与自动配置类相似，Spring Boot 中可用的`@ConfigurationProperties`类仅供内部使用。通过 properties 文件、YAML 文件、环境变量等配置映射到该类的属性是公共 API，但是该类本身的内容并不意味着可以直接使用。
+
+<span></span>
+
+
+
+>[!note]
+>
+>这种约定依赖于默认的空构造函数，并且 getter 和 setter 通常是强制性的，因为绑定是通过标准 Java Beans属性描述符进行的，就像在Spring MVC 中一样。在以下情况下，可以忽略 setter ：
+>
+>* 只要将 Maps 初始化，它们就需要 getter，但不一定需要使用 setter，因为它们可以被绑定器转换。
+>* 可以通过索引（通常是使用 YAML 的时候）或使用单个逗号分隔的值（属性）来访问集合和数组。在后一种情况下，必须要有 setter。我们建议始终为此类型添加 setter。如果初始化集合，请确保它并不是不可变的（如上例所示）。
+>* 如果嵌套的 POJO 属性（如前面示例中的`Security`字段）被初始化了，则不需要 setter。如果希望绑定器通过使用其默认构造函数动态创建实例，则需要一个 setter。
+>
+>有些人使用 Lombok 项目自动添加 getter 和 setter。确保 Lombok 不会为这种类型生成任何特定的构造函数，因为容器会自动使用它来实例化该对象。
+>
+>最后，仅考虑标准 Java Bean 属性，并且不支持对静态属性的绑定。
+
+
+
+### 2.8.2 构造器绑定
+
+上一节中的示例可以用不变的方式重写，如下例所示：
+
+```java
+package com.example;
+
+import java.net.InetAddress;
+import java.util.List;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.boot.context.properties.DefaultValue;
+
+@ConstructorBinding
+@ConfigurationProperties("acme")
+public class AcmeProperties {
+
+    private final boolean enabled;
+
+    private final InetAddress remoteAddress;
+
+    private final Security security;
+
+    public AcmeProperties(boolean enabled, InetAddress remoteAddress, Security security) {
+        this.enabled = enabled;
+        this.remoteAddress = remoteAddress;
+        this.security = security;
+    }
+
+    public boolean isEnabled() { ... }
+
+    public InetAddress getRemoteAddress() { ... }
+
+    public Security getSecurity() { ... }
+
+    public static class Security {
+
+        private final String username;
+
+        private final String password;
+
+        private final List<String> roles;
+
+        public Security(String username, String password,
+                @DefaultValue("USER") List<String> roles) {
+            this.username = username;
+            this.password = password;
+            this.roles = roles;
+        }
+
+        public String getUsername() { ... }
+
+        public String getPassword() { ... }
+
+        public List<String> getRoles() { ... }
+
+    }
+
+}
+```
+
+在此设置中，`@ConstructorBinding`注解用于标识应使用构造器绑定。这意味着绑定器将期望找到带有您希望绑定的参数的构造器。
+
+`@ConstructorBinding`类的嵌套成员（例如上例中的`Security`）也将通过其构造器进行绑定。
+
+可以使用`@DefaultValue`指定默认值，并且将应用相同的转换服务将`String`值强制为缺少属性的目标类型。
+
+>[!note]
+>
+>要使用构造器绑定，必须使用`@EnableConfigurationProperties`或配置属性扫描来启用该类。您不能将构造器绑定与常规 Spring 机制创建的 bean 一起使用（例如：`@Component` bean、通过`@Bean`方法创建的bean、使用`@Import`加载的 bean）。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>如果您的类具有多个构造函数，则还可以直接在应绑定的构造函数上使用`@ConstructorBinding`。
+
+
+
+### 2.8.3 启用`@ConfigurationProperties`注解的类型
+
+
+
+
+
+### 2.8.10 `@ConfigurationProperties`和`@Value`
+
 
 
 

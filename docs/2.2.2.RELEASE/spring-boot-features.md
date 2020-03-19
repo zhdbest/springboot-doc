@@ -838,7 +838,105 @@ public class AcmeProperties {
 
 
 
-### 2.8.3 启用`@ConfigurationProperties`注解的类型
+### 2.8.3 启用`@ConfigurationProperties`标注的类型
+
+Spring Boot 提供了绑定`@ConfigurationProperties`类型并将其注册为 Bean 的基础架构。您可以逐类启用配置属性，也可以启用与组件扫描类似的方式进行配置属性扫描。
+
+有时，用`@ConfigurationProperties`标注的类可能不适合扫描，例如，如果您正在开发自己的自动配置，或者想要有条件地启用它们。在这些情况下，请使用`@EnableConfigurationProperties`注解指定要处理的类型列表。可以在任何`@Configuration`类上完成此操作，如以下示例所示：
+
+```java
+@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(AcmeProperties.class)
+public class MyConfiguration {
+}
+```
+
+要使用配置属性扫描，请将`@ConfigurationPropertiesScan`注解添加到您的应用程序。通常，它被添加到用`@SpringBootApplication`标注的主应用程序类中，但是也可以将其添加到任何`@Configuration`类中。默认情况下，将从声明注解的类的包中进行扫描。如果要定义要扫描的特定程序包，可以按照以下示例所示进行操作：
+
+```java
+@SpringBootApplication
+@ConfigurationPropertiesScan({ "com.example.app", "org.acme.another" })
+public class MyApplication {
+}
+```
+
+>[!note]
+>
+>使用配置属性扫描或通过`@EnableConfigurationProperties`注册`@ConfigurationProperties` Bean时，该Bean具有常规名称：`<prefix>-<fqn>`，其中`<prefix>`是`@ConfigurationProperties`注解指定的环境键前缀，`<fqn>`中是该 Bean 的完全限定名称。如果注解不提供任何前缀，则仅使用 Bean 的完全限定名称。
+>
+>上例中的 bean 名称是`acme-com.example.AcmeProperties`。
+
+我们建议`@ConfigurationProperties`仅处理环境，尤其不要从上下文中注入其他 bean。对于极端情况，可以使用 setter 注入或框架提供的任何`*Aware`接口（例如，需要访问`Environment`的`EnvironmentAware`）。如果仍要使用构造函数注入其他 bean，则必须使用`@Component`注解配置属性 bean，并使用基于 JavaBean 的属性绑定。
+
+
+
+### 2.8.4 使用@`ConfigurationProperties`标注的类型
+
+这种配置风格与`SpringApplication`外部 YAML 配置一起使用特别有效，如以下示例所示：
+
+```yaml
+# application.yml
+
+acme:
+    remote-address: 192.168.1.1
+    security:
+        username: admin
+        roles:
+          - USER
+          - ADMIN
+
+# additional configuration as required
+```
+
+要使用`@ConfigurationProperties` Bean，可以像其他任何 Bean 一样注入它们，如以下示例所示：
+
+```java
+@Service
+public class MyService {
+
+    private final AcmeProperties properties;
+
+    @Autowired
+    public MyService(AcmeProperties properties) {
+        this.properties = properties;
+    }
+
+    //...
+
+    @PostConstruct
+    public void openConnection() {
+        Server server = new Server(this.properties.getRemoteAddress());
+        // ...
+    }
+
+}
+```
+
+>[!tip]
+>
+>使用`@ConfigurationProperties`还可让您生成元数据文件，IDE 可以使用这些元数据文件为您自己的键提供自动补全功能。有关详细信息，请参见[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-configuration-metadata.html#configuration-metadata)。
+
+
+
+### 2.8.5 第三方配置
+
+除了使用`@ConfigurationProperties`标注类外，还可以在公共`@Bean`方法上使用它。当您要将属性绑定到控件之外的第三方组件时，这样做特别有用。
+
+要从`Environment`属性配置 Bean，请将`@ConfigurationProperties`添加到其 Bean 注册中，如以下示例所示：
+
+```java
+@ConfigurationProperties(prefix = "another")
+@Bean
+public AnotherComponent anotherComponent() {
+    ...
+}
+```
+
+用`another`前缀定义的任何 JavaBean 属性都以类似于前面的`AcmeProperties`示例的方式映射到该`AnotherComponent`bean。
+
+
+
+### 2.8.6 轻松绑定
 
 
 

@@ -932,11 +932,86 @@ public AnotherComponent anotherComponent() {
 }
 ```
 
-用`another`前缀定义的任何 JavaBean 属性都以类似于前面的`AcmeProperties`示例的方式映射到该`AnotherComponent`bean。
+用`another`前缀定义的任何 JavaBean 属性都以类似于前面的`AcmeProperties`示例的方式映射到该`AnotherComponent` bean。
 
 
 
-### 2.8.6 轻松绑定
+### 2.8.6 宽松绑定
+
+Spring Boot 使用一些宽松的规则将`Environment`属性绑定到`@ConfigurationProperties` bean，因此`Environment`属性名称和 bean 属性名称之间不需要完全匹配。有用的常见示例包括破折号分隔的环境属性（例如，`context-path`绑定到`contextPath`）和大写的环境属性（例如`PORT`绑定到`port`）。
+
+例如，考虑以下`@ConfigurationProperties`类：
+
+```java
+@ConfigurationProperties(prefix="acme.my-project.person")
+public class OwnerProperties {
+
+    private String firstName;
+
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+}
+```
+
+使用前面的代码，以下属性名称可以全部使用：
+
+  
+
+**表2：宽松绑定**
+
+| 属性                                | 备注                                                         |
+| ----------------------------------- | ------------------------------------------------------------ |
+| `acme.my-project.person.first-name` | 短横线，建议在`.properties`和`.yml`文件中使用。              |
+| `acme.myProject.person.firstName`   | 标准驼峰式语法。                                             |
+| `acme.my_project.person.first_name` | 下划线表示法，是`.properties`和`.yml`文件中使用的另一种格式。 |
+| `ACME_MYPROJECT_PERSON_FIRSTNAME`   | 大写格式，使用系统环境变量时建议使用。                       |
+
+>[!note]
+>
+>注解的`prefix`值必须为短横线（小写，并用-分隔，例如`acme.my-project.person`）。
+
+  
+
+**表3：每个属性源的宽松绑定规则**
+
+| 属性源          | 简单的                                                | 列表                                                         |
+| :-------------- | :---------------------------------------------------- | :----------------------------------------------------------- |
+| Properties 文件 | 驼峰、短横线或下划线                                  | 使用`[ ]`或逗号分隔值的标准 List 语法                        |
+| YAML 文件       | 驼峰、短横线或下划线                                  | 标准 YAML 列表语法或逗号分隔值                               |
+| 环境变量        | 以下划线作为分隔符的大写格式。不应在属性名称中使用`_` | 包含下划线的数字值，例如`MY_ACME_1_OTHER = my.acme[1].other` |
+| 系统属性        | 驼峰、短横线或下划线                                  | 使用`[ ]`或逗号分隔值的标准 List 语法                        |
+
+>[!tip]
+>
+>我们建议，如果可能的话，属性以小写短横线的格式存储，例如`my.property-name = acme`。
+
+绑定到`Map`属性时，如果`key`包含除小写字母数字字符或`-`以外的任何其他字符，则需要使用方括号表示法，以便保留原始值。如果`key`没有被`[]`包围，则所有非字母数字或`-`的字符都将被删除。例如，考虑将以下属性绑定到`Map`：
+
+```yaml
+acme:
+  map:
+    "[/key1]": value1
+    "[/key2]": value2
+    /key3: value3
+```
+
+上面的属性将以`/key1`，`/key2`和`key3`作为 map 中的键绑定到`Map`。
+
+>[!note]
+>
+>对于 YAML 文件，方括号必须用引号引起来，以便正确解析 key。
+
+
+
+### 2.8.7 合并复杂类型
+
+
 
 
 

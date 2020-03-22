@@ -1011,7 +1011,103 @@ acme:
 
 ### 2.8.7 合并复杂类型
 
+如果在多个位置配置了列表，则通过替换整个列表来进行覆盖。
 
+例如，假设`MyPojo`对象的`name`和`description`属性默认为`null`。下面的示例通过`AcmeProperties`暴露`MyPojo`对象的列表：
+
+```java
+@ConfigurationProperties("acme")
+public class AcmeProperties {
+
+    private final List<MyPojo> list = new ArrayList<>();
+
+    public List<MyPojo> getList() {
+        return this.list;
+    }
+
+}
+```
+
+考虑以下配置：
+
+```yaml
+acme:
+  list:
+    - name: my name
+      description: my description
+---
+spring:
+  profiles: dev
+acme:
+  list:
+    - name: my another name
+```
+
+如果当前不是`dev`环境，则`AcmeProperties.list`包含一个`MyPojo`实体，如先前所定义。但是，如果当前是`dev`环境，则该列表仍仅包含一个实体（`name`为`my another name`，并且`description`为`null`）。此配置不会将第二个`MyPojo`实例添加到列表中，并且不会合并元素。
+
+在多个环境中指定`List`时，将使用优先级最高的列表（并且仅使用那个列表）。 考虑以下示例：
+
+```yaml
+acme:
+  list:
+    - name: my name
+      description: my description
+    - name: another name
+      description: another description
+---
+spring:
+  profiles: dev
+acme:
+  list:
+    - name: my another name
+```
+
+在前面的示例中，如果当前处于`dev`环境，则`AcmeProperties.list`包含一个`MyPojo`实体（其`name`为`my another name`，`description`为`null`）。对于 YAML，可以使用逗号分隔的列表和 YAML 列表来完全覆盖列表的内容。
+
+对于`Map`属性，可以绑定从多个来源的属性值。但是，对于多个源中的同一属性，将使用优先级最高的属性。下面的示例通过`AcmeProperties`暴露`Map <String，MyPojo>`：
+
+```java
+@ConfigurationProperties("acme")
+public class AcmeProperties {
+
+    private final Map<String, MyPojo> map = new HashMap<>();
+
+    public Map<String, MyPojo> getMap() {
+        return this.map;
+    }
+
+}
+```
+
+考虑以下配置：
+
+```yaml
+acme:
+  map:
+    key1:
+      name: my name 1
+      description: my description 1
+---
+spring:
+  profiles: dev
+acme:
+  map:
+    key1:
+      name: dev name 1
+    key2:
+      name: dev name 2
+      description: dev description 2
+```
+
+如果当前不处于`dev`环境，则`AcmeProperties.map`包含一个键为`key1`的实体（`name`为`my name 1`，`description`为`my description 1`）。但是，如果当前是`dev`环境，则`map`包含两个实体，其中键为`key1`（名称为`dev name 1`，其描述为`my description 1`）和`key2`（名称为`dev name 2`，其描述为`dev description 2`） 。
+
+>[!note]
+>
+>前面的合并规则不仅适用于 YAML 文件，而且适用于所有属性源中的属性。
+
+
+
+### 2.8.8 属性转换
 
 
 

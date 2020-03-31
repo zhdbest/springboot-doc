@@ -1230,6 +1230,62 @@ public class AppIoProperties {
 
 
 
+### 2.8.9 @ConfigurationProperties 校验
+
+当使用 Spring 的`@Validated`注解标注`@ConfigurationProperties`类时，Spring Boot 就会尝试对其进行校验。您可以在配置类上直接使用 JSR-303 `javax.validation`约束注解。 为此，请确保在类路径上有兼容的 JSR-303 实现，然后将约束注解添加到字段中，如以下示例所示：
+
+```java
+@ConfigurationProperties(prefix="acme")
+@Validated
+public class AcmeProperties {
+
+    @NotNull
+    private InetAddress remoteAddress;
+
+    // ... getters and setters
+
+}
+```
+
+>[!tip]
+>
+>您还可以通过使用`@Validated`标注创建配置属性的`@Bean`方法来触发校验。
+
+为了确保始终为嵌套的属性触发校验，即使未找到任何属性，也必须使用`@Valid`标注关联的字段。以下示例基于前面的`AcmeProperties`示例：
+
+```java
+@ConfigurationProperties(prefix="acme")
+@Validated
+public class AcmeProperties {
+
+    @NotNull
+    private InetAddress remoteAddress;
+
+    @Valid
+    private final Security security = new Security();
+
+    // ... getters and setters
+
+    public static class Security {
+
+        @NotEmpty
+        public String username;
+
+        // ... getters and setters
+
+    }
+
+}
+```
+
+您还可以通过创建一个名为`configurationPropertiesValidator`的 bean 定义来添加自定义的Spring `Validator`。`@Bean`方法应声明为静态（`static`）的。配置属性校验器是在应用程序生命周期的早期创建的，将`@Bean`方法声明为`static`可以使创建该 Bean 而不必实例化`@Configuration`类。这样做避免了由早期实例化引起的任何问题。
+
+>[!tip]
+>
+>`spring-boot-actuator`模块包括一个暴露所有`@ConfigurationProperties` bean的端点。将您的Web浏览器指向`/actuator/configprops`或使用等效的 JMX 端点。有关详细信息，请参见“[生产就绪功能](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/production-ready-features.html#production-ready-endpoints)”部分。
+
+
+
 ### 2.8.10 `@ConfigurationProperties`和`@Value`
 
 

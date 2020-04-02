@@ -1288,7 +1288,17 @@ public class AcmeProperties {
 
 ### 2.8.10 `@ConfigurationProperties`和`@Value`
 
+`@Value`注解是核心容器功能，它没有提供与类型安全的配置属性相同的功能。下表总结了`@ConfigurationProperties`和`@Value`支持的功能：
 
+| 功能                                                         | `@ConfigurationProperties` | `@Value` |
+| :----------------------------------------------------------- | :------------------------- | :------- |
+| [宽松绑定](spring-boot-features.md#286-宽松绑定)             | 支持                       | 不支持   |
+| [元数据支持](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-configuration-metadata.html#configuration-metadata) | 支持                       | 不支持   |
+| `SpEL`评价                                                   | 不支持                     | 支持     |
+
+如果您为自己的组件定义了一组配置键，我们建议您将它们组合在用`@ConfigurationProperties`标注的 POJO 中。您还应该意识到，由于`@Value`不支持宽松绑定，因此如果您需要使用环境变量来提供值，那么它不是一个很好的选择。
+
+最后，尽管您可以在`@Value`中编写`SpEL`表达式，但不会从[应用属性文件](spring-boot-features.md#23-应用属性文件)中处理此类表达式。
 
 
 

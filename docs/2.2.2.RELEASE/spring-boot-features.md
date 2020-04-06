@@ -1302,6 +1302,74 @@ public class AcmeProperties {
 
 
 
+# 3. Profiles
+
+Spring Profiles 提供了一种隔离应用程序配置的部分并使之仅在某些环境中可用的方法可以使用`@Profile`标记任何`@Component`、`@Configuration`或`@ConfigurationProperties`，以限制其何时加载，如以下示例所示：
+
+```java
+@Configuration(proxyBeanMethods = false)
+@Profile("production")
+public class ProductionConfiguration {
+
+    // ...
+
+}
+```
+
+>[!note]
+>
+>如果`@ConfigurationProperties` Bean是通过`@EnableConfigurationProperties`而非自动扫描注册的，则需要在使用`@EnableConfigurationProperties`标注的`@Configuration`类上标注`@Profile`。在扫描`@ConfigurationProperties`的情况下，可以在`@ConfigurationProperties`类本身上标注`@Profile`。
+
+您可以使用`spring.profiles.active` `Environment`属性来指定哪个 profiles 处于激活状态。您可以通过本章前面介绍的任何方式指定属性。例如，您可以将其包含在`application.properties`中，如以下示例所示：
+
+```properties
+spring.profiles.active=dev,hsqldb
+```
+
+您也可以使用以下开关在命令行上指定它：`--spring.profiles.active=dev,hsqldb`。
+
+
+
+## 3.1 添加激活的 Profiles
+
+`spring.profiles.active`属性遵循与其他属性相同的排序规则：使用最高的`PropertySource`属性。这意味着您可以在`application.properties`中指定激活的 profiles，然后使用命令行开关替换它们。
+
+有时，将特定于配置文件的属性添加到激活的 profiles 而不是替换它们是很有用的。`spring.profiles.include`属性可用于无条件添加激活的 profiles。`SpringApplication`入口点还具有 Java API，用于设置其他profiles（即，在由`spring.profiles.active`属性激活的 profiles 之上）。 请参阅[`SpringApplication`](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/SpringApplication.html)中的`setAdditionalProfiles()`方法。
+
+例如，使用开关`--spring.profiles.active=prod`运行具有以下属性的应用程序时，`proddb`和`prodmq` 两个profile 也会被激活：
+
+```yaml
+---
+my.property: fromyamlfile
+---
+spring.profiles: prod
+spring.profiles.include:
+  - proddb
+  - prodmq
+```
+
+>[!note]
+>
+>请记住，可以在 YAML 文档中定义`spring.profiles`属性，以确定何时将该特定文档包括在配置中。有关更多详细信息，请参见[`howto.html`](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-change-configuration-depending-on-the-environment)。
+
+
+
+## 3.2 使用编程的方式设置 Profiles
+
+您可以在应用程序运行之前通过调用`SpringApplication.setAdditionalProfiles(…)`以编程方式设置激活的 Profiles。也可以使用 Spring 的`ConfigurableEnvironment`接口来激活 profiles。
+
+
+
+## 3.3 特定环境的配置文件
+
+`application.properties`（或`application.yml`）和通过`@ConfigurationProperties`引用的文件的特定环境的配置文件的变体都被视为文件并已加载。有关详细信息，请参见“[Profiles-specific 属性](spring-boot-features.md#24-profile-specific-属性)”。
+
+
+
+# 4. 日志
+
+
+
 ## 4.4 日志级别
 
 

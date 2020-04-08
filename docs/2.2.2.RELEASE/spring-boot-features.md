@@ -1368,6 +1368,22 @@ spring.profiles.include:
 
 # 4. 日志
 
+Spring Boot 使用[Commons Logging](https://commons.apache.org/logging)进行所有内部日志记录，但是对底层日志实现保持开放的状态。提供了[Java Util Logging](https://docs.oracle.com/javase/8/docs/api//java/util/logging/package-summary.html)，[Log4J2](https://logging.apache.org/log4j/2.x/)和[Logback](https://logback.qos.ch/)的默认配置。在每种情况下，记录器（ logger）都已预先配置为使用控制台输出，同时还提供可选文件输出。
+
+默认情况下，如果使用“Starters”，则使用 Logback 进行日志记录。还引入适当的 Logback 路由，以确保使用 Java Util Logging，Commons Logging，Log4J 或 SLF4J 的从属库都能正常工作。
+
+>[!tip]
+>
+>有许多可用于 Java 的日志记录框架。如果上面的列表看起来令人困惑，请不要担心。通常，您不需要更改日志记录依赖项，并且使用 Spring Boot 默认的也可以正常工作。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>将应用程序部署到 servlet 容器或应用程序服务器时，通过 Java Util Logging API 记录的日志记录不会路由到应用程序的日志中。这样可以防止容器或其他已部署到容器中的应用程序记录的日志出现在应用程序的日志中。
+
 
 
 ## 4.4 日志级别

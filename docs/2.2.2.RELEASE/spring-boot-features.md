@@ -1386,6 +1386,93 @@ Spring Boot 使用[Commons Logging](https://commons.apache.org/logging)进行所
 
 
 
+## 4.1 日志格式
+
+Spring Boot 的默认日志输出看起来像以下示例：
+
+```
+2019-03-05 10:57:51.112  INFO 45469 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet Engine: Apache Tomcat/7.0.52
+2019-03-05 10:57:51.253  INFO 45469 --- [ost-startStop-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2019-03-05 10:57:51.253  INFO 45469 --- [ost-startStop-1] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 1358 ms
+2019-03-05 10:57:51.698  INFO 45469 --- [ost-startStop-1] o.s.b.c.e.ServletRegistrationBean        : Mapping servlet: 'dispatcherServlet' to [/]
+2019-03-05 10:57:51.702  INFO 45469 --- [ost-startStop-1] o.s.b.c.embedded.FilterRegistrationBean  : Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+```
+
+输出的有以下项目：
+
+* 日期和时间：精确到毫秒，易于排序。
+* 日志级别：`ERROR`、`WARN`、`INFO`、`DEBUG`或`TRACE`
+* 进程ID
+* 一个`---`分隔符，用于标识出实际日志消息的开始。
+* 线程名称：用方括号括起来（对于控制台输出可能会被截断）。
+* Logger名称：通常是源类名称（通常缩写）。
+* 日志信息
+
+>[!note]
+>
+>Logback没有`FATAL`级别，它对应的是`ERROR`。
+
+
+
+## 4.2 控制台输出
+
+默认日志配置在写入消息时会将消息回显到控制台。默认情况下记录`ERROR`级，`WARN`级和`INFO`级消息。您还可以通过使用`--debug`启动应用程序来启用“调试”模式。
+
+```shell
+$ java -jar myapp.jar --debug
+```
+
+>[!note]
+>
+>你也可以在`application.properties`中指定`debug=true`。
+
+启用调试模式后，将配置一些核心 logger（嵌入式容器，Hibernate 和 Spring Boot）以输出更多信息。启用调试模式不会将您的应用程序配置为记录所有`DEBUG`级别的消息。
+
+另外，您可以通过使用`--trace`（或`application.properties`中的`trace = true`）启动应用程序来启用“跟踪”模式。这样做可以为某些核心 logger（嵌入式容器，Hibernate 模式生成以及整个 Spring 产品组合）启用跟踪记录。
+
+
+
+### 4.2.1 彩色输出
+
+如果您的终端支持 ANSI，则使用彩色输出来提高可读性。您可以将`spring.output.ansi.enabled`设置为[支持的值](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/ansi/AnsiOutput.Enabled.html)，以覆盖自动检测。
+
+使用`％clr`转换字配置颜色编码。转换器以最简单的形式根据日志级别为输出着色，如以下示例所示：
+
+```
+%clr(%5p)
+```
+
+下表展示了日志级别与颜色的映射关系：
+
+| 级别    | 颜色 |
+| :------ | :--- |
+| `FATAL` | 红色 |
+| `ERROR` | 红色 |
+| `WARN`  | 黄色 |
+| `INFO`  | 绿色 |
+| `DEBUG` | 绿色 |
+| `TRACE` | 绿色 |
+
+另外，您可以通过将其提供为转换的选项来指定应使用的颜色或样式。例如，为了得到黄色的文本，使用如下配置：
+
+```
+%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){yellow}
+```
+
+支持如下颜色和格式：
+
+- `blue`
+- `cyan`
+- `faint`
+- `green`
+- `magenta`
+- `red`
+- `yellow`
+
+
+
+
+
 ## 4.4 日志级别
 
 

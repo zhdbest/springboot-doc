@@ -1471,17 +1471,68 @@ $ java -jar myapp.jar --debug
 
 
 
+## 4.3 文件输出
+
+默认情况下，Spring Boot 日志只记录到控制台，不写日志文件。如果除了在控制台输出外还想写日志文件，则需要设置`logging.file.name`或`logging.file.path`属性（例如，在`application.properties`中设置）。
+
+**表4. 日志属性**
+
+| `logging.file.name` | `logging.file.path` | 例子       | 描述                                                         |
+| :------------------ | :------------------ | :--------- | :----------------------------------------------------------- |
+| *(不指定)*          | *(不指定)*          |            | 只输出到控制台                                               |
+| Specific file       | *(不指定)*          | `my.log`   | 写入指定的日志文件。名称可以是确切的位置，也可以相对于当前目录的位置。 |
+| *(不指定)*          | Specific directory  | `/var/log` | 写入`spring.log` 到指定的目录。名称可以是确切的位置，也可以相对于当前目录的位置。 |
+
+日志文件达到 10 MB 时会开始轮换，并且与控制台输出一样，默认情况下会记录`ERROR`级别，`WARN`级别和`INFO`级别的消息。可以使用`logging.file.max-size`属性更改大小限制。除非已设置`logging.file.max-history`属性，否则以前轮换的文件将无限期存档。可以使用`logging.file.total-size-cap`限制日志归档文件的总大小。当日志归档的总大小超过该阈值时，将删除备份。要在应用程序启动时强制清除日志存档，请使用`logging.file.clean-history-on-start`属性。
+
+>[!tip]
+>
+>日志属性独立于实际的日志基础架构。因此，特定的配置键（例如 Logback 的`logback.configurationFile`）不是由 Spring Boot 管理的。
+
 
 
 ## 4.4 日志级别
 
+通过使用`logging.level.<logger-name>=<level>`，可以在Spring `Environment`中（例如，在`application.properties`中）设置所有支持的日志记录器级别。其中`level`是`TRACE`，`DEBUG`，`INFO`， `WARN`，`ERROR`，`FATAL`或`OFF`。可以使用`logging.level.root`配置`root`记录器。
+
+以下示例显示了`application.properties`中可能的日志记录设置：
+
+```properties
+logging.level.root=warn
+logging.level.org.springframework.web=debug
+logging.level.org.hibernate=error
+```
+
+也可以使用环境变量设置日志记录级别。例如，`LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG`会将`org.springframework.web`设置为`DEBUG`。
+
+>[!note]
+>
+>以上方法仅适用于程序包级别的日志记录。由于宽松的绑定总是将环境变量转换为小写，因此无法以这种方式为单个类配置日志记录。如果需要为类配置日志记录，则可以使用[SPRING_APPLICATION_JSON](spring-boot-features.md#2-外部化配置)变量。
 
 
 
+## 4.5 日志组
 
+能够将相关 logger 组合在一起通常可以很有用，以便可以同时配置它们。例如，您可能通常会更改所有与Tomcat相关的记录器的日志记录级别，但是您不容易记住顶级软件包。
 
+为了解决这个问题，Spring Boot 允许您在 Spring `Environment`中定义日志组。例如，下面是如何在`application.properties`中定义一个“tomcat”组。
 
+```properties
+logging.group.tomcat=org.apache.catalina, org.apache.coyote, org.apache.tomcat
+```
 
+定义好之后，就可以使用一行代码改变组内所有 logger 的级别：
+
+```properties
+logging.level.tomcat=TRACE
+```
+
+Spring Boot 包含以下预定义的日志记录组，它们可以直接使用：
+
+| 名称 | Loggers                                                      |
+| :--- | :----------------------------------------------------------- |
+| web  | `org.springframework.core.codec`, `org.springframework.http`, `org.springframework.web`, `org.springframework.boot.actuate.endpoint.web`, `org.springframework.boot.web.servlet.ServletContextInitializerBeans` |
+| sql  | `org.springframework.jdbc.core`, `org.hibernate.SQL`, `org.jooq.tools.LoggerListener` |
 
 
 

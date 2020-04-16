@@ -1605,6 +1605,68 @@ Spring Boot 包含以下预定义的日志记录组，它们可以直接使用�
 
 
 
+## 4.7 Logback 扩展
+
+Spring Boot 包含许多 Logback 扩展，可以帮助进行高级配置。你可以在`logback-spring.xml`配置文件中使用这些扩展。
+
+>[!note]
+>
+>由于标准`logback.xml`配置文件加载得太早，因此无法在其中使用扩展。您需要使用`logback-spring.xml`或定义`logging.config`属性来使用扩展。
+
+<span></span>
+
+
+
+>[!warning]
+>
+>这些扩展不能与 Logback 的[配置扫描](https://logback.qos.ch/manual/configuration.html#autoScan)一起使用。如果尝试这样做，则对配置文件进行更改时将导致类似于以下记录之一的错误：
+
+```
+ERROR in ch.qos.logback.core.joran.spi.Interpreter@4:71 - no applicable action for [springProperty], current ElementPath is [[configuration][springProperty]]
+ERROR in ch.qos.logback.core.joran.spi.Interpreter@4:71 - no applicable action for [springProfile], current ElementPath is [[configuration][springProfile]]
+```
+
+
+
+### 4.7.1 Profile-specific 配置
+
+通过`<springProfile>`标记，您可以根据激活的 Spring Profiles 有选择地引入或排除配置部分。在`<configuration>`元素内的任何位置都支持 Profile 部分。使用`name`属性指定哪个 profile 接受配置。`<springProfile>`标记可以包含简单的 profile 名称（例如，`staging`）或 profile 表达式。profile 表达式允许表达逻辑更复杂的 profile，例如`production & (eu-central | eu-west)`。有关更多详细信息，请参阅[参考指南](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/core.html#beans-definition-profiles-java)。下面是三个 profile 的例子：
+
+```xml
+<springProfile name="staging">
+    <!-- configuration to be enabled when the "staging" profile is active -->
+</springProfile>
+
+<springProfile name="dev | staging">
+    <!-- configuration to be enabled when the "dev" or "staging" profiles are active -->
+</springProfile>
+
+<springProfile name="!production">
+    <!-- configuration to be enabled when the "production" profile is not active -->
+</springProfile>
+```
+
+
+
+### 4.7.2 `Environment`属性
+
+`<springProperty>`标记使您可以从Spring `Environment`中暴露属性，以在 Logback 中使用。这样做有助于访问`application.properties`文件中 Logback 配置的值。该标签的工作方式类似于 Logback 的标准`<property>`标签。但是，您没有直接指定`value`，而是指定了属性的`source`（来自`Environment`）。如果需要将属性存储在`local`范围以外的其他位置，则可以使用`scope`属性。如果需要后备值（如果未在`Environment`中设置该属性），则可以使用`defaultValue`属性。以下示例显示如何在使用 Logback 中暴露的属性：
+
+```xml
+<springProperty scope="context" name="fluentHost" source="myapp.fluentd.host"
+        defaultValue="localhost"/>
+<appender name="FLUENT" class="ch.qos.logback.more.appenders.DataFluentAppender">
+    <remoteHost>${fluentHost}</remoteHost>
+    ...
+</appender>
+```
+
+>[!note]
+>
+>必须用短横线指定`source`（例如`my.property-name`）。但是，可以使用宽松的规则将属性添加到`Environment`中。
+
+
+
 # 10 使用 SQL 数据库
 
 [Spring 框架](https://spring.io/projects/spring-framework)为使用 SQL 数据库提供了广泛的支持，从使用 JdbcTemplate 的直接 JDBC 访问到完整的“对象关系映射”技术（例如Hibernate）。[Spring Data](https://spring.io/projects/spring-data)提供了更高级别的功能：直接从接口创建存储库实现，并使用约定从您的方法名称生成查询语句。

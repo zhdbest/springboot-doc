@@ -1667,7 +1667,66 @@ ERROR in ch.qos.logback.core.joran.spi.Interpreter@4:71 - no applicable action f
 
 
 
-# 10 使用 SQL 数据库
+# 5. 国际化
+
+Spring Boot 支持本地化信息，因此您的应用程序可以迎合不同语言首选项的用户。默认情况下，Spring Boot 在类路径的根目录下查找`messages`资源包。
+
+>[!note]
+>
+>当配置资源包的默认属性文件可用时，将应用自动配置（例如：默认`messages.properties`）。如果您的资源包仅包含特定于语言的属性文件，则需要添加默认文件。如果找不到与任何配置的基本名称匹配的属性文件，将没有自动配置的`MessageSource`。
+
+可以使用`spring.messages`命名空间配置资源包的基本名称以及其他几个属性，如以下示例所示：
+
+```properties
+spring.messages.basename=messages,config.i18n.messages
+spring.messages.fallback-to-system-locale=false
+```
+
+>[!tip]
+>
+>`spring.messages.basename`支持以逗号分隔的位置列表，可以是包限定符，也可以是从类路径根目录解析的资源。
+
+有关更多支持的选项，请参见[`MessageSourceProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/context/MessageSourceProperties.java)。
+
+
+
+# 6. JSON
+
+Spring Boot 提供了与三个 JSON 映射库的集成：
+
+- Gson
+- Jackson
+- JSON-B
+
+Jackson 是首选的默认库。
+
+
+
+## 6.1 Jackson
+
+Spring Boot 提供了 Jackson 的自动配置，并且 Jackson 是`spring-boot-starter-json`的一部分。当 Jackson 放在类路径上时，将自动配置`ObjectMapper` Bean。提供了几个配置属性，用于[自定义ObjectMapper的配置](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-customize-the-jackson-objectmapper)。
+
+
+
+## 6.2 Gson
+
+Spring Boot 提供了 Gson 的自动配置，当 Gson 在类路径上时，将自动配置`Gson` bean。提供了一些`spring.gson.*`配置属性用于自定义配置。为了获得更多控制权，可以使用一个或多个`GsonBuilderCustomizer` bean。
+
+
+
+## 6.3 JSON-B
+
+Spring Boot 提供了 JSON-B 的自动配置，当 JSON-B API 和其实现位于类路径上时，将自动配置`Jsonb` bean。首选的 JSON-B 实现是提供依赖管理的 Apache Johnzon。
+
+
+
+# 7. 开发Web应用
+
+
+
+
+
+# 10. 使用 SQL 数据库
 
 [Spring 框架](https://spring.io/projects/spring-framework)为使用 SQL 数据库提供了广泛的支持，从使用 JdbcTemplate 的直接 JDBC 访问到完整的“对象关系映射”技术（例如Hibernate）。[Spring Data](https://spring.io/projects/spring-data)提供了更高级别的功能：直接从接口创建存储库实现，并使用约定从您的方法名称生成查询语句。
 

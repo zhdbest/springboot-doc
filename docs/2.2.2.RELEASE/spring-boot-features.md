@@ -1722,7 +1722,83 @@ Spring Boot 提供了 JSON-B 的自动配置，当 JSON-B API 和其实现位于
 
 # 7. 开发Web应用
 
+Spring Boot 非常适合 Web 应用程序开发。您可以使用嵌入式 Tomcat，Jetty，Undertow 或 Netty 创建独立的 HTTP 服务器。大多数 Web 应用程序都使用`spring-boot-starter-web`模块来快速启动和运行。您还可以选择使用`spring-boot-starter-webflux`模块构建响应式 Web 应用程序。
 
+如果您尚未开发过 Spring Boot Web 应用程序，则可以参考[入门指南](getting-started.md#4-开发你的第一个-spring-boot-应用)中的“ Hello World!”示例。
+
+
+
+## 7.1 Spring Web MVC 框架
+
+[Spring Web MVC 框架](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc)（通常简称为“ Spring MVC”）是一个优秀的“模型、视图、控制器” Web框架。Spring MVC 使您可以创建专门的`@Controller`或`@RestController` Bean 来处理传入的 HTTP 请求。使用`@RequestMapping`注解将控制器中的方法映射到 HTTP。
+
+以下代码显示了提供 JSON 数据的典型`@RestController`：
+
+```java
+@RestController
+@RequestMapping(value="/users")
+public class MyRestController {
+
+    @RequestMapping(value="/{user}", method=RequestMethod.GET)
+    public User getUser(@PathVariable Long user) {
+        // ...
+    }
+
+    @RequestMapping(value="/{user}/customers", method=RequestMethod.GET)
+    List<Customer> getUserCustomers(@PathVariable Long user) {
+        // ...
+    }
+
+    @RequestMapping(value="/{user}", method=RequestMethod.DELETE)
+    public User deleteUser(@PathVariable Long user) {
+        // ...
+    }
+
+}
+```
+
+Spring MVC 是核心 Spring 框架的一部分，有关详细信息，请参阅[参考文档](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc)。 在[spring.io/guides](https://spring.io/guides)上还有一些涵盖 Spring MVC 的指南。
+
+
+
+### 7.1.1 Spring MVC 自动配置
+
+Spring Boot 为 Spring MVC 提供了自动配置，可与大多数应用程序完美配合。
+
+自动配置在 Spring 的默认设置之上添加了以下功能：
+
+- 包含 `ContentNegotiatingViewResolver` 和`BeanNameViewResolver` bean
+- 支持静态资源服务，包括对 WebJars 的支持（在本文档的[后面部分](spring-boot-features.md#715-静态内容)有介绍）
+- 自动注册 Converter，GenericConverter 和 Formatter Bean
+- 支持 `HttpMessageConverters`（在本文档的[后面部分](spring-boot-features.md#712-httpmessageconverters)有介绍）
+- 自动注册`MessageCodesResolver` （在本文档的[后面部分](spring-boot-features.md#714-messagecodesresolver)有介绍）
+- 支持静态`index.html` 
+- 支持自定义`Favicon` （在本文档的[后面部分](spring-boot-features.md#717-自定义网站图标)有介绍）
+- 自动使用`ConfigurableWebBindingInitializer` Bean（在本文档的[后面部分](spring-boot-features.md#719-configurablewebbindinginitializer)有介绍）
+
+如果您想保留 Spring Boot MVC 功能，并且想要添加其他[MVC 配置](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc)（拦截器，格式化器，视图控制器和其他功能），则可以添加自己的类型为`WebMvcConfigurer`的`@Configuration`类，但不要添加`@EnableWebMvc`。如果希望提供`RequestMappingHandlerMapping`、`RequestMappingHandlerAdapter`或`ExceptionHandlerExceptionResolver`的自定义实例，则可以声明`WebMvcRegistrationsAdapter`实例以提供此类组件。
+
+如果要完全控制 Spring MVC，则可以添加用`@EnableWebMvc`标注的自己的`@Configuration`类。
+
+
+
+### 7.1.2 `HttpMessageConverters`
+
+
+
+### 7.1.4 `MessageCodesResolver`
+
+
+
+### 7.1.5 静态内容
+
+
+
+### 7.1.7 自定义网站图标
+
+
+
+### 7.1.9 `ConfigurableWebBindingInitializer`
 
 
 

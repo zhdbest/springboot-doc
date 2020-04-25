@@ -1784,13 +1784,73 @@ Spring Boot 为 Spring MVC 提供了自动配置，可与大多数应用程序�
 
 ### 7.1.2 `HttpMessageConverters`
 
+Spring MVC 使用`HttpMessageConverter`接口转换 HTTP 请求和响应。默认设置即是合理的，可以直接使用。例如，可以将对象自动转换为 JSON（通过使用 Jackson 库）或 XML（通过使用 Jackson XML 扩展（如果可用），或者通过使用 JAXB（如果 Jackson XML 扩展不可用））。默认情况下，字符串采用`UTF-8`编码。
+
+如果你需要添加或自定义转换器，可以使用 Spring Boot 的`HttpMessageConverters`类，如下所示：
+
+```java
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.context.annotation.*;
+import org.springframework.http.converter.*;
+
+@Configuration(proxyBeanMethods = false)
+public class MyConfiguration {
+
+    @Bean
+    public HttpMessageConverters customConverters() {
+        HttpMessageConverter<?> additional = ...
+        HttpMessageConverter<?> another = ...
+        return new HttpMessageConverters(additional, another);
+    }
+
+}
+```
+
+上下文中存在的所有`HttpMessageConverter` bean 都将添加到转换器列表中。您也可以用相同的方法覆盖默认转换器。
+
+
+
+### 7.1.3 自定义 JSON 序列化器和反序列化器
+
+如果使用 Jackson 序列化和反序列化 JSON 数据，则可能要编写自己的`JsonSerializer`和`JsonDeserializer`类。自定义序列化程序通常是[通过模块注册 Jackson](https://github.com/FasterXML/jackson-docs/wiki/JacksonHowToCustomSerializers)的，但是 Spring Boot 提供了一种替代性的`@JsonComponent`注解，这使得直接注册 Spring Bean 更加容易。
+
+您可以直接在`JsonSerializer`，`JsonDeserializer`或`KeyDeserializer`实现上使用`@JsonComponent`注解。您还可以在包含序列化器/反序列化器作为内部类的类上使用它，如以下示例所示：
+
+```java
+import java.io.*;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
+import org.springframework.boot.jackson.*;
+
+@JsonComponent
+public class Example {
+
+    public static class Serializer extends JsonSerializer<SomeObject> {
+        // ...
+    }
+
+    public static class Deserializer extends JsonDeserializer<SomeObject> {
+        // ...
+    }
+
+}
+```
+
+`ApplicationContext`中的所有`@JsonComponent` bean都会自动注册 Jackson。因为`@JsonComponent`使用`@Component`进行元标注，所以通常的组件扫描规则都适用。
+
+Spring Boot 还提供了[`JsonObjectSerializer`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/jackson/JsonObjectSerializer.java)和[`JsonObjectDeserializer`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/jackson/JsonObjectDeserializer.java)基类，这些基类在序列化对象时为标准 Jackson 版本提供了有用的替代方法。有关详细信息，请参见 Javadoc 中的[`JsonObjectSerializer`](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/jackson/JsonObjectSerializer.html)和[`JsonObjectDeserializer`](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/jackson/JsonObjectDeserializer.html)。
+
 
 
 ### 7.1.4 `MessageCodesResolver`
 
+Spring MVC 有一个生成错误代码以从绑定错误中呈现错误消息的策略：`MessageCodesResolver`。如果设置`spring.mvc.message-codes-resolver-format`属性`PREFIX_ERROR_CODE`或`POSTFIX_ERROR_CODE`，Spring Boot 会为您创建一个（请参见[`DefaultMessageCodesResolver.Format`](https://docs.spring.io/spring/docs/5.2.2.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.Format.html)中的枚举）。
+
 
 
 ### 7.1.5 静态内容
+
+
 
 
 

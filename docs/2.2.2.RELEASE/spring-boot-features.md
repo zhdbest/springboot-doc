@@ -1876,7 +1876,7 @@ Spring Boot 还支持 Spring MVC 提供的高级资源处理功能，例如允�
 >
 >如果使用 JBoss，则需要声明`webjars-locator-jboss-vfs`依赖关系，而不是`webjars-locator-core`。否则，所有 Webjar 都解析为`404`。
 
-要使用缓存清除，以下配置为所有静态资源配置了缓存清除解决方案，实际上在 URL 中添加了内容哈希，例如`<link href =“ / css / spring-2a2d595e6ed9a0b24f027f2b63b134d6.css” />`：
+要使用缓存清除，以下配置为所有静态资源配置了缓存清除解决方案，实际上在 URL 中添加了内容哈希，例如`<link href="/css/spring-2a2d595e6ed9a0b24f027f2b63b134d6.css"/>`：
 
 ```properties
 spring.resources.chain.strategy.content.enabled=true
@@ -1907,11 +1907,91 @@ spring.resources.chain.strategy.fixed.version=v12
 
 
 
+### 7.1.6 欢迎页面
+
+Spring Boot 支持静态和模板欢迎页面。 它首先在配置的静态内容位置中查找`index.html`文件。如果未找到，则寻找`index`模板。如果找到任何一个，它将自动用作应用程序的欢迎页面。
+
+
+
 ### 7.1.7 自定义网站图标
+
+与其他静态资源一样，Spring Boot 在已配置的静态内容位置中查找`favicon.ico`。如果存在这样的文件，它将自动用作应用程序的网站图标。
+
+
+
+### 7.1.8 路径匹配和内容协商
+
+Spring MVC 通过查看请求路径并将其匹配到应用程序中定义的映射（例如，Controller 方法上的`@GetMapping`注解）来将传入的 HTTP 请求映射到处理程序。
+
+Spring Boot 默认选择禁用后缀模式匹配，这意味着`"GET /projects/spring-boot.json"`之类的请求将不会与`@GetMapping("/projects/spring-boot")`映射进行匹配。这被认为是[Spring MVC应用程序的最佳实践](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc-ann-requestmapping-suffix-pattern-match)。过去，此功能主要用于未发送正确的“Accept”请求头的 HTTP 客户端。我们需要确保将正确的内容类型发送给客户端。如今，内容协商已变得更加可靠。
+
+还有其他处理 HTTP 客户端不能始终发送正确的“Accept”请求标头的方式。除了使用后缀匹配，我们还可以使用查询参数来确保将诸如`"GET /projects/spring-boot?format=json"`之类的请求映射到`@GetMapping("/projects/spring-boot")`：
+
+```properties
+spring.mvc.contentnegotiation.favor-parameter=true
+
+# We can change the parameter name, which is "format" by default:
+# spring.mvc.contentnegotiation.parameter-name=myparam
+
+# We can also register additional file extensions/media types with:
+spring.mvc.contentnegotiation.media-types.markdown=text/markdown
+```
+
+如果您了解了注意事项，但仍希望您的应用程序使用后缀模式匹配，则需要以下配置：
+
+```properties
+spring.mvc.contentnegotiation.favor-path-extension=true
+spring.mvc.pathmatch.use-suffix-pattern=true
+```
+
+另外，与其打开所有后缀模式，不如只支持已注册的后缀模式，这更安全：
+
+```properties
+spring.mvc.contentnegotiation.favor-path-extension=true
+spring.mvc.pathmatch.use-registered-suffix-pattern=true
+
+# You can also register additional file extensions/media types with:
+# spring.mvc.contentnegotiation.media-types.adoc=text/asciidoc
+```
 
 
 
 ### 7.1.9 `ConfigurableWebBindingInitializer`
+
+Spring MVC 使用`WebBindingInitializer`初始化特定请求的`WebDataBinder`。如果创建自己的`ConfigurableWebBindingInitializer` `@Bean`，Spring Boot 会自动配置 Spring MVC 以使用它。
+
+
+
+### 7.1.10 模板引擎
+
+除了 REST Web 服务之外，您还可以使用 Spring MVC 来提供动态 HTML 内容。Spring MVC 支持各种模板技术，包括 Thymeleaf、FreeMarker 和 JSP。同样，许多其他模板引擎包括它们自己的 Spring MVC 集成。
+
+Spring Boot 支持对以下模板引擎自动配置：
+
+- [FreeMarker](https://freemarker.apache.org/docs/)
+- [Groovy](http://docs.groovy-lang.org/docs/next/html/documentation/template-engines.html#_the_markuptemplateengine)
+- [Thymeleaf](https://www.thymeleaf.org/)
+- [Mustache](https://mustache.github.io/)
+
+>[!tip]
+>
+>如果可能，应避免使用 JSP。将它们与嵌入式servlet容器一起使用时，存在几个[已知的限制](spring-boot-features.md#745-jsp-限制)。
+
+在默认配置下使用这些模板引擎之一时，将从`src/main/resources/templates`中自动提取模板。
+
+>[!tip]
+>
+>根据您运行应用程序的方式，IntelliJ IDEA 对类路径的排序有不同方式。使用 Maven 或 Gradle 或从打包的 jar 运行应用程序，与从 IDE 运行应用程序的主方法顺序会有所不同。这可能会导致 Spring Boot 无法在类路径上找到模板。如果遇到此问题，可以在IDE中重新排序类路径，以首先放置模块的类和资源。或者，您可以配置模板前缀以搜索类路径上的每个`templates`目录，如下所示：`classpath*:/templates/`。
+
+
+
+## 7.4 嵌入式 Servlet 容器支持
+
+
+
+### 7.4.5 JSP 限制
+
+
 
 
 

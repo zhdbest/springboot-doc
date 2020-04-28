@@ -1850,7 +1850,60 @@ Spring MVC 有一个生成错误代码以从绑定错误中呈现错误消息的
 
 ### 7.1.5 静态内容
 
+默认情况下，Spring Boot 从类路径中的`/static`目录（或`/public`或`/resources`或`/META-INF/resources`）或`ServletContext`的根目录中提供静态内容。它使用 Spring MVC 中的`ResourceHttpRequestHandler`，以便您可以通过添加自己的`WebMvcConfigurer`并覆盖`addResourceHandlers`方法来修改对应的行为。
 
+在独立的 Web 应用程序中，还启用了容器中的默认 Servlet，并将其用作后备，如果 Spring 决定不处理，则从`ServletContext`的根目录提供内容。但是在大多数情况下，这并不会发生（除非您修改默认的 MVC 配置），因为 Spring 始终可以通过`DispatcherServlet`处理请求。
+
+默认情况下，资源映射在`/**`上，但是您可以使用`spring.mvc.static-path-pattern`属性进行调整。例如，将所有资源重定位到`/resources/**`可以按如下实现：
+
+```properties
+spring.mvc.static-path-pattern=/resources/**
+```
+
+您还可以使用`spring.resources.static-locations`属性来自定义静态资源位置（用目录位置列表替换默认值）。根`Servlet`上下文路径、`“/”`也会自动添加为位置。
+
+除了前面提到的“标准”静态资源位置，也有一种特殊情况是·[Webjar 内容](https://www.webjars.org/)。如果 jar 文件以 Webjars 格式打包，则jar 文件中`/webjars/**`路径下的所有资源都会被提供。
+
+>[!tip]
+>
+>如果您的应用程序打包为 jar，则不要使用`src/main/webapp`目录。尽管此目录是一个通用标准，但它仅与 打 war 包一起使用，并且如果生成 jar，大多数构建工具都将其忽略。
+
+Spring Boot 还支持 Spring MVC 提供的高级资源处理功能，例如允许使用缓存清除（ache-busting）静态资源或对 Webjars 使用版本无关的 URL。
+
+要使用版本无关的 Webjars URL，请添加`webjars-locator-core`依赖项。然后声明您的 Webjar。以 jQuery 为例，添加`"/webjars/jquery/jquery.min.js"`将得到`"/webjars/jquery/x.y.z/jquery.min.js"`，其中`x.y.z`是 Webjar 版本。
+
+>[!note]
+>
+>如果使用 JBoss，则需要声明`webjars-locator-jboss-vfs`依赖关系，而不是`webjars-locator-core`。否则，所有 Webjar 都解析为`404`。
+
+要使用缓存清除，以下配置为所有静态资源配置了缓存清除解决方案，实际上在 URL 中添加了内容哈希，例如`<link href =“ / css / spring-2a2d595e6ed9a0b24f027f2b63b134d6.css” />`：
+
+```properties
+spring.resources.chain.strategy.content.enabled=true
+spring.resources.chain.strategy.content.paths=/**
+```
+
+>[!note]
+>
+>借助为`Thymeleaf`和`FreeMarker`自动配置的`ResourceUrlEncodingFilter`，可以在运行时在模板中重写资源链接。使用JSP时，您应该手动声明此过滤器。当前不自动支持其他模板引擎，但可以与自定义模板宏/助手一起使用，以及使用`ResourceUrlProvider`。
+
+例如，当使用 JavaScript 模块加载器动态加载资源时，不能重命名文件。这就是为什么其他策略也受支持并且可以组合的原因。“固定”策略在 URL 中添加静态版本字符串，而不更改文件名，如以下示例所示：
+
+```properties
+spring.resources.chain.strategy.content.enabled=true
+spring.resources.chain.strategy.content.paths=/**
+spring.resources.chain.strategy.fixed.enabled=true
+spring.resources.chain.strategy.fixed.paths=/js/lib/
+spring.resources.chain.strategy.fixed.version=v12
+```
+
+通过这种配置，位于`"/js/lib/"`下的 JavaScript 模块使用固定的版本控制策略（`"/v12/js/lib/mymodule.js"`），而其他资源仍使用满足的版本（`<link href="/css/spring-2a2d595e6ed9a0b24f027f2b63b134d6.css"/>`）。
+
+有关更多受支持的选项，请参见[`ResourceProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/ResourceProperties.java)。
+
+>[!tip]
+>
+>该功能已在专门的[博客文章](https://spring.io/blog/2014/07/24/spring-framework-4-1-handling-static-web-resources)和 Spring Framework 的[参考文档](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc-config-static-resources)中进行了详细说明。
 
 
 

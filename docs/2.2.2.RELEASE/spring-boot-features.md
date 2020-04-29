@@ -1985,6 +1985,136 @@ Spring Boot 支持对以下模板引擎自动配置：
 
 
 
+### 7.1.11 错误处理
+
+默认情况下，Spring Boot 提供了一个`/error`映射，以一种合理的方式处理所有错误，并且在 servlet 容器中被注册为“全局”错误页面。对于机器客户端，它将生成 JSON 响应，其中包含错误，HTTP 状态码和异常消息的详细信息。对于浏览器客户端，有一个“ whitelabel”错误视图以 HTML 格式呈现相同的数据（如需对其进行自定义，请添加一个可处理`error`的`view`）。要完全替换默认行为，可以实现`ErrorController`并注册该类型的bean定义，或者添加类型为`ErrorAttributes`的 bean 以使用现有机制但替换其内容。
+
+>[!tip]
+>
+>`BasicErrorController`可用作自定义`ErrorController`的基类。如果要为新的内容类型添加处理程序（默认是专门处理`text/html`并为其他所有内容提供后备功能），则此功能特别有用。为此，请扩展`BasicErrorController`，添加具有`@produceMapping`且具有`Produces`属性的公共方法，并创建新类型的 bean。
+
+您还可以定义一个用`@ControllerAdvice`标注的类，以自定义 JSON 文档以针对特定的控制器和（或）异常类型返回，如以下示例所示：
+
+```java
+@ControllerAdvice(basePackageClasses = AcmeController.class)
+public class AcmeControllerAdvice extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(YourException.class)
+    @ResponseBody
+    ResponseEntity<?> handleControllerException(HttpServletRequest request, Throwable ex) {
+        HttpStatus status = getStatus(request);
+        return new ResponseEntity<>(new CustomErrorType(status.value(), ex.getMessage()), status);
+    }
+
+    private HttpStatus getStatus(HttpServletRequest request) {
+        Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
+        if (statusCode == null) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return HttpStatus.valueOf(statusCode);
+    }
+
+}
+```
+
+在前面的示例中，如果与`AcmeController`在同一包中定义的 controller 抛出`YourException`，则将使用`CustomErrorType` POJO 的 JSON 表示形式而不是`ErrorAttributes`表示形式。
+
+
+
+#### 自定义错误页面
+
+如果要显示给定状态码的自定义 HTML 错误页面，可以将文件添加到`/error`文件夹。错误页面可以是静态 HTML（即添加到任何静态资源文件夹下），也可以使用模板来构建。文件名应为确切的状态代码或系列掩码。
+
+例如，要将`404`映射到静态 HTML 文件，您的文件夹结构需要如下这样：
+
+```
+src/
+ +- main/
+     +- java/
+     |   + <source code>
+     +- resources/
+         +- public/
+             +- error/
+             |   +- 404.html
+             +- <other public assets>
+```
+
+要使用 FreeMarker 模板映射所有`5xx`错误，您的文件夹结构如下：
+
+```
+src/
+ +- main/
+     +- java/
+     |   + <source code>
+     +- resources/
+         +- templates/
+             +- error/
+             |   +- 5xx.ftlh
+             +- <other templates>
+```
+
+对于更复杂的映射，还可以添加实现`ErrorViewResolver`接口的 bean，如以下示例所示：
+
+```java
+public class MyErrorViewResolver implements ErrorViewResolver {
+
+    @Override
+    public ModelAndView resolveErrorView(HttpServletRequest request,
+            HttpStatus status, Map<String, Object> model) {
+        // Use the request or status to optionally return a ModelAndView
+        return ...
+    }
+
+}
+```
+
+您还可以使用常规的 Spring MVC 功能，例如[`@ExceptionHandler`方法](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc-exceptionhandlers)和[`@ControllerAdvice`](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc-ann-controller-advice)。 然后，`ErrorController`处理所有未处理的异常。
+
+
+
+#### 在 Spring MVC 外部映射错误页面
+
+对于不使用 Spring MVC 的应用程序，可以使用`ErrorPageRegistrar`接口直接注册`ErrorPages`。此抽象直接与底层的嵌入式 servlet 容器一起使用，即使您没有 Spring MVC `DispatcherServlet`，它也可以使用。
+
+```java
+@Bean
+public ErrorPageRegistrar errorPageRegistrar(){
+    return new MyErrorPageRegistrar();
+}
+
+// ...
+
+private static class MyErrorPageRegistrar implements ErrorPageRegistrar {
+
+    @Override
+    public void registerErrorPages(ErrorPageRegistry registry) {
+        registry.addErrorPages(new ErrorPage(HttpStatus.BAD_REQUEST, "/400"));
+    }
+
+}
+```
+
+>[!note]
+>
+>如果您注册了一个最终由`Filter`处理的路径的`ErrorPage`（这在某些非 Spring Web 框架（如 Jersey 和 Wicket ）中很常见），则必须将`Filter`显式注册为`ERROR`调度器，如 下面的例子：
+
+```java
+@Bean
+public FilterRegistrationBean myFilter() {
+    FilterRegistrationBean registration = new FilterRegistrationBean();
+    registration.setFilter(new MyFilter());
+    ...
+    registration.setDispatcherTypes(EnumSet.allOf(DispatcherType.class));
+    return registration;
+}
+```
+
+请注意，默认的`FilterRegistrationBean`不包含`ERROR`调度器类型。
+
+警告：当部署到 servlet 容器时，Spring Boot 使用其错误页面过滤器将具有错误状态的请求转发到适当的错误页面。如果尚未提交响应，则只能将请求转发到正确的错误页面。默认情况下，WebSphere Application Server 8.0及更高版本在成功完成 servlet 的 service 方法后提交响应。要想禁用此行为可以通过将`com.ibm.ws.webcontainer.invokeFlushAfterService`设置为`false`。
+
+
+
 ## 7.4 嵌入式 Servlet 容器支持
 
 

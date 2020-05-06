@@ -2115,6 +2115,113 @@ public FilterRegistrationBean myFilter() {
 
 
 
+### 7.1.12 Spring HATEOAS
+
+如果您开发使用超媒体的 RESTful API，Spring Boot 会为 Spring HATEOAS 提供自动配置，该配置可与大多数应用程序很好地兼容。自动配置取代了使用`@EnableHypermediaSupport`的需要，并注册了一些 bean 来简化基于超媒体的应用程序的构建，其中包括`LinkDiscoverers`（用于客户端支持）和`ObjectMapper`，配置是为了将响应正确地编组为所需的表示形式。通过设置各种`spring.jackson.*`属性，或通过`Jackson2ObjectMapperBuilder` bean（如果存在）来定制`ObjectMapper`。
+
+您可以使用`@EnableHypermediaSupport`来控制 Spring HATEOAS 的配置。请注意，这样做会禁用前面所述的`ObjectMapper`定制。
+
+
+
+### 7.1.13 CORS 支持
+
+[跨域资源共享](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)（CORS）是由[大多数浏览器](https://caniuse.com/#feat=cors)实现的[W3C 规范](https://www.w3.org/TR/cors/)，使您可以灵活地指定对哪种类型的跨域请求进行授权，而不是使用诸如 IFRAME 或 JSONP 之类的安全性较差的方法。
+
+从4.2版本开始，Spring MVC [支持 CORS](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc-cors)。在 Spring Boot 应用程序中使用带有`@CrossOrigin`注解的[控制器方法 CORS 配置](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc-cors-controller)不需要任何特定的配置。可以通过注册一个带有自定义的`addCorsMappings(CorsRegistry)`方法的`WebMvcConfigurer` bean 来定义[全局 CORS 配置](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web.html#mvc-cors-global)，如以下示例所示：
+
+```java
+@Configuration(proxyBeanMethods = false)
+public class MyConfiguration {
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**");
+            }
+        };
+    }
+}
+```
+
+
+
+## 7.2 “Spring WebFlux Framework”
+
+Spring WebFlux 是 Spring 框架 5.0 中引入的新的响应式 Web 框架。 与 Spring MVC 不同，它不需要Servlet API，是完全异步且无阻塞的，并通过[Reactor项目](https://projectreactor.io/)实现[Reactive Streams](https://www.reactive-streams.org/)规范。
+
+Spring WebFlux有两种形式：函数式的的和基于注解的。基于注解的非常类似于 Spring MVC 模型，如以下示例所示：
+
+```java
+@RestController
+@RequestMapping("/users")
+public class MyRestController {
+
+    @GetMapping("/{user}")
+    public Mono<User> getUser(@PathVariable Long user) {
+        // ...
+    }
+
+    @GetMapping("/{user}/customers")
+    public Flux<Customer> getUserCustomers(@PathVariable Long user) {
+        // ...
+    }
+
+    @DeleteMapping("/{user}")
+    public Mono<User> deleteUser(@PathVariable Long user) {
+        // ...
+    }
+
+}
+```
+
+函数式变体“ WebFlux.fn”将路由配置与请求的实际处理分开，如以下示例所示：
+
+```java
+@Configuration(proxyBeanMethods = false)
+public class RoutingConfiguration {
+
+    @Bean
+    public RouterFunction<ServerResponse> monoRouterFunction(UserHandler userHandler) {
+        return route(GET("/{user}").and(accept(APPLICATION_JSON)), userHandler::getUser)
+                .andRoute(GET("/{user}/customers").and(accept(APPLICATION_JSON)), userHandler::getUserCustomers)
+                .andRoute(DELETE("/{user}").and(accept(APPLICATION_JSON)), userHandler::deleteUser);
+    }
+
+}
+
+@Component
+public class UserHandler {
+
+    public Mono<ServerResponse> getUser(ServerRequest request) {
+        // ...
+    }
+
+    public Mono<ServerResponse> getUserCustomers(ServerRequest request) {
+        // ...
+    }
+
+    public Mono<ServerResponse> deleteUser(ServerRequest request) {
+        // ...
+    }
+}
+```
+
+WebFlux 是 Spring 框架的一部分，其[参考文档](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web-reactive.html#webflux-fn)中提供了详细信息。
+
+>[!tip]
+>
+>您可以根据需要定义任意数量的`RouterFunction` bean，以对路由器的定义进行模块化。如果需要应用优先级，可以通过 Bean 控制。
+
+首先，将`spring-boot-starter-webflux`模块添加到您的应用程序。
+
+>[!note]
+>
+>在应用程序中添加`spring-boot-starter-web`和`spring-boot-starter-webflux`模块会导致 Spring Boot 自动配置 Spring MVC，而不是 WebFlux。之所以选择这种行为，是因为许多 Spring 开发人员将`spring-boot-starter-webflux`添加到其 Spring MVC 应用程序中以使用响应式 WebClient。您仍然可以通过将所选应用程序类型设置为`SpringApplication.setWebApplicationType(WebApplicationType.REACTIVE)`来强制执行你的选择。
+
+
+
 ## 7.4 嵌入式 Servlet 容器支持
 
 

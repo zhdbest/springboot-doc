@@ -2222,6 +2222,29 @@ WebFlux 是 Spring 框架的一部分，其[参考文档](https://docs.spring.io
 
 
 
+### 7.2.1 Spring WebFlux 自动配置
+
+Spring Boot 为 Spring WebFlux 提供了自动配置，可与大多数应用程序很好地配合使用。
+
+自动配置在 Spring 的默认设置之上添加了以下功能：
+
+* 为`HttpMessageReader`和`HttpMessageWriter`接口配置解码器（在[本文档后面](spring-boot-features.md#722-带有httpmessagereaders和httpmessagewriters的http解码器)介绍）。
+* 支持提供静态资源服务，包括对 WebJars 的支持（在[本文档后面](spring-boot-features.md#723-静态内容)介绍）。
+
+如果您想保留 Spring Boot WebFlux 功能并想要添加其他 WebFlux 配置，则可以添加自己的类型为`WebFluxConfigurer`的`@Configuration`类，但**不要**添加`@EnableWebFlux`。
+
+如果要完全控制 Spring WebFlux，则可以添加自己的使用`@EnableWebFlux`注解的`@Configuration`类。
+
+
+
+### 7.2.2 带有HttpMessageReaders和HttpMessageWriters的HTTP解码器
+
+
+
+### 7.2.3 静态内容
+
+
+
 ## 7.4 嵌入式 Servlet 容器支持
 
 

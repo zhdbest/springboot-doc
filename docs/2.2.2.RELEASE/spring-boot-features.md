@@ -2239,9 +2239,69 @@ Spring Boot 为 Spring WebFlux 提供了自动配置，可与大多数应用程�
 
 ### 7.2.2 带有HttpMessageReaders和HttpMessageWriters的HTTP解码器
 
+Spring WebFlux 使用`HttpMessageReader`和`HttpMessageWriter`接口来转换 HTTP 请求和响应。它们配置了`CodecConfigurer`，通过查看类路径中可用的库，可以得到合理的默认值。
+
+Spring Boot 为解码器提供了专用的配置属性`spring.codec.*`。它还通过使用`CodecCustomizer`接口来应用进一步的自定义。例如，将`spring.jackson.*`配置 key 应用于 Jackson 解码器。
+
+如果需要添加或自定义解码器，则可以创建一个自定义`CodecCustomizer`组件，如以下示例所示：
+
+```java
+import org.springframework.boot.web.codec.CodecCustomizer;
+
+@Configuration(proxyBeanMethods = false)
+public class MyConfiguration {
+
+    @Bean
+    public CodecCustomizer myCodecCustomizer() {
+        return codecConfigurer -> {
+            // ...
+        };
+    }
+
+}
+```
+
+您还可以利用 [Boot的自定义 JSON 序列化器和反序列化器](spring-boot-features.md#713-自定义-json-序列化器和反序列化器)。
+
 
 
 ### 7.2.3 静态内容
+
+默认情况下，Spring Boot 从类路径中名为`/static`（或`/public`或`/resources`或`/META-INF/resources`）的目录中提供静态内容。它使用 Spring WebFlux 中的`ResourceWebHandler`，以便您可以通过添加自己的`WebFluxConfigurer`并覆盖`addResourceHandlers`方法来修改该行为。
+
+默认情况下，资源映射在`/**`上，但是您可以通过设置`spring.webflux.static-path-pattern`属性来对其进行调整。例如，将所有资源重定位到`/resources/**`的实现如下：
+
+```properties
+spring.webflux.static-path-pattern=/resources/**
+```
+
+您还可以使用`spring.resources.static-locations`自定义静态资源的位置。这样做会将默认的值替换为一个目录位置列表。如果这样做，默认的欢迎页面检测将切换到您的自定义位置。因此，如果启动时您的任意自定义位置有`index.html`，则它将作为应用程序的主页。
+
+除了前面列出的“标准”静态资源位置外，有一种特殊情况是[Webjar 内容](https://www.webjars.org/)。任何在`/webjars/**`路径下的资源都可以从 jar 文件中获得，前提是它们是以 Webjars 格式打包的。
+
+>[!tip]
+>
+>Spring WebFlux 应用程序不严格依赖 Servlet API，因此不能将它们部署为 war 文件，也不使用`src/main/webapp`目录。
+
+
+
+### 7.2.4 模板引擎
+
+除了 REST Web 服务之外，您还可以使用 Spring WebFlux 来提供动态 HTML 内容。Spring WebFlux 支持各种模板技术，包括 Thymeleaf，FreeMarker 和 Mustache。
+
+Spring Boot 为以下模板引擎提供了自动配置支持;
+
+- [FreeMarker](https://freemarker.apache.org/docs/)
+- [Thymeleaf](https://www.thymeleaf.org/)
+- [Mustache](https://mustache.github.io/)
+
+当您使用这些带有默认配置的模板引擎之一时，您的模板将自动从`src/main/resources/templates`中获取。
+
+
+
+### 7.2.5 错误处理
+
+
 
 
 

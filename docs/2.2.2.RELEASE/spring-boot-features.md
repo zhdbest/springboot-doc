@@ -2301,6 +2301,82 @@ Spring Boot 为以下模板引擎提供了自动配置支持;
 
 ### 7.2.5 错误处理
 
+Spring Boot 提供了一个`WebExceptionHandler`，以一种合理的方式处理所有错误。它在处理顺序中的位置直接在 WebFlux 提供的 handler 之前，被认为是最后一个。对于机器客户端，它将生成一个 JSON 响应，其中包含错误的详细信息、HTTP 状态和异常消息。对于浏览器客户端，是一个“ whitelabel”错误 handler，以 HTML 格式呈现相同的数据。您也可以提供自己的 HTML 模板展示错误信息（参考[下一小节](spring-boot-features.md#自定义错误页面_1)）。
+
+定制此功能的第一步通常包括使用现有机制，而不是替换或增加错误内容。 为此，您可以添加类型为`ErrorAttributes`的 bean。
+
+要更改错误 handler 的行为，可以实现`ErrorWebExceptionHandler`并注册该类型的 bean 定义。由于`WebExceptionHandler`的级别很低，因此 Spring Boot 还提供了一个方便的`AbstractErrorWebExceptionHandler`，可让您以 WebFlux 函数的方式处理错误，如以下示例所示：
+
+```java
+public class CustomErrorWebExceptionHandler extends AbstractErrorWebExceptionHandler {
+
+    // Define constructor here
+
+    @Override
+    protected RouterFunction<ServerResponse> getRoutingFunction(ErrorAttributes errorAttributes) {
+
+        return RouterFunctions
+                .route(aPredicate, aHandler)
+                .andRoute(anotherPredicate, anotherHandler);
+    }
+
+}
+```
+
+为了获得更完整的描述，您还可以直接创建`DefaultErrorWebExceptionHandler`的子类并重写特定方法。
+
+
+
+#### 自定义错误页面
+
+如果要显示给定状态码的自定义 HTML 错误页面，可以将文件添加到`/error`文件夹。错误页面可以是静态 HTML（即可以添加到任何静态资源文件夹下），也可以使用模板构建。文件名应为确切的状态代码或系列掩码。
+
+例如，要将`404`映射到静态 HTML 文件，您的文件夹结构如下：
+
+```
+src/
+ +- main/
+     +- java/
+     |   + <source code>
+     +- resources/
+         +- public/
+             +- error/
+             |   +- 404.html
+             +- <other public assets>
+```
+
+要使用 Mustache 模板映射所有`5xx`错误，您的文件夹结构应该如下所示：
+
+```
+src/
+ +- main/
+     +- java/
+     |   + <source code>
+     +- resources/
+         +- templates/
+             +- error/
+             |   +- 5xx.mustache
+             +- <other templates>
+```
+
+
+
+### 7.2.6 Web 过滤器
+
+Spring WebFlux 提供了一个`WebFilter`接口，可以通过实现该接口来过滤 HTTP 请求-响应交换。在应用程序上下文中找到的`WebFilter` bean 将自动用于过滤每个交换。
+
+如果过滤器的顺序很重要，则可以实现`Ordered`或使用`@Order`进行注释。Spring Boot 自动配置可能会为您配置 Web 过滤器。这样做时，将使用下表中显示的顺序：
+
+| Web 过滤器                              | 顺序                             |
+| :-------------------------------------- | :------------------------------- |
+| `MetricsWebFilter`                      | `Ordered.HIGHEST_PRECEDENCE + 1` |
+| `WebFilterChainProxy` (Spring Security) | `-100`                           |
+| `HttpTraceWebFilter`                    | `Ordered.LOWEST_PRECEDENCE - 10` |
+
+
+
+## 7.3 JAX-RS 和 Jersey
+
 
 
 

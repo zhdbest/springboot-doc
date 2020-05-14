@@ -2433,7 +2433,29 @@ Spring Boot 包括对嵌入式[Tomcat](https://tomcat.apache.org/)，[Jetty](htt
 
 #### 将Servlet、过滤器和监听器注册为 Spring Bean
 
+所有`Servlet`、`Filter`或 servlet `*Listener`实例都作为 Spring Bean 向嵌入式容器注册。如果要在配置过程中引用`application.properties`中的值，这可能特别方便。
 
+默认情况下，如果上下文仅包含单个 Servlet，则将其映射到`/`。对于多个 servlet bean，bean 名称用作路径前缀。 过滤器映射到`/*`。
+
+如果基于约定的映射不够灵活，则可以使用`ServletRegistrationBean`、`FilterRegistrationBean`和`ServletListenerRegistrationBean`类进行完全控制。
+
+过滤器 bean 处于无序状态通常是安全的。如果需要特定的顺序，则应使用`@Order`标注`Filter`或使其实现`Ordered`。您不能通过使用`@Order`标注`Filter`的 bean 方法来配置`Filter`的顺序。
+
+如果您不能更改`Filter`类以添加`@Order`或实现`Ordered`，则必须为`Filter`定义一个`FilterRegistrationBean`并使用`setOrder(int)`方法设置注册 bean 的顺序。
+
+应避免配置一个在`Ordered.HIGHEST_PRECEDENCE`上读取 request body 的过滤器，因为它可能与应用程序的字符编码配置不符。如果 Servlet 过滤器包装了请求，则应使用小于或等于`OrderedFilter.REQUEST_WRAPPER_FILTER_MAX_ORDER`的顺序来配置它。
+
+>[!tip]
+>
+>要查看应用程序中每个过滤器的顺序，请为`web`[日志组](spring-boot-features.md#45-日志组)（`logging.level.web=debug`）启用 debug 级别的日志记录。然后，将在启动时记录已注册过滤器的详细信息，包括其顺序和URL模式。
+
+<span></span>
+
+
+
+>[!warning]
+>
+>注册`Filter` Bean 时要小心，因为它们是在应用程序生命周期中很早就初始化的。如果需要注册与其他 bean 交互的`Filter`，请考虑改用`DelegatingFilterProxyRegistrationBean`。
 
 
 

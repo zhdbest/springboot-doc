@@ -2459,6 +2459,40 @@ Spring Boot 包括对嵌入式[Tomcat](https://tomcat.apache.org/)，[Jetty](htt
 
 
 
+### 7.4.2 Servlet 上下文初始化
+
+嵌入式 Servlet 容器不会直接执行 Servlet 3.0+ `javax.servlet.ServletContainerInitializer`接口或 Spring 的`org.springframework.web.WebApplicationInitializer`接口。这是一个有意的设计决定，旨在降低在 war 包中运行的第三方库可能破坏 Spring Boot 应用程序的风险。
+
+如果您需要在 Spring Boot 应用程序中执行 Servlet 上下文初始化，则应该注册一个实现了`org.springframework.boot.web.servlet.ServletContextInitializer`接口的 bean。单个`onStartup`方法提供对`ServletContext`的访问，并且在必要时可以轻松地用作现有`WebApplicationInitializer`的适配器。
+
+
+
+#### 扫描 Servlet、过滤器和监听器
+
+使用嵌入式容器时，可以使用`@ServletComponentScan`来启用自动注册带有`@WebServlet`、`@WebFilter`和`@WebListener`的类。
+
+>[!tip]
+>
+>`@ServletComponentScan`在独立容器中不生效，而是使用容器内置的发现机制。
+
+
+
+### 7.4.3 ServletWebServerApplicationContext
+
+在后台，Spring Boot 使用另一种类型的`ApplicationContext`来支持嵌入式Servlet容器。`ServletWebServerApplicationContext`是`WebApplicationContext`的一种特殊类型，它通过搜索单个`ServletWebServerFactory` bean来启动自己。通常，已经自动配置了`TomcatServletWebServerFactory`、`JettyServletWebServerFactory`或`UndertowServletWebServerFactory`。
+
+>[!note]
+>
+>通常，您不需要了解这些实现类。大多数应用程序都是自动配置的，并且代表您创建了相应的`ApplicationContext`和`ServletWebServerFactory`。
+
+
+
+### 7.4.4 自定义嵌入式 Servlet 容器
+
+
+
+
+
 ### 7.4.5 JSP 限制
 
 

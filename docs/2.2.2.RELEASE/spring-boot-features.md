@@ -2489,11 +2489,87 @@ Spring Boot 包括对嵌入式[Tomcat](https://tomcat.apache.org/)，[Jetty](htt
 
 ### 7.4.4 自定义嵌入式 Servlet 容器
 
+可以使用 Spring `Environment`属性来配置常见的 servlet 容器设置。通常，您可以在`application.properties`文件中定义这些属性。
 
+常用服务器设置包括：
+
+* 网络设置：监听 HTTP 请求的端口（`server.port`），绑定到`server.address`的接口地址，等等。
+
+* Session 设置：Session 是否持久化（`server.servlet.session.persistent`）、Session 超时（`server.servlet.session.timeout`）、Session 数据的位置（`server.servlet.session.store-dir`）和 session-cookie 配置（`server.servlet.session.cookie.*`）。
+* 错误管理：错误页面的位置（`server.error.path`）等等
+* [SSL](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-configure-ssl)
+* [HTTP 压缩](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#how-to-enable-http-response-compression)
+
+Spring Boot 尝试尽可能多地暴露通用设置，但这并不总是可以的。对于这些场景，专用命名空间提供特定于服务器的定制（参考`server.tomcat`和`server.undertow`）。例如，可以使用嵌入式 servlet 容器的特定功能配置[访问日志](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-configure-accesslogs)。
+
+>[!tip]
+>
+>有关完整清单，请参见`ServerProperties`类。
+
+
+
+#### 程序化定制
+
+如果需要以编程方式配置嵌入式 Servlet 容器，则可以注册一个实现了`WebServerFactoryCustomizer`接口的Spring Bean。`WebServerFactoryCustomizer`提供对`ConfigurableServletWebServerFactory`的访问，其中包括许多自定义的 setter 方法。以下示例展示了以编程方式设置端口：
+
+```java
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CustomizationBean implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+
+    @Override
+    public void customize(ConfigurableServletWebServerFactory server) {
+        server.setPort(9000);
+    }
+
+}
+```
+
+>[!note]
+>
+>`TomcatServletWebServerFactory`、`JettyServletWebServerFactory`和`UndertowServletWebServerFactory`是`ConfigurableServletWebServerFactory`的专用变体，分别具有针对 Tomcat，Jetty 和 Undertow 的其他自定义的 setter 方法。
+
+
+
+#### 直接自定义ConfigurableServletWebServerFactory
+
+如果上述定制技术有太多限制，则可以自己注册`TomcatServletWebServerFactory`、`JettyServletWebServerFactory`或`UndertowServletWebServerFactory` bean。
+
+```java
+@Bean
+public ConfigurableServletWebServerFactory webServerFactory() {
+    TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
+    factory.setPort(9000);
+    factory.setSessionTimeout(10, TimeUnit.MINUTES);
+    factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/notfound.html"));
+    return factory;
+}
+```
+
+有许多配置选项的 setter。如果您需要做一些更特殊的操作，还提供了几种受保护的方法“hooks”。有关详细信息，请参见[源代码文档](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/web/servlet/server/ConfigurableServletWebServerFactory.html)。
 
 
 
 ### 7.4.5 JSP 限制
+
+运行使用嵌入式 servlet 容器（并打包为可执行包）的 Spring Boot 应用程序时，JSP 支持存在一些限制。
+
+* 对于 Jetty 和 Tomcat，如果使用 war 包，它应该可以工作。可执行的 war 使用`java -jar`启动时，它将正常工作，并且还可部署到任何标准容器中。使用可执行 jar 时，不支持 JSP。
+* Undertow 不支持 JSP。
+* 创建自定义的`error.jsp`页面不会覆盖默认视图以进行错误处理，应改用[自定义错误页面](spring-boot-features.md#自定义错误页面)。
+
+
+
+## 7.5 嵌入式的响应式服务器支持
+
+Spring Boot 包含对以下嵌入式的响应式 Web 服务器的支持：Reactor Netty、Tomcat、Jetty 和 Undertow。大多数开发人员使用适当的“启动器”来获取完全配置的实例。默认情况下，嵌入式服务器在端口 8080 上监听 HTTP 请求。
+
+
+
+## 7.6 响应式服务器资源配置
 
 
 

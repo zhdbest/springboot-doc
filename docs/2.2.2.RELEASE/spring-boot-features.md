@@ -2571,6 +2571,77 @@ Spring Boot 包含对以下嵌入式的响应式 Web 服务器的支持：Reacto
 
 ## 7.6 响应式服务器资源配置
 
+当自动配置 Reactor Netty 或 Jetty 服务器时，Spring Boot 将创建特定的 bean：`ReactorResourceFactory`或`JettyResourceFactory`，这些 bean 将向服务器实例提供 HTTP 资源。
+
+默认情况下，这些资源还将与 Reactor Netty 和 Jetty 客户端共享，以实现最佳性能，前提是：
+
+* 服务器和客户端使用相同的技术
+* 客户端实例是使用 Spring Boot 自动配置的`WebClient.Builder` bean构建的
+
+通过提供自定义的`ReactorResourceFactory`或`JettyResourceFactory` bean，开发人员可以覆盖 Jetty 和 Reactor Netty 的资源配置，这将同时应用于客户端和服务器。
+
+您可以在[WebClient 运行时间](spring-boot-features.md#151-webclient-运行时间)部分了解有关客户端资源配置的更多信息。
+
+
+
+# 8. RSocket
+
+[RSocket](https://rsocket.io/)是用于字节流传输的二进制协议。它通过在单个连接上传递异步消息来支持对称交互模型。
+
+Spring 框架的`spring-messaging`模块在客户端和服务器端都提供了对 RSocket 请求者和响应者的支持。有关更多详细信息，请参见 Spring 框架参考中的[RSocket 部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web-reactive.html#rsocket-spring)，其中包括 RSocket 协议的概述。
+
+
+
+## 8.1 RSocket 策略自动配置
+
+Spring Boot 自动配置一个`RSocketStrategies` bean，该 bean 提供了编码和解码 RSocket 有效负载所需的所有基础结构。默认情况下，自动配置将尝试（按顺序）配置以下内容：
+
+1. 使用 Jackson 的[CBOR](https://cbor.io/)解码器
+2. 使用 Jackson 的 JSON 解码器
+
+`spring-boot-starter-socket`启动器提供了所有的依赖项。查阅[Jackson 支持](spring-boot-features.md#61-jackson)章节，以了解有关定制可能性的更多信息。
+
+开发人员可以通过创建实现了`RSocketStrategiesCustomizer`接口的 bean 来自定义`RSocketStrategies`组件。请注意，它们的`@Order`很重要，因为它决定解码器的顺序。
+
+
+
+## 8.2 RSocket 服务器自动配置
+
+Spring Boot 提供了 RSocket 服务器自动配置，所需的依赖由`spring-boot-starter-rsocket`提供。
+
+Spring Boot 允许从 WebFlux 服务器通过 WebSocket 暴露 RSocket，或支持独立的 RSocket 服务器。这取决于应用程序的类型及其配置。
+
+对于 WebFlux 应用程序（例如`WebApplicationType.REACTIVE`类型），仅当以下属性匹配时，RSocket 服务器才会添加到 Web 服务器：
+
+```properties
+spring.rsocket.server.mapping-path=/rsocket # a mapping path is defined
+spring.rsocket.server.transport=websocket # websocket is chosen as a transport
+#spring.rsocket.server.port= # no port is defined
+```
+
+>[!warning]
+>
+>只有 Reactor Netty 支持将 RSocket 添加到 Web 服务器，因为 RSocket本身是使用该库构建的。
+
+另外，RSocket TCP 或 websocket 服务器也可以作为独立的嵌入式服务器启动。除了对依赖的要求之外，唯一需要的配置是为该服务器定义端口：
+
+```properties
+spring.rsocket.server.port=9898 # the only required configuration
+spring.rsocket.server.transport=tcp # you're free to configure other properties
+```
+
+
+
+## 8.3 Spring Messaging RSocket 支持
+
+Spring Boot 将为 RSocket 自动配置 Spring Messaging 基础结构。
+
+这意味着 Spring Boot 将创建一个`RSocketMessageHandler` bean，该 bean 将处理您的应用程序收到的 RSocket 请求。
+
+
+
+## 8.4 使用`RSocketRequester`调用 RSocket 服务
+
 
 
 
@@ -3027,7 +3098,11 @@ public List<GregorianCalendar> authorsBornAfter1980() {
 
 
 
+# 15. 使用`WebClient`调用 REST 服务
 
+
+
+## 15.1 WebClient 运行时间
 
 
 

@@ -2642,6 +2642,63 @@ Spring Boot 将为 RSocket 自动配置 Spring Messaging 基础结构。
 
 ## 8.4 使用`RSocketRequester`调用 RSocket 服务
 
+在服务器和客户端之间建立`RSocket`通道后，任何一方都可以向另一方发送或接收请求。
+
+在服务器端，您可以在RSocket `@Controller`的任何处理方法上注入`RSocketRequester`实例。在客户端，您需要首先配置和建立 RSocket 连接。在这种情况下，Spring Boot 会使用期望的解码器自动配置`RSocketRequester.Builder`。
+
+`RSocketRequester.Builder`实例是一个原型 bean，这意味着每个注入点将为您提供一个新实例。这样做是有目的的，因为此构建器是有状态的，因此您不应使用同一实例创建具有不同设置的请求者。
+
+下面的代码展示了一个典型的例子：
+
+```java
+@Service
+public class MyService {
+
+    private final RSocketRequester rsocketRequester;
+
+    public MyService(RSocketRequester.Builder rsocketRequesterBuilder) {
+        this.rsocketRequester = rsocketRequesterBuilder
+                .connectTcp("example.org", 9898).block();
+    }
+
+    public Mono<User> someRSocketCall(String name) {
+        return this.requester.route("user").data(name)
+                .retrieveMono(User.class);
+    }
+
+}
+```
+
+
+
+# 9. 安全
+
+如果[Spring Security](https://spring.io/projects/spring-security)在类路径上，则默认情况下 Web 应用程序是安全的。Spring Boot 依靠 Spring Security 的内容协商策略来确定是使用`httpBasic`还是`formLogin`。要将方法级安全性添加到 Web 应用程序，还可以使用所需的设置添加`@EnableGlobalMethodSecurity`。可以在[Spring Security参考指南](https://docs.spring.io/spring-security/site/docs/5.2.1.RELEASE/reference/htmlsingle/#jc-method)中找到更多信息。
+
+默认的`UserDetailsService`具有一个用户。用户名是`user`，密码是随机的，并在应用程序启动时以 INFO 级别显示，如下例所示：
+
+```
+Using generated security password: 78fa095d-3f4c-48b1-ad50-e24c31d5cf35
+```
+
+>[!note]
+>
+>如果您微调日志记录配置，请确保将`org.springframework.boot.autoconfigure.security`类别设置为记录`INFO`级别的消息。否则，不会打印默认密码。
+
+您可以通过提供`spring.security.user.name`和`spring.security.user.password`来更改用户名和密码。
+
+默认情况下，您在 Web 应用程序中获得的基本功能是：
+
+* 具有内存存储的`UserDetailsService`（如果是 WebFlux 应用程序，则为`ReactiveUserDetailsService`）bean 和具有生成的密码的单个用户（有关用户的属性，请参阅[SecurityProperties.User](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/autoconfigure/security/SecurityProperties.User.html)）。
+* 整个应用程序的基于表单的登录或 HTTP 基本安全性（取决于请求中的`Accept` header）（如果执行器位于类路径上，则包括执行器端点）。
+* 用于发布身份验证事件的`DefaultAuthenticationEventPublisher`。
+
+您可以通过添加一个 bean 来提供另一个`AuthenticationEventPublisher`。
+
+
+
+## 9.1 MVC 安全
+
 
 
 

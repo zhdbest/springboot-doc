@@ -2699,7 +2699,38 @@ Using generated security password: 78fa095d-3f4c-48b1-ad50-e24c31d5cf35
 
 ## 9.1 MVC 安全
 
+默认的安全配置是在`SecurityAutoConfiguration`和`UserDetailsServiceAutoConfiguration`中实现的。`SecurityAutoConfiguration`导入了用于网络安全的`SpringBootWebSecurityConfiguration`，而`UserDetailsServiceAutoConfiguration`用于配置身份验证，对于非 Web 应用也同样适用。要完全关闭默认的 Web 应用程序的安全性配置或者要组合多个 Spring Security 组件（例如OAuth 2 Client 和 Resource Server），请添加类型为`WebSecurityConfigurerAdapter`的 bean（这样做不会禁用`UserDetailsService`配置或 Actuator 的安全性）。
 
+要想把`UserDetailsService`配置也关闭掉，可以添加类型为`UserDetailsService`、`AuthenticationProvider`或`AuthenticationManager`的 bean。
+
+通过添加自定义`WebSecurityConfigurerAdapter`可以覆盖访问规则。Spring Boot提供了方便的方法，可用于覆盖执行器端点和静态资源的访问规则。`EndpointRequest`可用于创建基于`management.endpoints.web.base-path`属性的`RequestMatcher`。可以使用`PathRequest`为常用路径的资源创建一个`RequestMatcher`。
+
+
+
+## 9.2 WebFlux 安全
+
+与 Spring MVC 应用程序类似，您可以通过添加`spring-boot-starter-security`依赖来保护 WebFlux 应用程序。默认的安全配置是在`ReactiveSecurityAutoConfiguration`和`UserDetailsServiceAutoConfiguration`中实现的。`ReactiveSecurityAutoConfiguration`导入了用于网络安全的`WebFluxSecurityConfiguration`，而`UserDetailsServiceAutoConfiguration`用于配置身份验证，对于非 Web 应用也同样适用。要完全关闭默认的 Web 应用程序的安全性配置，可以添加`WebFilterChainProxy`类型的 bean（这样做不会禁用`UserDetailsService`配置或 Actuator 的安全性）。
+
+要想把`UserDetailsService`配置也关闭掉，可以添加`ReactiveUserDetailsService`或`ReactiveAuthenticationManager`类型的 bean。
+
+通过添加自定义`SecurityWebFilterChain` bean，可以配置访问规则以及使用多个 Spring Security 组件（例如OAuth 2 Client 和 Resource Server）。Spring Boot 提供了方便的方法，可用于覆盖执行器端点和静态资源的访问规则。`EndpointRequest`可用于创建基于`management.endpoints.web.base-path`属性的`ServerWebExchangeMatcher`。
+
+可以使用`PathRequest`为常用路径下的资源创建`ServerWebExchangeMatcher`。
+
+例如，您可以通过添加以下内容来自定义安全配置：
+
+```java
+@Bean
+public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    return http
+        .authorizeExchange()
+            .matchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+            .pathMatchers("/foo", "/bar")
+                .authenticated().and()
+            .formLogin().and()
+        .build();
+}
+```
 
 
 

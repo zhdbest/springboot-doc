@@ -2734,6 +2734,124 @@ public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http)
 
 
 
+## 9.3 OAuth2
+
+[OAuth2](https://oauth.net/2/)是 Spring 支持的一种广泛使用的鉴权框架。
+
+
+
+### 9.3.1 客户端
+
+如果您在类路径中具有`spring-security-oauth2-client`，则可以利用一些自动配置功能来轻松设置OAuth2/Open ID Connect 客户端。此配置使用`OAuth2ClientProperties`下的属性。相同的属性适用于 servlet 和响应式应用程序。
+
+您可以使用`spring.security.oauth2.client`前缀注册多个 OAuth2 客户端和提供者，如以下示例所示：
+
+```properties
+spring.security.oauth2.client.registration.my-client-1.client-id=abcd
+spring.security.oauth2.client.registration.my-client-1.client-secret=password
+spring.security.oauth2.client.registration.my-client-1.client-name=Client for user scope
+spring.security.oauth2.client.registration.my-client-1.provider=my-oauth-provider
+spring.security.oauth2.client.registration.my-client-1.scope=user
+spring.security.oauth2.client.registration.my-client-1.redirect-uri=https://my-redirect-uri.com
+spring.security.oauth2.client.registration.my-client-1.client-authentication-method=basic
+spring.security.oauth2.client.registration.my-client-1.authorization-grant-type=authorization_code
+
+spring.security.oauth2.client.registration.my-client-2.client-id=abcd
+spring.security.oauth2.client.registration.my-client-2.client-secret=password
+spring.security.oauth2.client.registration.my-client-2.client-name=Client for email scope
+spring.security.oauth2.client.registration.my-client-2.provider=my-oauth-provider
+spring.security.oauth2.client.registration.my-client-2.scope=email
+spring.security.oauth2.client.registration.my-client-2.redirect-uri=https://my-redirect-uri.com
+spring.security.oauth2.client.registration.my-client-2.client-authentication-method=basic
+spring.security.oauth2.client.registration.my-client-2.authorization-grant-type=authorization_code
+
+spring.security.oauth2.client.provider.my-oauth-provider.authorization-uri=https://my-auth-server/oauth/authorize
+spring.security.oauth2.client.provider.my-oauth-provider.token-uri=https://my-auth-server/oauth/token
+spring.security.oauth2.client.provider.my-oauth-provider.user-info-uri=https://my-auth-server/userinfo
+spring.security.oauth2.client.provider.my-oauth-provider.user-info-authentication-method=header
+spring.security.oauth2.client.provider.my-oauth-provider.jwk-set-uri=https://my-auth-server/token_keys
+spring.security.oauth2.client.provider.my-oauth-provider.user-name-attribute=name
+```
+
+对于支持 [OpenID Connect 发现](https://openid.net/specs/openid-connect-discovery-1_0.html)的 OpenID Connect 提供者，可以进一步简化配置。提供者需要配置有一个`issuer-uri`，这是它声明为其发布者标识符的 URI。例如，如果提供的`issuer-uri`是"https://example.com "，则将向"https://example.com/.well-known/openid-configuration "发出`OpenID Provider Configuration Request`。结果应为`OpenID Provider Configuration Response`。以下示例展示了如何使用`issuer-uri`配置 OpenID Connect提供者：
+
+```properties
+spring.security.oauth2.client.provider.oidc-provider.issuer-uri=https://dev-123456.oktapreview.com/oauth2/default/
+```
+
+默认情况下，Spring Security 的`OAuth2LoginAuthenticationFilter`仅处理与`/login/oauth2/code/*`匹配的URL。如果要自定义`redirect-uri`以使用其他模式，则需要提供配置以处理该自定义模式。例如，对于 servlet 应用程序，您可以添加自己的类似于以下内容的`WebSecurityConfigurerAdapter`：
+
+```java
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
+            .oauth2Login()
+                .redirectionEndpoint()
+                    .baseUri("/custom-callback");
+    }
+}
+```
+
+
+
+#### 公共提供者的OAuth2客户端注册
+
+对于常见的 OAuth2 和 OpenID 提供者，包括Google、Github、Facebook 和 Okta，我们提供了一组提供者默认值（分别为Google、github、facebook 和 okta）。
+
+如果不需要自定义这些提供者，则可以将`provider`属性设置为需要为其推断默认值的属性。另外，如果用于客户端注册的密钥与默认支持的提供者匹配，则 Spring Boot 也会进行推断。
+
+换句话说，以下示例中的两个配置都使用 Google 提供者：
+
+```properties
+spring.security.oauth2.client.registration.my-client.client-id=abcd
+spring.security.oauth2.client.registration.my-client.client-secret=password
+spring.security.oauth2.client.registration.my-client.provider=google
+
+spring.security.oauth2.client.registration.google.client-id=abcd
+spring.security.oauth2.client.registration.google.client-secret=password
+```
+
+
+
+### 9.3.2 资源服务器
+
+如果您的类路径上有`spring-security-oauth2-resource-server`，则 Spring Boot 可以设置 OAuth2 资源服务器。对于 JWT 配置，需要指定 JWK Set URI 或 OIDC 颁发者 URI，如以下示例所示：
+
+```properties
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://example.com/oauth2/default/v1/keys
+```
+
+```properties
+spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-123456.oktapreview.com/oauth2/default/
+```
+
+>[!note]
+>
+>如果授权服务器不支持 JWK Set URI，则可以使用用于验证 JWT 签名的公钥来配置资源服务器。可以使用`spring.security.oauth2.resourceserver.jwt.public-key-location`属性来完成此操作，该属性值需要指向包含 PEM 编码的 x509 格式的公钥文件。
+
+相同的属性适用于 servlet 和响应式应用程序。
+
+另外，您可以为 Servlet 应用程序定义自己的`JwtDecoder` bean，或者为响应式应用程序定义`ReactiveJwtDecoder`。
+
+如果使用模糊的 token 而不是 JWT，则可以配置以下属性以通过内省来验证 token：
+
+```properties
+spring.security.oauth2.resourceserver.opaquetoken.introspection-uri=https://example.com/check-token
+spring.security.oauth2.resourceserver.opaquetoken.client-id=my-client-id
+spring.security.oauth2.resourceserver.opaquetoken.client-secret=my-client-secret
+```
+
+同样，相同的属性适用于 servlet 和响应式应用程序。
+
+另外，您可以为 Servlet 应用程序定义自己的`OpaqueTokenIntrospector` bean，或者为响应式应用程序定义`ReactiveOpaqueTokenIntrospector`。
+
+
+
 # 10. 使用 SQL 数据库
 
 [Spring 框架](https://spring.io/projects/spring-framework)为使用 SQL 数据库提供了广泛的支持，从使用 JdbcTemplate 的直接 JDBC 访问到完整的“对象关系映射”技术（例如Hibernate）。[Spring Data](https://spring.io/projects/spring-data)提供了更高级别的功能：直接从接口创建存储库实现，并使用约定从您的方法名称生成查询语句。

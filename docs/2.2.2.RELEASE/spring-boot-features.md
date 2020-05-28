@@ -2852,6 +2852,40 @@ spring.security.oauth2.resourceserver.opaquetoken.client-secret=my-client-secret
 
 
 
+### 9.3.3 授权服务器
+
+目前，Spring Security 不支持实现 OAuth 2.0 授权服务器。但是，这个功能可以从[Spring Security OAuth](https://spring.io/projects/spring-security-oauth)项目获得，Spring Security 最终将完全取代这个项目。在此之前，您可以使用`spring-security- oau2 -autoconfigure`模块轻松设置 OAuth 2.0 授权服务器。有关说明，请参阅其[文档](https://docs.spring.io/spring-security-oauth2-boot)。
+
+
+
+## 9.4 SAML 2.0
+
+### 9.4.1 依赖方
+
+如果您的类路径上有`spring-security-saml2-service-provider`，那么您可以利用一些自动配置来简化 SAML 2.0 依赖方的设置。此配置使用`Saml2RelyingPartyProperties`下的属性。
+
+依赖方注册代表身份提供者、IDP 和服务提供者、SP 之间的成对配置。您可以在`spring.security.saml2.relyingparty`前缀下注册多个依赖方，如下例所示：
+
+```properties
+spring.security.saml2.relyingparty.registration.my-relying-party1.signing.credentials[0].private-key-location=path-to-private-key
+spring.security.saml2.relyingparty.registration.my-relying-party1.signing.credentials[0].certificate-location=path-to-certificate
+spring.security.saml2.relyingparty.registration.my-relying-party1.identityprovider.verification.credentials[0].certificate-location=path-to-verification-cert
+spring.security.saml2.relyingparty.registration.my-relying-party1.identityprovider.entity-id=remote-idp-entity-id1
+spring.security.saml2.relyingparty.registration.my-relying-party1.identityprovider.sso-url=https://remoteidp1.sso.url
+
+spring.security.saml2.relyingparty.registration.my-relying-party2.signing.credentials[0].private-key-location=path-to-private-key
+spring.security.saml2.relyingparty.registration.my-relying-party2.signing.credentials[0].certificate-location=path-to-certificate
+spring.security.saml2.relyingparty.registration.my-relying-party2.identityprovider.verification.credentials[0].certificate-location=path-to-other-verification-cert
+spring.security.saml2.relyingparty.registration.my-relying-party2.identityprovider.entity-id=remote-idp-entity-id2
+spring.security.saml2.relyingparty.registration.my-relying-party2.identityprovider.sso-url=https://remoteidp2.sso.url
+```
+
+
+
+
+
+
+
 # 10. 使用 SQL 数据库
 
 [Spring 框架](https://spring.io/projects/spring-framework)为使用 SQL 数据库提供了广泛的支持，从使用 JdbcTemplate 的直接 JDBC 访问到完整的“对象关系映射”技术（例如Hibernate）。[Spring Data](https://spring.io/projects/spring-data)提供了更高级别的功能：直接从接口创建存储库实现，并使用约定从您的方法名称生成查询语句。

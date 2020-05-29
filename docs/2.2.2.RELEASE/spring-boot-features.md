@@ -2882,7 +2882,27 @@ spring.security.saml2.relyingparty.registration.my-relying-party2.identityprovid
 
 
 
+## 9.5 执行器安全
 
+为了安全起见，默认情况下禁用`/health`和`/info`以外的所有执行器。`management.endpoints.web.exposure.include`属性可用于启用执行器。
+
+如果 Spring Security 位于类路径上，并且不存在其他`WebSecurityConfigurerAdapter`，则除`/health`和`/info`以外的所有执行器均由 Spring Boot 自动配置保护。如果定义自定义`WebSecurityConfigurerAdapter`，则 Spring Boot 自动配置将退出，您将完全控制执行器访问规则。
+
+>[!note]
+>
+>在设置`management.endpoints.web.exposure.include`之前，请确保暴露的执行器不包含敏感信息和通过将它们放置在防火墙后面或通过诸如 Spring Security 之类的方法进行了保护。
+
+
+
+### 9.5.1 跨站点请求伪造保护
+
+由于 Spring Boot 依赖于 Spring Security 的默认设置，因此 CSRF 保护默认情况下处于启用状态。这意味着在使用默认安全配置时，需要`POST`（关闭和日志记录器端点）、`PUT`或`DELETE`的执行器端点将收到 403 的禁止错误。
+
+>[!note]
+>
+>我们建议仅在创建非浏览器客户端使用的服务时才完全禁用 CSRF 保护。
+
+关于 CSRF 保护的其他信息可以在[Spring Security 参考指南](https://docs.spring.io/spring-security/site/docs/5.2.1.RELEASE/reference/htmlsingle/#csrf)中找到。
 
 
 

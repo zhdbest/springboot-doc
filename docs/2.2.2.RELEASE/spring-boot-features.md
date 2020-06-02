@@ -3358,6 +3358,70 @@ public List<GregorianCalendar> authorsBornAfter1980() {
 
 
 
+# 11. 使用 NoSQL 技术
+
+Spring Data提供了其他项目来帮助您访问各种NoSQL技术，包括：
+
+- [MongoDB](https://spring.io/projects/spring-data-mongodb)
+- [Neo4J](https://spring.io/projects/spring-data-neo4j)
+- [Elasticsearch](https://spring.io/projects/spring-data-elasticsearch)
+- [Solr](https://spring.io/projects/spring-data-solr)
+- [Redis](https://spring.io/projects/spring-data-redis)
+- [GemFire](https://spring.io/projects/spring-data-gemfire)或[Geode](https://spring.io/projects/spring-data-geode)
+- [Cassandra](https://spring.io/projects/spring-data-cassandra)
+- [Couchbase](https://spring.io/projects/spring-data-couchbase)
+- [LDAP](https://spring.io/projects/spring-data-ldap)
+
+Spring Boot为Redis，MongoDB，Neo4j，Elasticsearch，Solr Cassandra，Couchbase 和 LDAP 提供了自动配置。您也可以使用其他项目，但必须自己进行配置。请参阅[spring.io/projects/spring-data](https://spring.io/projects/spring-data)中的相应参考文档。
+
+
+
+## 11.1 Redis
+
+[Redis](https://redis.io/)是一种缓存、消息代理和多功能的键值存储。Spring Boot 为[Lettuce](https://github.com/lettuce-io/lettuce-core/)和[Jedis](https://github.com/xetorthio/jedis/)客户端库以及在此之上由[Spring Data Redis](https://github.com/spring-projects/spring-data-redis)提供的抽象提供了基本的自动配置。
+
+`spring-boot-starter-data-redis`“启动器”可以以方便的方式收集依赖。默认情况下，使用[Lettuce](https://github.com/lettuce-io/lettuce-core/)。该启动器可以处理传统应用程序和响应式应用程序。
+
+>[!tip]
+>
+>我们还提供了一个`spring-boot-starter-data-redis-active`“启动器”，以与其他具有响应支持的存储保持一致。
+
+
+
+### 11.1.1 连接到Redis
+
+您可以像注入其他任何 Spring Bean 一样注入自动配置的`RedisConnectionFactory`，`StringRedisTemplate`或普通的`RedisTemplate`实例。默认情况下，该实例尝试连接到位于`localhost:6379`的 Redis 服务器。下面的列表展示示了这种 bean 的示例：
+
+```java
+@Component
+public class MyBean {
+
+    private StringRedisTemplate template;
+
+    @Autowired
+    public MyBean(StringRedisTemplate template) {
+        this.template = template;
+    }
+
+    // ...
+
+}
+```
+
+>[!tip]
+>
+>您还可以注册任意数量的 Bean，这些 Bean 实现了`LettuceClientConfigurationBuilderCustomizer`以获得更高级的自定义特性。如果使用 Jedis，则还可以使用`JedisClientConfigurationBuilderCustomizer`。
+
+如果添加自己的任何自动配置类型的`@Bean`，则它将替换默认值（`RedisTemplate`在以下场景下除外：当排除基于 bean 名称`redisTemplate`而不是其类型时）。默认情况下，如果`commons-pool2`在类路径上，则会得到一个池化连接工厂。
+
+
+
+## 11.2 MongoDB
+
+
+
+
+
 # 15. 使用`WebClient`调用 REST 服务
 
 

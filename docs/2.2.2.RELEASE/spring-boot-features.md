@@ -3497,7 +3497,7 @@ spring.data.mongodb.port=27017
 
 ### 11.2.2 MongoTemplate
 
-[Spring Data MongoDB](https://spring.io/projects/spring-data-mongodb)提供了一个`MongoTemplate`类，该类的设计与 Spring 的`JdbcTemplate`非常相似。与`JdbcTemplate`一样，Spring Boot 为您自动配置一个 bean 来注入模板，如下所示：
+[Spring Data MongoDB](https://spring.io/projects/spring-data-mongodb)提供了一个[`MongoTemplate`](https://docs.spring.io/spring-data/mongodb/docs/2.2.3.RELEASE/api/org/springframework/data/mongodb/core/MongoTemplate.html)类，该类的设计与 Spring 的`JdbcTemplate`非常相似。与`JdbcTemplate`一样，Spring Boot 为您自动配置一个 bean 来注入模板，如下所示：
 
 ```java
 import org.springframework.beans.factory.annotation.Autowired;
@@ -3520,6 +3520,101 @@ public class MyBean {
 ```
 
 有关完整的详细信息，请参见[`MongoOperations` Javadoc](https://docs.spring.io/spring-data/mongodb/docs/2.2.3.RELEASE/api/org/springframework/data/mongodb/core/MongoOperations.html)。
+
+
+
+### 11.2.3 Spring Data MongoDB存储库
+
+Spring Data 包括对 MongoDB 的存储库支持。与前面讨论的 JPA 存储库一样，基本原理是根据方法名称自动构造查询。
+
+实际上，Spring Data JPA 和 Spring Data MongoDB 共享相同的通用基础架构。您可以从以前的 JPA 示例开始，并假设`City`现在是 Mongo 数据类，而不是 JPA `@Entity`，它的工作方式相同，如以下示例所示：
+
+```java
+package com.example.myapp.domain;
+
+import org.springframework.data.domain.*;
+import org.springframework.data.repository.*;
+
+public interface CityRepository extends Repository<City, Long> {
+
+    Page<City> findAll(Pageable pageable);
+
+    City findByNameAndStateAllIgnoringCase(String name, String state);
+
+}
+```
+
+>[!tip]
+>
+>您可以使用`@EntityScan`注解来自定义文档扫描位置。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>有关 Spring Data MongoDB 的完整详细信息，包括其丰富的对象映射技术，请参阅其[参考文档](https://spring.io/projects/spring-data-mongodb)。
+
+
+
+### 11.2.4 嵌入式 Mongo
+
+Spring Boot 为[嵌入式 Mongo](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo)提供了自动配置。要在 Spring Boot 应用程序中使用它，请添加对`de.flapdoodle.embed:de.flapdoodle.embed.mongo`的依赖。
+
+可以通过设置`spring.data.mongodb.port`属性来配置 Mongo 监听的端口。要使用随机分配的空闲端口，请设置值为0。`MongoAutoConfiguration`创建的`MongoClient`将自动配置为使用随机分配的端口。
+
+>[!note]
+>
+>如果未配置自定义端口，则默认情况下，嵌入式 Mongo 会使用随机端口（而不是27017）。
+
+如果类路径上有 SLF4J，则 Mongo 产生的输出将自动路由到名为`org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongo`的 logger。
+
+您可以声明自己的`IMongodConfig`和`IRuntimeConfig` bean，以控制 Mongo 实例的配置和日志路由。可以通过声明`DownloadConfigBuilderCustomizer` bean来定制下载配置。
+
+
+
+## 11.3 Neo4j
+
+[Neo4j](https://neo4j.com/)是一个开源 NoSQL 图数据库，它使用丰富的通过第一类关系连接节点的数据模型，与传统关系型数据库形式相比，它更适合于连接大数据。Spring Boot 为 Neo4j 的使用提供了许多便利，包括`spring-boot-starter-data-neo4j`“ 启动器”。
+
+
+
+### 11.3.1 连接到 Neo4j
+
+要访问 Neo4j 服务器，您可以注入自动配置的`org.neo4j.ogm.session.Session`。默认情况下，该实例尝试使用 Bolt 协议连接到`localhost:7687`处的 Neo4j 服务器。下面的示例展示如何注入 Neo4j `Session`：
+
+```java
+@Component
+public class MyBean {
+
+    private final Session session;
+
+    @Autowired
+    public MyBean(Session session) {
+        this.session = session;
+    }
+
+    // ...
+
+}
+```
+
+您可以通过设置`spring.data.neo4j.*`属性来配置要使用的 uri 和凭据，如以下示例所示：
+
+```properties
+spring.data.neo4j.uri=bolt://my-server:7687
+spring.data.neo4j.username=neo4j
+spring.data.neo4j.password=secret
+```
+
+通过添加`org.neo4j.ogm.config.Configuration` bean或`org.neo4j.ogm.session.SessionFactory` bean，可以完全控制会话的创建。
+
+
+
+### 11.3.2 使用嵌入式模式
+
+
 
 
 

@@ -3614,6 +3614,72 @@ spring.data.neo4j.password=secret
 
 ### 11.3.2 使用嵌入式模式
 
+如果将`org.neo4j:neo4j-ogm-embedded-driver`添加到应用程序的依赖项中，则 Spring Boot 会自动配置 Neo4j 的进程内嵌入式实例，该实例在应用程序关闭时不会保留任何数据。
+
+>[!note]
+>
+>由于嵌入式 Neo4j OGM 驱动程序本身不提供 Neo4j 内核，因此您必须自己声明`org.neo4j:neo4j`为依赖项。有关兼容版本的列表，请参阅[Neo4j OGM文档](https://neo4j.com/docs/ogm-manual/current/reference/#reference:getting-started)。
+
+当类路径上有多个驱动程序时，嵌入式的驱动程序优先于其他驱动程序。您可以通过设置`spring.data.neo4j.embedded.enabled=false`显式禁用嵌入式模式。
+
+如果嵌入式驱动程序和 Neo4j 内核位于上述类路径上，则[Data Neo4j Tests](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-testing-spring-boot-applications-testing-autoconfigured-neo4j-test)会自动使用嵌入式 Neo4j 实例。
+
+>[!note]
+>
+>您可以通过在配置中提供数据库文件的路径来启用嵌入式模式的持久化。例如：`spring.data.neo4j.uri=file://var/tmp/graph.db`。
+
+
+
+### 11.3.3 使用本机类型
+
+Neo4j-OGM 可以将某些类型（例如`java.time.*`中的类型）映射到基于`String`的属性或 Neo4j 提供的本机类型之一。出于向后兼容的原因，Neo4j-OGM 的默认设置是使用基于字符串的表示形式。要使用本机类型，请添加对`org.neo4j:neo4j-ogm-bolt-native-types`或`org.neo4j:neo4j-ogm-embedded-native-types`的依赖关系，并配置`spring.data.neo4j.use-native -types`属性，如以下示例所示：
+
+```properties
+spring.data.neo4j.use-native-types=true
+```
+
+
+
+### 11.3.4 Neo4jSession
+
+默认情况下，如果您正在运行 Web 应用程序，则会话将绑定到线程以进行请求的整个处理（即，它使用“在视图中打开会话”模式）。如果您不希望出现这种情况，请将以下行添加到`application.properties`文件中：
+
+```properties
+spring.data.neo4j.open-in-view=false
+```
+
+
+
+### 11.3.5 Spring Data Neo4j 存储库
+
+Spring Data 为 Neo4j 提供了存储库支持。
+
+Spring Data Neo4j 与许多其他 Spring Data 模块一样，与 Spring Data JPA 共享公共基础结构。您可以采用前面的 JPA 示例，并将`City`定义为Neo4j OGM `@NodeEntity`而不是 JPA `@Entity`，并且存储库抽象以相同的方式工作，如以下示例所示：
+
+```java
+package com.example.myapp.domain;
+
+import java.util.Optional;
+
+import org.springframework.data.neo4j.repository.*;
+
+public interface CityRepository extends Neo4jRepository<City, Long> {
+
+    Optional<City> findOneByNameAndState(String name, String state);
+
+}
+```
+
+`spring-boot-starter-data-neo4j`“启动器”可支持存储库以及事务管理。您可以通过分别在`@Configuration` bean 上使用`@EnableNeo4jRepositories`和`@EntityScan`来定制位置以查找存储库和实体。
+
+>[!tip]
+>
+>有关 Spring Data Neo4j 的完整详细信息，包括其对象映射技术，请参阅[参考文档](https://docs.spring.io/spring-data/neo4j/docs/5.2.3.RELEASE/reference/html/)。
+
+
+
+## 11.4 Solr
+
 
 
 

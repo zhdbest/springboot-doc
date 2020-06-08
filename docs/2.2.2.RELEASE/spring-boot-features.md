@@ -3680,7 +3680,75 @@ public interface CityRepository extends Neo4jRepository<City, Long> {
 
 ## 11.4 Solr
 
+[Apache Solr](https://lucene.apache.org/solr/)是一个搜索引擎。 Spring Boot 为 Solr 5 客户端库提供了基本的自动配置，并由[Spring Data Solr](https://github.com/spring-projects/spring-data-solr)在其之上提供了抽象。`spring-boot-starter-data-solr`“启动器”用于以方便的方式采集依赖项。
 
+
+
+### 11.4.1 连接到 Solr
+
+您可以像插入其他任何 Spring Bean 一样注入自动配置的`SolrClient`实例。默认情况下，该实例尝试连接到位于 `localhost:8983/solr`的服务器。以下示例展示了如何注入 Solr bean：
+
+```java
+@Component
+public class MyBean {
+
+    private SolrClient solr;
+
+    @Autowired
+    public MyBean(SolrClient solr) {
+        this.solr = solr;
+    }
+
+    // ...
+
+}
+```
+
+如果添加自己的`SolrClient`类型的`@Bean`，它将替换默认值。
+
+
+
+### 11.4.2 Spring Data Solr 存储库
+
+Spring Data 包括对 Apache Solr 的存储库支持。与前面讨论的 JPA 存储库一样，基本原理是根据方法名称自动为您构建查询。
+
+实际上，Spring Data JPA 和 Spring Data Solr 共享相同的通用基础结构。您可以从以前的 JPA 示例开始，并假设`City`现在是`@SolrDocument`类，而不是 JPA `@Entity`，它的工作方式相同。
+
+有关 Spring Data Solr 的完整详细信息，请参考[参考文档](https://docs.spring.io/spring-data/solr/docs/4.1.3.RELEASE/reference/html/)。
+
+
+
+## 11.5 Elasticsearch
+
+Elasticsearch 是一个开源、分布式、RESTful 搜索和分析引擎。Spring Boot 为 Elasticsearch 提供了基本的自动配置。
+
+Spring Boot 支持多个客户端：
+
+* 官方 Java “低级”和“高级” REST客户端
+* Spring Data Elasticsearch 提供的`ReactiveElasticsearchClient`
+
+传输客户端仍然可用，但是[Spring Data Elasticsearch](https://github.com/spring-projects/spring-data-elasticsearch)和 Elasticsearch 本身已经放弃了了它的支持，它将在未来的版本中删除。Spring Boot 提供了专用的“启动器”，即`spring-boot-starter-data-elasticsearch`。
+
+由于 Elasticsearch 和 Spring Data Elasticsearch 为 REST 客户端提供了官方支持，因此[Jest](https://github.com/searchbox-io/Jest)客户端也已被弃用。
+
+
+
+### 11.5.1 使用 REST 客户端连接到 Elasticsearch
+
+Elasticsearch 附带了两个可用于查询集群的 [REST 客户端](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/index.html)：“低级”客户端和“高级”客户端。
+
+如果类路径上具有`org.elasticsearch.client:elasticsearch-rest-client`依赖，则 Spring Boot 将自动配置并注册一个`RestClient` Bean，默认情况下，它针对`localhost:9200`。您可以进一步调整`RestClient`的配置方式，如以下示例所示：
+
+```properties
+spring.elasticsearch.rest.uris=https://search.example.com:9200
+spring.elasticsearch.rest.read-timeout=10s
+spring.elasticsearch.rest.username=user
+spring.elasticsearch.rest.password=secret
+```
+
+您还可以注册任意数量的实现了`RestClientBuilderCustomizer`的 bean 来进行更高级的自定义。要完全控制注册，请定义`RestClient` bean。
+
+如果类路径上具有`org.elasticsearch.client:elasticsearch-rest-high-level-client`依赖，Spring Boot 将自动配置`RestHighLevelClient`，该包装将包装任何现有的`RestClient` bean，并重用其 HTTP 配置。
 
 
 

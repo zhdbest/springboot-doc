@@ -3752,6 +3752,105 @@ spring.elasticsearch.rest.password=secret
 
 
 
+### 11.5.2 使用响应式 REST 客户端连接到 Elasticsearch
+
+[Spring Data Elasticsearch](https://spring.io/projects/spring-data-elasticsearch)提供了`ReactiveElasticsearchClient`，用于以响应式查询 Elasticsearch 实例。它基于 WebFlux 的`WebClient`构建，因此`spring-boot-starter-elasticsearch`和`spring-boot-starter-webflux`依赖关系对于启用此支持都是有用的。
+
+默认情况下，Spring Boot 将自动配置并注册一个指向 `localhost:9200`的`ReactiveElasticsearchClient` bean。您可以进一步调整其配置，如以下示例所示：
+
+```properties
+spring.data.elasticsearch.client.reactive.endpoints=search.example.com:9200
+spring.data.elasticsearch.client.reactive.use-ssl=true
+spring.data.elasticsearch.client.reactive.socket-timeout=10s
+spring.data.elasticsearch.client.reactive.username=user
+spring.data.elasticsearch.client.reactive.password=secret
+```
+
+如果配置属性不够，并且您想完全控制客户端配置，则可以注册自定义`ClientConfiguration` bean。
+
+
+
+### 11.5.3 使用 Jest 连接到 Elasticsearch
+
+现在，Spring Boot 支持官方的`RestHighLevelClient`，不再支持 Jest。
+
+如果类路径上有`Jest`，则可以注入默认情况下指向 `localhost:9200`的自动配置的`JestClient`。您可以进一步调整客户端的配置方式，如以下示例所示：
+
+```properties
+spring.elasticsearch.jest.uris=https://search.example.com:9200
+spring.elasticsearch.jest.read-timeout=10000
+spring.elasticsearch.jest.username=user
+spring.elasticsearch.jest.password=secret
+```
+
+您还可以注册任意数量的实现了`HttpClientConfigBuilderCustomizer`的 bean，以进行更高级的自定义。以下示例调整了额外的 HTTP 设置：
+
+```java
+static class HttpSettingsCustomizer implements HttpClientConfigBuilderCustomizer {
+
+    @Override
+    public void customize(HttpClientConfig.Builder builder) {
+        builder.maxTotalConnection(100).defaultMaxTotalConnectionPerRoute(5);
+    }
+
+}
+```
+
+要完全控制注册，请定义`JestClient` bean。
+
+
+
+### 11.5.4 使用 Spring Data 连接到 Elasticsearch
+
+要连接到 Elasticsearch，必须定义由 Spring Boot 自动配置或由应用程序手动提供的`RestHighLevelClient` bean（请参阅前面的部分）。有了此配置后，就可以像其他任何 Spring bean 一样注入`ElasticsearchRestTemplate`，如以下示例所示：
+
+```java
+@Component
+public class MyBean {
+
+    private final ElasticsearchRestTemplate template;
+
+    public MyBean(ElasticsearchRestTemplate template) {
+        this.template = template;
+    }
+
+    // ...
+
+}
+```
+
+如果存在`spring-data-elasticsearch`和使用`WebClient`所需的依赖关系（通常是`spring-boot-starter-webflux`），则 Spring Boot 还可以将[`ReactiveElasticsearchClient`](spring-boot-features.md#1152-使用响应式-rest-客户端连接到-elasticsearch)和`ReactiveElasticsearchTemplate`自动配置为 bean。它们与其他响应式 REST 客户端是等效的。
+
+
+
+### 11.5.5 Spring Data Elasticsearch 存储库
+
+Spring Data 包括对 Elasticsearch 的存储库支持。与前面讨论的 JPA 存储库一样，基本原理是根据方法名称自动构造查询。
+
+实际上，Spring Data JPA 和 Spring Data Elasticsearch 共享相同的通用基础架构。您可以从以前的 JPA 示例开始，并假设`City`现在是 Elasticsearch `@Document`类而不是 JPA `@Entity`，它的工作方式相同。
+
+>[!tip]
+>
+>有关 Spring Data Elasticsearch 的完整详细信息，请参考[参考文档](https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/)。
+
+Spring Boot 使用`ElasticsearchRestTemplate`或`ReactiveElasticsearchTemplate` bean支持经典的和响应式的 Elasticsearch 存储库。给定所需的依赖项，最有可能由 Spring Boot 自动配置这些 bean。
+
+如果您希望使用自己的模板来支持 Elasticsearch 存储库，则可以添加自己的`ElasticsearchRestTemplate`或`ElasticsearchOperations` `@Bean`，只要它名为`"elasticsearchTemplate"`即可。这同样适用于`ReactiveElasticsearchTemplate`和`ReactiveElasticsearchOperations`，其 bean 名称为`"reactiveElasticsearchTemplate"`。
+
+您可以选择使用以下属性禁用存储库支持：
+
+```properties
+spring.data.elasticsearch.repositories.enabled=false
+```
+
+
+
+## 11.6 Cassandra
+
+
+
+
+
 # 15. 使用`WebClient`调用 REST 服务
 
 

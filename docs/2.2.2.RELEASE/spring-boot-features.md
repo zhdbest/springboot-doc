@@ -3847,7 +3847,82 @@ spring.data.elasticsearch.repositories.enabled=false
 
 ## 11.6 Cassandra
 
+[Cassandra](https://cassandra.apache.org/)是一个开源的分布式数据库管理系统，旨在处理许多商用服务器上的大量数据。Spring Boot 为Cassandra 提供自动配置，并由[Spring Data Cassandra](https://github.com/spring-projects/spring-data-cassandra)在其之上提供抽象。`spring-boot-starter-data-cassandra`“ 启动器”，用于以方便的方式收集依赖项。
 
+
+
+### 11.6.1 连接到 Cassandra
+
+您可以像使用其他任何 Spring Bean 一样注入自动配置的`CassandraTemplate`或 Cassandra `Session`实例。`spring.data.cassandra.*`属性可用于自定义连接。通常，您提供`keyspace-name`和`contact-points`属性，如以下示例所示：
+
+```properties
+spring.data.cassandra.keyspace-name=mykeyspace
+spring.data.cassandra.contact-points=cassandrahost1,cassandrahost2
+```
+
+您还可以注册任意数量的实现了`ClusterBuilderCustomizer`的 bean 以获得更高级的自定义。
+
+以下代码展示了如何注入 Cassandra bean：
+
+```java
+@Component
+public class MyBean {
+
+    private CassandraTemplate template;
+
+    @Autowired
+    public MyBean(CassandraTemplate template) {
+        this.template = template;
+    }
+
+    // ...
+
+}
+```
+
+如果添加自定义的`CassandraTemplate`类型的`@Bean`，它将替换默认值。
+
+
+
+### 11.6.2 Spring Data Cassandra 存储库
+
+Spring Data 包括对 Cassandra 基本存储库的支持。当前，这比前面讨论的 JPA 存储库受到更多限制，并且需要使用`@Query`标注查询方法。
+
+>[!tip]
+>
+>有关 Spring Data Cassandra 的完整详细信息，请参考[参考文档](https://docs.spring.io/spring-data/cassandra/docs/)。
+
+
+
+## 11.7 Couchbase
+
+[Couchbase](https://www.couchbase.com/)是一个开源、分布式、多模型的、面向文档的 NoSQL 数据库，且针对交互式应用程序进行了优化。Spring Boot 为 Couchbase 提供自动配置，并由[Spring Data Couchbase](https://github.com/spring-projects/spring-data-couchbase)在其之上提供抽象。`spring-boot-starter-data-couchbase`和`spring-boot-starter-data-couchbase-active`“启动器”，可以很方便的收集依赖项。
+
+
+
+### 11.7.1 连接到 Couchbase
+
+您可以通过添加 Couchbase SDK 和一些配置来获取`Bucket`和`Cluster`。`spring.couchbase.*`属性可用于自定义连接。通常，您提供引 bootstrap host，bucket 名称和密码，如以下示例所示：
+
+```properties
+spring.couchbase.bootstrap-hosts=my-host-1,192.168.1.123
+spring.couchbase.bucket.name=my-bucket
+spring.couchbase.bucket.password=secret
+```
+
+>[!tip]
+>
+>您至少需要提供 bootstrap host，在这种情况下，bucket 名称为默认主机，密码为空字符串。另外，您可以定义自己的`org.springframework.data.couchbase.config.CouchbaseConfigurer` `@Bean`来控制整个配置。
+
+还可以自定义某些`CouchbaseEnvironment`设置。例如，以下配置更改了用于打开新`Bucket`并启用 SSL 支持的超时时间：
+
+```properties
+spring.couchbase.env.timeouts.connect=3000
+spring.couchbase.env.ssl.key-store=/location/of/keystore.jks
+spring.couchbase.env.ssl.key-store-password=secret
+```
+
+查看检查`spring.couchbase.env.*`属性以获取更多详细信息。
 
 
 

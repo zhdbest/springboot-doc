@@ -3926,6 +3926,112 @@ spring.couchbase.env.ssl.key-store-password=secret
 
 
 
+### 11.7.2 Spring Data Couchbase 存储库
+
+Spring Data 包括对 Couchbase 的存储库支持。有关 Spring Data Couchbase 的完整详细信息，请参考[参考文档](https://docs.spring.io/spring-data/couchbase/docs/current/reference/html/)。
+
+您可以像使用任何其他 Spring Bean 一样注入自动配置的`CouchbaseTemplate`实例，前提是可以使用默认的`CouchbaseConfigurer`（如前所述，当启用 Couchbase 支持时会发生这种情况）。
+
+以下示例展示了如何注入Couchbase bean：
+
+```java
+@Component
+public class MyBean {
+
+    private final CouchbaseTemplate template;
+
+    @Autowired
+    public MyBean(CouchbaseTemplate template) {
+        this.template = template;
+    }
+
+    // ...
+
+}
+```
+
+您可以在自己的配置中定义一些 bean，以覆盖自动配置提供的那些：
+
+* 名为`couchbaseTemplate`的`CouchbaseTemplate` `@Bean`
+* 名为`couchbaseIndexManager`的`CustomConversions` `@Bean`
+* 名为`couchbaseCustomConversions`的`CustomConversions`  `@Bean`
+
+为了避免在您自己的配置中对这些名称进行硬编码，您可以重用 Spring Data Couchbase 提供的`BeanNames`。 例如，您可以自定义要使用的转换器，如下所示：
+
+```java
+@Configuration(proxyBeanMethods = false)
+public class SomeConfiguration {
+
+    @Bean(BeanNames.COUCHBASE_CUSTOM_CONVERSIONS)
+    public CustomConversions myCustomConversions() {
+        return new CustomConversions(...);
+    }
+
+    // ...
+
+}
+```
+
+>[!tip]
+>
+>如果想要完全绕过 Spring Data Couchbase 的自动配置，请提供自己的`org.springframework.data.couchbase.config.AbstractCouchbaseDataConfiguration`实现。
+
+
+
+## 11.8 LDAP
+
+[LDAP](https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol)（轻型目录访问协议）是一种开放的、中立的行业标准应用协议，通过 IP 协议提供访问控制和维护分布式信息的目录信息。Spring Boot 为任何兼容的 LDAP 服务器提供自动配置，并通过[UnboundID](https://www.ldap.com/unboundid-ldap-sdk-for-java)支持嵌入式内存 LDAP 服务器。
+
+LDAP 抽象由[Spring Data LDAP](https://github.com/spring-projects/spring-data-ldap)提供，它提供了`spring-boot-starter-data-ldap`“ 启动器”，可以以方便的方式收集依赖项。
+
+
+
+### 11.8.1 连接到 LDAP 服务器
+
+要连接到 LDAP 服务器，请确保已声明对`spring-boot-starter-data-ldap`“启动器”或`spring-ldap-core`的依赖，然后在 application.properties 中声明服务器的 URL，如下所示：
+
+```properties
+spring.ldap.urls=ldap://myserver:1235
+spring.ldap.username=admin
+spring.ldap.password=secret
+```
+
+如果需要自定义连接设置，则可以使用`spring.ldap.base`和`spring.ldap.base-environment`属性。
+
+将基于这些设置自动配置`LdapContextSource`。如果您需要对其进行自定义（例如使用`PooledContextSource`），则仍然可以注入自动配置的`LdapContextSource`。确保将自定义的`ContextSource`标记为`@Primary`，以便自动配置的`LdapTemplate`使用它。
+
+
+
+### 11.8.2 Spring Data LDAP 存储库
+
+Spring Data 包括对 LDAP 的存储库支持。有关 Spring Data LDAP 的完整详细信息，请参考[参考文档](https://docs.spring.io/spring-data/ldap/docs/1.0.x/reference/html/)。
+
+您还可以像使用其他任何 Spring Bean 一样注入自动配置的`LdapTemplate`实例，如以下示例所示：
+
+```java
+@Component
+public class MyBean {
+
+    private final LdapTemplate template;
+
+    @Autowired
+    public MyBean(LdapTemplate template) {
+        this.template = template;
+    }
+
+    // ...
+
+}
+```
+
+
+
+### 11.8.3 嵌入式内存 LDAP 服务器
+
+
+
+
+
 # 15. 使用`WebClient`调用 REST 服务
 
 

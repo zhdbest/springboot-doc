@@ -4028,6 +4028,61 @@ public class MyBean {
 
 ### 11.8.3 嵌入式内存 LDAP 服务器
 
+出于测试目的，Spring Boot 支持通过[UnboundID](https://www.ldap.com/unboundid-ldap-sdk-for-java)自动配置内存中的 LDAP 服务器。要配置服务器，请添加`com.unboundid:unboundid-ldapsdk`依赖项，并声明`spring.ldap.embedded.base-dn`属性，如下所示：
+
+```properties
+spring.ldap.embedded.base-dn=dc=spring,dc=io
+```
+
+>[!note]
+>
+>可以定义多个 base-dn 值，但是，由于可分辨的名称通常包含逗号，因此必须使用正确的符号来定义它们。
+>
+>在 yaml 文件中，您可以使用 yaml 列表符号：
+>
+>```yaml
+>spring.ldap.embedded.base-dn:
+>  - dc=spring,dc=io
+>  - dc=pivotal,dc=io
+>```
+>
+>在属性文件中，必须将索引包括在属性名称中：
+>
+>```properties
+>spring.ldap.embedded.base-dn[0]=dc=spring,dc=io
+>spring.ldap.embedded.base-dn[1]=dc=pivotal,dc=io
+>```
+
+默认情况下，服务器在随机端口上启动并触发常规 LDAP 支持，无需指定`spring.ldap.urls`属性。
+
+如果您的类路径上有`schema.ldif`文件，则该文件将被用于初始化服务器。如果要从其他资源中加载初始化脚本，则也可以使用`spring.ldap.embedded.ldif`属性。
+
+默认情况下，使用标准架构来校验`LDIF`文件。您可以通过设置`spring.ldap.embedded.validation.enabled`属性来完全关闭校验。如果有定制的属性，那么可以使用`spring.ldap.embedded.validation.schema`定义定制属性类型或对象类。
+
+
+
+## 11.9 InfluxDB
+
+[InfluxDB](https://www.influxdata.com/)是一个开源的时间序列数据库，用于在操作监控、应用程序度量、物联网传感器数据和实时分析等领域中快速、高可用性地存储和检索时间序列数据，并基于以上场景做了对应优化。
+
+
+
+### 11.9.1 连接到 InfluxDB
+
+只要类路径上有`influxdb-java`客户端并设置了数据库的 URL，Spring Boot 就会自动配置`InfluxDB`实例，如以下示例所示：
+
+```properties
+spring.influx.url=https://172.0.0.1:8086
+```
+
+如果连接到 InfluxDB 需要用户和密码，则可以相应地设置`spring.influx.user`和`spring.influx.password`属性。
+
+InfluxDB 依赖 OkHttp。如果需要在某些场景调整`InfluxDB`使用的 http 客户端，则可以注册`InfluxDbOkHttpClientBuilderProvider` bean。
+
+
+
+# 12. 高速缓存
+
 
 
 

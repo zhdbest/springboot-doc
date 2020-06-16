@@ -4083,6 +4083,49 @@ InfluxDB 依赖 OkHttp。如果需要在某些场景调整`InfluxDB`使用的 ht
 
 # 12. 高速缓存
 
+Spring 框架提供了对向应用程序透明地添加缓存的支持。从本质上讲，抽象将缓存应用于方法，从而根据缓存中可用的信息减少执行次数。缓存逻辑是显式应用的，不会对调用者造成任何干扰。只要通过`@EnableCaching`注解启用了缓存支持，Spring Boot 就会自动配置缓存基础结构。
+
+>[!note]
+>
+>查阅 Spring Framework 参考的[相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/integration.html#cache)以获取更多详细信息。
+
+简而言之，将缓存添加到服务的操作就像将相关注解添加到其方法一样容易，如以下示例所示：
+
+```java
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MathService {
+
+    @Cacheable("piDecimals")
+    public int computePiDecimal(int i) {
+        // ...
+    }
+
+}
+```
+
+本示例展示了在潜在的开销比较大的操作上使用缓存的方法。在调用`computePiDecimal`之前，抽象将在`piDecimals`缓存中查找与`i`参数匹配的条目。如果找到条目，则高速缓存中的内容会立即返回给调用方，并且不会调用该方法。否则，将调用该方法，并在返回值之前更新缓存。
+
+>[!caution]
+>
+>您还可以显式地使用标准 JSR-107（JCache）注解（例如`@CacheResult`）。但是，我们强烈建议您不要混合使用 Spring Cache 和 JCache 注解。
+
+如果您不添加任何特定的缓存库，Spring Boot 会自动配置一个使用内存中并发映射的[simple provider](spring-boot-features.md#1219-simple)。当需要缓存时（例如上例中的`piDecimals`），此 provider 将为您创建它。实际上，不建议将 simple provider 用于生产用途，但是它对于入门并确保您了解功能非常有用。确定要使用的缓存 provider 后，请确保阅读其文档，以了解如何配置应用程序使用的缓存。几乎所有 provider 都要求您显式配置在应用程序中使用的每个缓存。有些可以自定义通过`spring.cache.cache-names`属性定义的默认缓存。
+
+>[!tip]
+>
+>还可以透明地[更新](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/integration.html#cache-annotations-put)缓存或从缓存中[逐出](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/integration.html#cache-annotations-evict)数据。
+
+
+
+### 12.1.9 Simple
+
+
+
+
+
 
 
 

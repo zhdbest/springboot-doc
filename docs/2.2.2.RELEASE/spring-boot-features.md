@@ -4112,7 +4112,7 @@ public class MathService {
 >
 >您还可以显式地使用标准 JSR-107（JCache）注解（例如`@CacheResult`）。但是，我们强烈建议您不要混合使用 Spring Cache 和 JCache 注解。
 
-如果您不添加任何特定的缓存库，Spring Boot 会自动配置一个使用内存中并发映射的[simple provider](spring-boot-features.md#1219-simple)。当需要缓存时（例如上例中的`piDecimals`），此 provider 将为您创建它。实际上，不建议将 simple provider 用于生产用途，但是它对于入门并确保您了解功能非常有用。确定要使用的缓存 provider 后，请确保阅读其文档，以了解如何配置应用程序使用的缓存。几乎所有 provider 都要求您显式配置在应用程序中使用的每个缓存。有些可以自定义通过`spring.cache.cache-names`属性定义的默认缓存。
+如果您不添加任何特定的缓存库，Spring Boot 会自动配置一个使用内存中并发映射的[simple provider](spring-boot-features.md#1219-simple)。当需要缓存时（例如上例中的`piDecimals`），此缓存提供程序将为您创建它。实际上，不建议将 simple 提供程序用于生产用途，但是它对于入门并确保您了解功能非常有用。确定要使用的缓存提供程序后，请确保阅读其文档，以了解如何配置应用程序使用的缓存。几乎所有缓存提供程序都要求您显式配置在应用程序中使用的每个缓存。有些可以自定义通过`spring.cache.cache-names`属性定义的默认缓存。
 
 >[!tip]
 >
@@ -4120,9 +4120,65 @@ public class MathService {
 
 
 
+## 12.1 支持的缓存提供程序
+
+缓存抽象不提供实际的存储，而是依赖于由`org.springframework.cache.Cache`和`org.springframework.cache.CacheManager`接口实现的抽象。
+
+如果尚未定义`CacheManager`类型的 bean 或名为`cacheResolver`的`CacheResolver`（请参阅[`CachingConfigurer`](https://docs.spring.io/spring/docs/5.2.2.RELEASE/javadoc-api/org/springframework/cache/annotation/CachingConfigurer.html)），则 Spring Boot 尝试检测以下提供程序（按指示的顺序）：
+
+1. [Generic](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-generic)
+2. [JCache (JSR-107)](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-jcache) (EhCache 3, Hazelcast, Infinispan 等)
+3. [EhCache 2.x](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-ehcache2)
+4. [Hazelcast](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-hazelcast)
+5. [Infinispan](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-infinispan)
+6. [Couchbase](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-couchbase)
+7. [Redis](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-redis)
+8. [Caffeine](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-caffeine)
+9. [Simple](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-simple)
+
+>[!tip]
+>
+>也可以通过设置`spring.cache.type`属性来强制使用特定的缓存提供程序。如果您需要在某些环境（例如测试）中[完全禁用缓存](spring-boot-features.md#12110-不使用缓存)，请使用此属性。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>可使用`spring-boot-starter-cache`“启动器”快速添加基本的缓存依赖项。启动器提供了`spring-context-support`。如果手动添加依赖项，则必须包括`spring-context-support`才能使用 JCache，EhCache 2.x 或 Caffeine 支持。
+
+如果`CacheManager`是由 Spring Boot 自动配置的，则可以通过暴露实现了`CacheManagerCustomizer`接口的bean，在完全初始化之前进一步调整其配置。下面的示例设置一个标志，指示应该将空值向下传递到基础映射：
+
+```java
+@Bean
+public CacheManagerCustomizer<ConcurrentMapCacheManager> cacheManagerCustomizer() {
+    return new CacheManagerCustomizer<ConcurrentMapCacheManager>() {
+        @Override
+        public void customize(ConcurrentMapCacheManager cacheManager) {
+            cacheManager.setAllowNullValues(false);
+        }
+    };
+}
+```
+
+>[!note]
+>
+>在前面的示例中，需要一个自动配置的`ConcurrentMapCacheManager`。如果不是这种情况（您提供了自己的配置，或者自动配置了其他缓存提供程序），则根本不会调用定制程序。您可以根据需要拥有任意数量的定制程序，也可以使用`@Order`或`Ordered`对其进行排序。
+
+
+
+### 12.1.1 Generic
+
+
+
+
+
 ### 12.1.9 Simple
 
 
+
+### 12.1.10 不使用缓存
 
 
 

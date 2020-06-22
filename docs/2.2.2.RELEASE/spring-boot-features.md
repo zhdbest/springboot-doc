@@ -4126,15 +4126,15 @@ public class MathService {
 
 如果尚未定义`CacheManager`类型的 bean 或名为`cacheResolver`的`CacheResolver`（请参阅[`CachingConfigurer`](https://docs.spring.io/spring/docs/5.2.2.RELEASE/javadoc-api/org/springframework/cache/annotation/CachingConfigurer.html)），则 Spring Boot 尝试检测以下提供程序（按指示的顺序）：
 
-1. [Generic](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-generic)
-2. [JCache (JSR-107)](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-jcache) (EhCache 3, Hazelcast, Infinispan 等)
-3. [EhCache 2.x](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-ehcache2)
-4. [Hazelcast](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-hazelcast)
-5. [Infinispan](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-infinispan)
-6. [Couchbase](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-couchbase)
-7. [Redis](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-redis)
-8. [Caffeine](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-caffeine)
-9. [Simple](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/spring-boot-features.html#boot-features-caching-provider-simple)
+1. [Generic](spring-boot-features.md#1211-generic)
+2. [JCache (JSR-107)](spring-boot-features.md#1212-jcache-jsr-107) (EhCache 3, Hazelcast, Infinispan 等)
+3. [EhCache 2.x](spring-boot-features.md#1213-ehcache-2x)
+4. [Hazelcast](spring-boot-features.md#1214-hazelcast)
+5. [Infinispan](spring-boot-features.md#1215-infinispan)
+6. [Couchbase](spring-boot-features.md#1216-couchbase)
+7. [Redis](spring-boot-features.md#1217-redis)
+8. [Caffeine](spring-boot-features.md#1218-caffeine)
+9. [Simple](spring-boot-features.md#1219-simple)
 
 >[!tip]
 >
@@ -4210,6 +4210,82 @@ spring.cache.jcache.config=classpath:acme.xml
 
 
 ### 12.1.3 EhCache 2.x
+
+如果可以在类路径的根目录下找到名为`ehcache.xml`的文件，则将使用[EhCache](https://www.ehcache.org/) 2.x。如果找到 EhCache 2.x，则将使用`spring-boot-starter-cache`“启动器”提供的`EhCacheCacheManager`来启动缓存管理器。也可以提供代替配置文件，如以下示例所示：
+
+```properties
+spring.cache.ehcache.config=classpath:config/another-config.xml
+```
+
+
+
+### 12.1.4 Hazelcast
+
+Spring Boot [对 Hazelcast 具有常规支持](spring-boot-features.md#19-hazelcast)。 如果已经自动配置了`HazelcastInstance`，则其将被自动包装在`CacheManager`中。
+
+
+
+### 12.1.5 Infinispan
+
+[Infinispan](https://infinispan.org/)没有默认配置文件位置，因此必须显式指定它。否则，将使用默认的引导程序。
+
+```properties
+spring.cache.infinispan.config=infinispan.xml
+```
+
+可以通过设置`spring.cache.cache-names`属性在启动时来创建缓存。如果定义了自定义`ConfigurationBuilder` bean，则其将用于自定义缓存。
+
+>[!note]
+>
+>Spring Boot 对 Infinispan 的支持仅限于嵌入式模式，并且非常基础。如果您需要更多选择，则应该使用官方的 Infinispan Spring Boot 启动器。有关更多详细信息，请参见[Infinispan的文档](https://github.com/infinispan/infinispan-spring-boot)。
+
+
+
+### 12.1.6 Couchbase
+
+如果可以使用[Couchbase](https://www.couchbase.com/) Java 客户端和`couchbase-spring-cache`实现，并且已配置 Couchbase，则将自动配置`CouchbaseCacheManager`。也可以通过设置`spring.cache.cache-names`属性在启动时创建其他缓存。这些缓存在自动配置的`Bucket`上运行。您还可以使用定制程序在另一个`Bucket`上创建其他缓存。假设您在 "main" `Bucket`上需要两个缓存（`cache1`和`cache2`），在 "another" `Bucket`上需要一个自定义的生存时间为2秒的缓存（`cache3`），您可以通过配置创建前两个缓存，如下所示：
+
+```properties
+spring.cache.cache-names=cache1,cache2
+```
+
+然后，您可以定义一个`@Configuration`类来配置额外的`Bucket`和`cache3`缓存，如下所示：
+
+```java
+@Configuration(proxyBeanMethods = false)
+public class CouchbaseCacheConfiguration {
+
+    private final Cluster cluster;
+
+    public CouchbaseCacheConfiguration(Cluster cluster) {
+        this.cluster = cluster;
+    }
+
+    @Bean
+    public Bucket anotherBucket() {
+        return this.cluster.openBucket("another", "secret");
+    }
+
+    @Bean
+    public CacheManagerCustomizer<CouchbaseCacheManager> cacheManagerCustomizer() {
+        return c -> {
+            c.prepareCache("cache3", CacheBuilder.newInstance(anotherBucket())
+                    .withExpiration(2));
+        };
+    }
+
+}
+```
+
+此示例配置重用了通过自动配置创建的`Cluster`。
+
+
+
+### 12.1.7 Redis
+
+
+
+### 12.1.8 Caffeine
 
 
 

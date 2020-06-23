@@ -4283,6 +4283,25 @@ public class CouchbaseCacheConfiguration {
 
 ### 12.1.7 Redis
 
+如果[Redis](https://redis.io/)可用并已配置，则会自动配置`RedisCacheManager`。通过设置`spring.cache.cache-names`属性可以在启动时创建其他缓存，并且可以使用`spring.cache.redis.*`属性配置缓存默认值。例如，以下配置创建的`cache1`和`cache2`缓存的生存时间为10分钟：
+
+```properties
+spring.cache.cache-names=cache1,cache2
+spring.cache.redis.time-to-live=600000
+```
+
+>[!note]
+>
+>默认情况下，会添加密钥前缀，这样，如果两个单独的缓存使用相同的密钥，则 Redis 不会有重叠的密钥，也不会返回无效值。如果您创建自己的`RedisCacheManager`，我们强烈建议将此设置保持启用状态。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>您可以通过添加自己的`RedisCacheConfiguration` `@Bean`来完全控制配置。如果您要自定义序列化策略，这将很有用。
+
 
 
 ### 12.1.8 Caffeine

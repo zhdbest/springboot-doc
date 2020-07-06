@@ -4353,11 +4353,48 @@ Spring 框架为消息系统集成提供了广泛的支持，从简化使用`Jms
 
 ## 13.1 JMS
 
-`javax.jms.ConnectionFactory`接口提供了创建用于与 JMS 代理进行交互的`javax.jms.Connection`的标准方法。尽管 Spring 需要一个`ConnectionFactory`来与 JMS 一起使用，但是您通常不需要自己直接使用它，而可以依赖于更高级别的消息抽象。（有关详细信息，请参见Spring Framework参考文档的[相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/integration.html#jms)）Spring Boot 还会自动配置必要的基础架构，以发送和接收消息。
+`javax.jms.ConnectionFactory`接口提供了创建用于与 JMS broker 进行交互的`javax.jms.Connection`的标准方法。尽管 Spring 需要一个`ConnectionFactory`来与 JMS 一起使用，但是您通常不需要自己直接使用它，而可以依赖于更高级别的消息抽象。（有关详细信息，请参见Spring Framework参考文档的[相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/integration.html#jms)）Spring Boot 还会自动配置必要的基础架构，以发送和接收消息。
 
 
 
-### 13.3.1 ActiveMQ 支持
+### 13.1.1 ActiveMQ 支持
+
+当[ActiveMQ](https://activemq.apache.org/)在类路径上可用时，Spring Boot 会配置`ConnectionFactory`。如果存在broker，则将自动启动和配置嵌入式 broker（前提是未通过配置指定 broker 的 URL）。
+
+>[!note]
+>
+>如果您使用`spring-boot-starter-activemq`，则它将提供连接或嵌入 ActiveMQ 实例所需的依赖关系，以及与JMS集成的Spring基础结构。
+
+ActiveMQ 配置由`spring.activemq.*`的外部配置属性控制。 例如，您可以在`application.properties`中声明以下内容：
+
+```properties
+spring.activemq.broker-url=tcp://192.168.1.210:9876
+spring.activemq.user=admin
+spring.activemq.password=secret
+```
+
+默认情况下，`CachingConnectionFactory`用适当的配置包装原装的`ConnectionFactory`，您可以通过`spring.jms.*`中的外部配置属性来控制这些设置：
+
+```properties
+spring.jms.cache.session-cache-size=5
+```
+
+如果您想使用原生池，则可以通过向`org.messaginghub:pooled-jms`添加依赖项并相应地配置`JmsPoolConnectionFactory`来实现，如以下示例所示：
+
+```properties
+spring.activemq.pool.enabled=true
+spring.activemq.pool.max-connections=50
+```
+
+>[!tip]
+>
+>有关更多受支持的选项，请参见[`ActiveMQProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/jms/activemq/ActiveMQProperties.java)。您也可以注册任意数量的实现`ActiveMQConnectionFactoryCustomizer`的 bean，以进行更高级的自定义。
+
+默认情况下，ActiveMQ创建一个终点（如果尚不存在），以便根据其提供的名称解析终点。
+
+
+
+### 13.1.2 Artemis 支持
 
 
 

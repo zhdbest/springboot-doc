@@ -4396,6 +4396,85 @@ spring.activemq.pool.max-connections=50
 
 ### 13.1.2 Artemis 支持
 
+当 Spring Boot 检测到[Artemis](https://activemq.apache.org/artemis/)在类路径上可用时，它可以自动配置`ConnectionFactory`。如果存在 broker，则将自动启动和配置嵌入式 broker（除非已明确设置 mode 属性）。受支持的模式是`embedded`（以明确表明需要嵌入式 broker，并且如果类路径上不存在 broker，则应该发生错误）和`netty`（使用`netty`传输协议连接到 broker）。配置后者后，Spring Boot 会配置一个`ConnectionFactory`，该工厂以默认设置连接到在本地机器上运行的 broker。
+
+>[!note]
+>
+>如果使用`spring-boot-starter-artemis`，则将提供连接到现有 Artemis 实例所需的依赖，以及与 JMS 集成的 Spring 基础架构。在您的应用程序中添加`org.apache.activemq:artemis-jms-server`可以使您使用嵌入式模式。
+
+Artemis 配置由`spring.artemis.*`的外部配置属性控制。例如，您可以在`application.properties`中声明以下部分：
+
+```properties
+spring.artemis.mode=native
+spring.artemis.host=192.168.1.210
+spring.artemis.port=9876
+spring.artemis.user=admin
+spring.artemis.password=secret
+```
+
+嵌入 broker 时，可以选择是否要启用持久性并列出应使其可用的终点。可以将它们指定为以逗号分隔的列表，以使用默认选项创建它们，或者您可以定义`org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration`或`org.apache.activemq.artemis.jms.server.config.TopicConfiguration`类型的 bean，分别用于高级队列和主题配置。
+
+默认情况下，`CachingConnectionFactory`用适当的设置包装原生的`ConnectionFactory`，您可以通过`spring.jms.*`中的外部配置来控制这些设置：
+
+```properties
+spring.jms.cache.session-cache-size=5
+```
+
+如果您想使用原生池，则可以通过向`org.messaginghub:pooled-jms`添加依赖项并相应地配置`JmsPoolConnectionFactory`来实现，如以下示例所示：
+
+```properties
+spring.artemis.pool.enabled=true
+spring.artemis.pool.max-connections=50
+```
+
+有关更多受支持的选项，请参见[`ArtemisProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/jms/artemis/ArtemisProperties.java)。
+
+不涉及 JNDI 查找，并且使用 Artemis 配置中的`name`属性或通过配置提供的名称来解析终点。
+
+
+
+### 13.1.3 使用 JNDI ConnectionFactory
+
+如果您正在应用程序服务器中运行应用程序，Spring Boot 会尝试使用 JNDI 来查找 JMS `ConnectionFactory`。默认情况下，将检索`java:/JmsXA`和`java:/XAConnectionFactory`位置。如果需要指定备用位置，则可以使用`spring.jms.jndi-name`属性，如以下示例所示：
+
+```properties
+spring.jms.jndi-name=java:/MyConnectionFactory
+```
+
+
+
+### 13.1.4 发送消息
+
+Spring 的`JmsTemplate`是自动配置的，您可以将其直接自动注入到自己的 bean 中，如以下示例所示：
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyBean {
+
+    private final JmsTemplate jmsTemplate;
+
+    @Autowired
+    public MyBean(JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
+    }
+
+    // ...
+
+}
+```
+
+>[!note]
+>
+>[`JmsMessagingTemplate`](https://docs.spring.io/spring/docs/5.2.2.RELEASE/javadoc-api/org/springframework/jms/core/JmsMessagingTemplate.html)可以以类似的方式注入。如果定义了`DestinationResolver`或`MessageConverter` bean，则其将被自动关联到自动配置的`JmsTemplate`。
+
+
+
+### 13.1.5 接收消息
+
 
 
 

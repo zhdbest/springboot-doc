@@ -4475,6 +4475,148 @@ public class MyBean {
 
 ### 13.1.5 接收消息
 
+存在 JMS 基础结构时，可以使用`@JmsListener`注解到任何 bean 以创建监听器端点。如果未定义`JmsListenerContainerFactory`，则会自动配置一个默认值。如果定义了`DestinationResolver`或`MessageConverter` Bean，则将其自动关联到默认工厂。
+
+默认情况下，默认工厂是事务性的。如果您在存在`JtaTransactionManager`的基础架构中运行，则默认情况下会将其与监听器容器关联。如果不是，则启用`sessionTransacted`标志。在后一种情况下，可以通过在监听器方法（或其委托）上添加`@Transactional`来将本地数据存储事务与传入消息的处理相关联。这样可以确保本地事务完成后，传入消息得到确认。这还包括发送已在同一 JMS 会话上执行的响应消息。
+
+以下组件在`someQueue`目标上创建一个监听器端点：
+
+```java
+@Component
+
+public class MyBean {
+
+  @JmsListener(destination = "someQueue")
+
+  public void processMessage(String content) {
+
+    // ...
+
+  }
+
+}
+```
+
+>[!tip]
+>
+>有关更多详细信息，请参见[`@EnableJms`的Javadoc](https://docs.spring.io/spring/docs/5.2.2.RELEASE/javadoc-api/org/springframework/jms/annotation/EnableJms.html)。
+
+如果您需要创建更多的`JmsListenerContainerFactory`实例，或者想要覆盖默认实例，Spring Boot 提供了一个`DefaultJmsListenerContainerFactoryConfigurer`，您可以使用与自动配置的设置相同的设置来初始化`DefaultJmsListenerContainerFactory`。
+
+例如，以下示例展示了另一个使用特定`MessageConverter`的工厂：
+
+```java
+@Configuration(proxyBeanMethods = false)
+static class JmsConfiguration {
+
+    @Bean
+    public DefaultJmsListenerContainerFactory myFactory(
+            DefaultJmsListenerContainerFactoryConfigurer configurer) {
+        DefaultJmsListenerContainerFactory factory =
+                new DefaultJmsListenerContainerFactory();
+        configurer.configure(factory, connectionFactory());
+        factory.setMessageConverter(myMessageConverter());
+        return factory;
+    }
+
+}
+```
+
+然后，您可以在任何`@JmsListener`注解标注的方法中使用工厂，如下所示：
+
+```java
+@Component
+public class MyBean {
+
+    @JmsListener(destination = "someQueue", containerFactory="myFactory")
+    public void processMessage(String content) {
+        // ...
+    }
+
+}
+```
+
+
+
+## 13.2 AMQP
+
+高级消息队列协议（AMQP）是面向消息中间件的与平台无关的线路层协议。Spring AMQP 项目将 Spring 的核心概念应用于基于 AMQP 的消息解决方案的开发。Spring Boot 为通过 RabbitMQ 使用 AMQP 提供了许多便利，包括`spring-boot-starter-amqp`“启动器”。
+
+
+
+### 13.2.1 RabbitMQ 支持
+
+[RabbitMQ](https://www.rabbitmq.com/)是基于 AMQP 协议的轻型、可靠、可伸缩和轻便的消息代理。Spring 使用`RabbitMQ`通过 AMQP 协议进行通信。
+
+RabbitMQ 配置由`spring.rabbitmq.*`中的外部配置属性控制。例如，您可以在`application.properties`中声明以下部分：
+
+```properties
+spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+spring.rabbitmq.username=admin
+spring.rabbitmq.password=secret
+```
+
+另外，您可以使用`addresses`属性配置相同的连接：
+
+```properties
+spring.rabbitmq.addresses=amqp://admin:secret@localhost
+```
+
+如果上下文中存在`ConnectionNameStrategy` bean，它将自动用于命名由自动配置的`ConnectionFactory`创建的连接。有关更多受支持的选项，请参见[`RabbitProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/amqp/RabbitProperties.java)。
+
+>[!tip]
+>
+>有关更多详细信息，请参见[了解AMQP（RabbitMQ使用的协议）](https://spring.io/blog/2010/06/14/understanding-amqp-the-protocol-used-by-rabbitmq/)。
+
+
+
+### 13.2.2 发送消息
+
+Spring 的`AmqpTemplate`和`AmqpAdmin`是自动配置的，您可以将它们直接自动连接到自己的 bean 中，如以下示例所示：
+
+```java
+import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyBean {
+
+    private final AmqpAdmin amqpAdmin;
+    private final AmqpTemplate amqpTemplate;
+
+    @Autowired
+    public MyBean(AmqpAdmin amqpAdmin, AmqpTemplate amqpTemplate) {
+        this.amqpAdmin = amqpAdmin;
+        this.amqpTemplate = amqpTemplate;
+    }
+
+    // ...
+
+}
+```
+
+>[!note]
+>
+>[`RabbitMessagingTemplate`](https://docs.spring.io/spring-amqp/docs/2.2.2.RELEASE/api/org/springframework/amqp/rabbit/core/RabbitMessagingTemplate.html)可以以类似的方式注入。如果定义了`MessageConverter` bean，它将自动关联到自动配置的`AmqpTemplate`。
+
+如有必要，任何定义为 bean 的`org.springframework.amqp.core.Queue`都会自动用于在 RabbitMQ 实例上声明一个相应的队列。
+
+要重试操作，可以在`AmqpTemplate`上启用重试机制（例如，在代理连接丢失的情况下）：
+
+```properties
+spring.rabbitmq.template.retry.enabled=true
+spring.rabbitmq.template.retry.initial-interval=2s
+```
+
+默认情况下，重试机制是禁用的。您也可以通过声明`RabbitRetryTemplateCustomizer` bean来以编程方式自定义`RetryTemplate`。
+
+
+
+### 13.2.3 接收消息
+
 
 
 

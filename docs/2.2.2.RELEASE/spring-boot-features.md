@@ -4686,6 +4686,79 @@ public class MyBean {
 
 ## 13.3 Apache Kafka 支持
 
+[Apache Kafka](https://kafka.apache.org/)通过提供`spring-kafka`项目的自动配置来提供支持。
+
+Kafka 配置由`spring.kafka.*`的外部配置属性控制。例如，您可以在`application.properties`中声明以下部分：
+
+```properties
+spring.kafka.bootstrap-servers=localhost:9092
+spring.kafka.consumer.group-id=myGroup
+```
+
+>[!tip]
+>
+>要在启动时创建 topic，请添加`NewTopic`类型的 bean。如果该 topic 已经存在，则将忽略该 bean。
+
+有关更多受支持的选项，请参见[`KafkaProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/kafka/KafkaProperties.java)。
+
+
+
+### 13.3.1 发送消息
+
+Spring 的`KafkaTemplate`是自动配置的，您可以直接在自己的 bean 中自动对其进行注入，如以下示例所示：
+
+```java
+@Component
+public class MyBean {
+
+    private final KafkaTemplate kafkaTemplate;
+
+    @Autowired
+    public MyBean(KafkaTemplate kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    // ...
+
+}
+```
+
+>[!note]
+>
+>如果定义了`spring.kafka.producer.transaction-id-prefix`属性，则会自动配置`KafkaTransactionManager`。另外，如果定义了`RecordMessageConverter` bean，它将自动关联到自动配置的`KafkaTemplate`。
+
+
+
+### 13.3.2 接收消息
+
+存在 Apache Kafka 基础结构时，可以使用`@KafkaListener`注解标注到任何 bean 以创建监听器端点。如果未定义`KafkaListenerContainerFactory`，则会使用`spring.kafka.listener.*`中定义的键自动配置默认值。
+
+以下组件在`someTopic`主题上创建了监听器端点：
+
+```java
+@Component
+public class MyBean {
+
+    @KafkaListener(topics = "someTopic")
+    public void processMessage(String content) {
+        // ...
+    }
+
+}
+```
+
+如果定义了`KafkaTransactionManager` bean，它将自动与容器工厂关联。同样地，如果定义了`ErrorHandler`、`AfterRollbackProcessor`或`ConsumerAwareRebalanceListener` bean，它将自动与默认工厂关联。
+
+根据监听器类型，将`RecordMessageConverter`或`BatchMessageConverter` bean与默认工厂关联。如果批量监听器仅存在一个`RecordMessageConverter` bean，则将其包装在`BatchMessageConverter`中。
+
+>[!tip]
+>
+>自定义`ChainedKafkaTransactionManager`必须标记为`@Primary`，因为它通常引用自动配置的`KafkaTransactionManager` bean。
+
+
+
+### 13.3 Kafka 流
+
 
 
 

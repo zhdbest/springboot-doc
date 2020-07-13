@@ -4757,9 +4757,37 @@ public class MyBean {
 
 
 
-### 13.3 Kafka 流
+### 13.3.3 Kafka 流
+
+Spring 为 Apache Kafka 提供了一个工厂 bean，用于创建`StreamsBuilder`对象并管理其流的生命周期。只要`kafka-streams`在类路径上并且通过`@EnableKafkaStreams`注解启用 Kafka Streams，Spring Boot 就会自动配置所需的`KafkaStreamsConfiguration` bean。
+
+启用 Kafka Streams 意味着必须设置应用程序 ID 和启动服务器。可以使用`spring.kafka.streams.application-id`来配置前者，如果未设置，则默认为`spring.application.name`。后者可以全局设置，也可以仅针对流进行覆盖。
+
+使用专用属性时可以使用几个附加的属性。通过`spring.kafka.streams.properties`命名空间设置其他任意 Kafka 属性。另请参阅[其他Kafka属性](spring-boot-features.md#1334-其他-kafka-属性)。
+
+要使用工厂 bean，只需将`StreamsBuilder`注入到您的`@Bean`中，如以下示例所示：
+
+```java
+@Configuration(proxyBeanMethods = false)
+@EnableKafkaStreams
+public static class KafkaStreamsExampleConfiguration {
+
+    @Bean
+    public KStream<Integer, String> kStream(StreamsBuilder streamsBuilder) {
+        KStream<Integer, String> stream = streamsBuilder.stream("ks1In");
+        stream.map((k, v) -> new KeyValue<>(k, v.toUpperCase())).to("ks1Out",
+                Produced.with(Serdes.Integer(), new JsonSerde<>()));
+        return stream;
+    }
+
+}
+```
+
+默认情况下，流由`StreamBuilder`对象管理，它将自动创建和启动。您可以使用`spring.kafka.streams.auto-startup`属性来自定义此行为。
 
 
+
+### 13.3.4 其他 Kafka 属性
 
 
 

@@ -4789,6 +4789,47 @@ public static class KafkaStreamsExampleConfiguration {
 
 ### 13.3.4 其他 Kafka 属性
 
+自动配置支持的属性显示在[appendix-application-properties.html](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-application-properties.html#common-application-properties)中。请注意，在大多数情况下，这些属性（连接符或驼峰）直接映射到 Apache Kafka 点缀的属性。有关详细信息，请参阅 Apache Kafka文档 。
+
+这些属性的前几个属性适用于所有组件（生产者，使用者，管理员和流），但如果您希望使用不同的值，则可以在组件级别上指定。Apache Kafka 指定具有 HIGH，MEDIUM 或 LOW 重要性的属性。Spring Boot自动配置支持所有 HIGH 重要性的属性、一些选定的 MEDIUM 和 LOW 属性以及任何没有默认值的属性。
+
+通过`KafkaProperties`类可以直接使用 Kafka 支持的属性的子集。如果希望使用不直接支持的其他属性来配置生产者或消费者，请使用以下属性：
+
+```properties
+spring.kafka.properties.prop.one=first
+spring.kafka.admin.properties.prop.two=second
+spring.kafka.consumer.properties.prop.three=third
+spring.kafka.producer.properties.prop.four=fourth
+spring.kafka.streams.properties.prop.five=fifth
+```
+
+这将常见的`prop.one` Kafka 属性设置为`first`（适用于生产者，消费者和管理员），`prop.two` admin 属性设置为`second`，`prop.three`消费者属性设置为`third`，`prop.four`生产者属性设置为`fourth`，`prop.five`流属性设置为`fifth`。
+
+您还可以像如下配置 Spring Kafka `JsonDeserializer`：
+
+```properties
+spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
+spring.kafka.consumer.properties.spring.json.value.default.type=com.example.Invoice
+spring.kafka.consumer.properties.spring.json.trusted.packages=com.example,org.acme
+```
+
+同样，您可以禁用`JsonSerializer`在报头中发送类型信息的默认行为：
+
+```properties
+spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+spring.kafka.producer.properties.spring.json.add.type.headers=false
+```
+
+>[!important]
+>
+>以这种方式设置的属性将覆盖 Spring Boot 显式支持的任何配置项。
+
+
+
+### 13.3.5 使用嵌入式 Kafka 进行测试
+
+
+
 
 
 # 15. 使用`WebClient`调用 REST 服务

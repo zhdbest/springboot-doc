@@ -4828,6 +4828,64 @@ spring.kafka.producer.properties.spring.json.add.type.headers=false
 
 ### 13.3.5 使用嵌入式 Kafka 进行测试
 
+Spring 为 Apache Kafka 提供了一种使用嵌入式 Apache Kafka 代理测试项目的便捷方法。要使用此功能，请使用`spring-kafka-test`模块中的`@EmbeddedKafka`注解标注测试类。有关更多信息，请参阅 Spring for Apache Kafka[参考手册](https://docs.spring.io/spring-kafka/docs/current/reference/html/#embedded-kafka-annotation)。
+
+要使 Spring Boot 自动配置与上述嵌入式 Apache Kafka 代理一起使用的话，您需要将嵌入式代理地址（由`EmbeddedKafkaBroker`设置）的系统属性重新映射到 Apache Kafka 的 Spring Boot 配置属性中。有几种方法可以做到这一点：
+
+* 提供一个系统属性，以将嵌入式代理地址映射到测试类中的`spring.kafka.bootstrap-servers`中：
+
+```java
+static {
+    System.setProperty(EmbeddedKafkaBroker.BROKER_LIST_PROPERTY, "spring.kafka.bootstrap-servers");
+}
+```
+
+* 在`@EmbeddedKafka`注解上配置属性名称：
+
+```java
+@EmbeddedKafka(topics = "someTopic",
+        bootstrapServersProperty = "spring.kafka.bootstrap-servers")
+```
+
+* 在配置属性中使用占位符：
+
+```properties
+spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}
+```
+
+
+
+# 14. 使用`RestTemplate`调用 REST 服务
+
+如果您需要从应用程序中调用远程 REST 服务，则可以使用 Spring 框架的`RestTemplate`类。由于`RestTemplate`实例在使用前通常需要自定义，因此 Spring Boot 不提供任何单个自动配置的`RestTemplate` bean。但是，它会自动配置`RestTemplateBuilder`，可以在需要时使用它创建`RestTemplate`实例。自动配置的`RestTemplateBuilder`确保将合适的`HttpMessageConverters`应用于`RestTemplate`实例。
+
+以下代码展示了一个典型示例：
+
+```java
+@Service
+public class MyService {
+
+    private final RestTemplate restTemplate;
+
+    public MyService(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
+
+    public Details someRestCall(String name) {
+        return this.restTemplate.getForObject("/{name}/details", Details.class, name);
+    }
+
+}
+```
+
+>[!tip]
+>
+>`RestTemplateBuilder`包含许多有用的方法，可用于快速配置`RestTemplate`。例如，要添加基础身份验证支持，可以使用`builder.basicAuthentication("user", "password").build()`。
+
+
+
+## 14.1 自定义 RestTemplate
+
 
 
 

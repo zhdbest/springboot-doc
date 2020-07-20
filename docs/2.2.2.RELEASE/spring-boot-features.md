@@ -4886,7 +4886,39 @@ public class MyService {
 
 ## 14.1 自定义 RestTemplate
 
+有三种主要方法自定义`RestTemplate`，具体取决于您希望自定义应用的范围。
 
+为了使所有自定义项的范围尽可能狭窄，请注入自动配置的`RestTemplateBuilder`，然后根据需要调用其方法。调用每个方法都返回一个新的`RestTemplateBuilder`实例，因此自定义项仅影响此生成器的使用。
+
+要进行应用程序范围的附加定制，请使用`RestTemplateCustomizer` bean。所有此类 bean 都会自动注册到自动配置的`RestTemplateBuilder`中，并应用于使用它构建的任何模板。
+
+以下示例展示了一个定制程序，该定制程序为除`192.168.0.5`之外的所有主机配置代理的使用：
+
+```java
+static class ProxyCustomizer implements RestTemplateCustomizer {
+
+    @Override
+    public void customize(RestTemplate restTemplate) {
+        HttpHost proxy = new HttpHost("proxy.example.com");
+        HttpClient httpClient = HttpClientBuilder.create().setRoutePlanner(new DefaultProxyRoutePlanner(proxy) {
+
+            @Override
+            public HttpHost determineProxy(HttpHost target, HttpRequest request, HttpContext context)
+                    throws HttpException {
+                if (target.getHostName().equals("192.168.0.5")) {
+                    return null;
+                }
+                return super.determineProxy(target, request, context);
+            }
+
+        }).build();
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+    }
+
+}
+```
+
+最后，最极端（并且很少使用）的选项是创建自己的`RestTemplateBuilder` bean。这样做会关闭`RestTemplateBuilder`的自动配置，并阻止使用任何`RestTemplateCustomizer` bean。
 
 
 

@@ -4924,11 +4924,47 @@ static class ProxyCustomizer implements RestTemplateCustomizer {
 
 # 15. 使用`WebClient`调用 REST 服务
 
+如果您的类路径中包含 Spring WebFlux，则还可以选择使用`WebClient`调用远程 REST 服务。与`RestTemplate`相比，此客户端具有更多的功能，并且具有完全的反应性。您可以在[Spring Framework 文档的相应部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web-reactive.html#webflux-client)中了解有关`WebClient`的更多信息。
+
+Spring Boot 为您创建并预配置了`WebClient.Builder`。强烈建议将其注入到您的组件中，并使用它来创建`WebClient`实例。Spring Boot 配置该构建器以共享 HTTP 资源，以与服务器相同的方式反映编解码器的设置（请参阅[WebFlux HTTP编解码器自动配置](spring-boot-features.md#722-带有httpmessagereaders和httpmessagewriters的http解码器)），以及更多。
+
+以下代码展示了一个典型示例：
+
+```java
+@Service
+public class MyService {
+
+    private final WebClient webClient;
+
+    public MyService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("https://example.org").build();
+    }
+
+    public Mono<Details> someRestCall(String name) {
+        return this.webClient.get().uri("/{name}/details", name)
+                        .retrieve().bodyToMono(Details.class);
+    }
+
+}
+```
+
 
 
 ## 15.1 WebClient 运行时间
 
+Spring Boot 将根据应用程序类路径上可用的库自动检测到的`ClientHttpConnector`来驱动`WebClient`。目前，还支持 Reactor Netty 和 Jetty RS 客户端。
 
+`spring-boot-starter-webflux`启动器默认情况下依赖于`io.projectreactor.netty:reactor-netty`，它带来了服务器和客户端的实现。如果选择使用 Jetty 作为反应式服务器，则应添加 Jetty 反应式HTTP客户端库`org.eclipse.jetty:jetty-reactive-httpclient`的依赖项。对服务器和客户端使用相同的技术具有优势，因为它将自动在客户端和服务器之间共享 HTTP 资源。
+
+开发人员可以通过提供自定义的`ReactorResourceFactory`或`JettyResourceFactory` bean来覆盖 Jetty 和 Reactor Netty 的资源配置，这将同时应用于客户端和服务器。
+
+如果您希望为客户端覆盖该选择，则可以定义自己的`ClientHttpConnector` bean并完全控制客户端配置。
+
+您可以在 Spring Framework 参考文档中了解有关[`WebClient`配置选项](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/web-reactive.html#webflux-client-builder)的更多信息。
+
+
+
+## 15.2 自定义 WebClient
 
 
 

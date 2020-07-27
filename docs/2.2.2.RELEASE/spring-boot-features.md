@@ -4966,7 +4966,13 @@ Spring Boot 将根据应用程序类路径上可用的库自动检测到的`Clie
 
 ## 15.2 自定义 WebClient
 
+有三种主要的方法来自定义`WebClient`，这取决于您想要应用自定义的范围。
 
+为了尽可能缩小定制的范围，注入自动配置的`WebClient.Builder`，然后根据需要调用其方法。`WebClient.Builder`实例是有状态的：生成器上的任何更改都会反映在随后使用它所创建的所有客户机中。如果您希望使用相同的构建器创建多个客户机，还可以考虑使用`WebClient.Builder other = builder.clone();`克隆构建器。
+
+对所有`WebClient.Builder`进行应用程序范围的附加自定义，您可以声明`WebClientCustomizer` bean并在注入点更改`WebClient.Builder`。
+
+最后，您可以回到原始的 API 并使用`WebClient.create()`。在这种情况下，不应用自动配置或`WebClientCustomizer`。
 
 
 

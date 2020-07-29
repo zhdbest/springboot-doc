@@ -4982,11 +4982,29 @@ Spring Boot 将根据应用程序类路径上可用的库自动检测到的`Clie
 
 
 
+# 20. 任务执行与调度
 
+在上下文中没有`Executor` bean 的情况下，Spring Boot 会使用合理的默认值自动配置`ThreadPoolTaskExecutor`，这些默认值可以自动与异步任务执行（`@EnableAsync`）和 Spring MVC 异步请求处理相关联。
 
+>[!tip]
+>
+>如果您在上下文中定义了自定义`Executor`，则常规任务执行（例如`@EnableAsync`）将明确使用它，但是由于需要`AsyncTaskExecutor`实现（名为`applicationTaskExecutor`），因此不会配置对 Spring MVC 的支持。根据您的目标安排，您可以将`Executor`更改为`ThreadPoolTaskExecutor`，或者定义`ThreadPoolTaskExecutor`和包装您的自定义`Executor`的`AsyncConfigurer`。
+>
+>自动配置的`TaskExecutorBuilder`可让您轻松创建实例，这些实例复制默认的自动配置功能。
 
+线程池使用8个核心线程，这些线程可以根据负载增长和收缩。可以使用`spring.task.execution`命名空间微调这些默认设置，如以下示例所示：
 
+```properties
+spring.task.execution.pool.max-size=16
+spring.task.execution.pool.queue-capacity=100
+spring.task.execution.pool.keep-alive=10s
+```
 
+这会将线程池更改为使用有界队列，以便在队列已满（100个任务）时，线程池最多增加到16个线程。线程池的收缩也更加激进，因为当线程空闲10秒（而不是默认情况下的60秒）时，它们就会被回收。
+
+如果需要将`ThreadPoolTaskScheduler`与计划任务执行相关联（`@EnableScheduling`），也可以对其进行自动配置。线程池默认使用一个线程，可以使用`spring.task.scheduling`命名空间对这些设置进行微调。
+
+如果需要创建自定义执行器或调度器，则`TaskExecutorBuilder` bean 和`TaskSchedulerBuilder` bean 在上下文中都可用。
 
 
 

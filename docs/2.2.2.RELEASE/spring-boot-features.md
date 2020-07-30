@@ -4976,6 +4976,33 @@ Spring Boot 将根据应用程序类路径上可用的库自动检测到的`Clie
 
 
 
+# 16. 校验
+
+只要在类路径上存在 JSR-303 实现（例如 Hibernate 校验器），就会自动启用 Bean Validation 1.1 所支持的方法验证功能。这使 bean 方法的参数和返回值可以使用`javax.validation`约束进行标注。具有此类注解方法的目标类需要在类型级别使用`@Validated`注解进行标注，以便在其方法中搜索内含的约束注解。
+
+例如，以下服务触发第一个参数的校验，确保其大小在 8 到 10 之间：
+
+```java
+@Service
+@Validated
+public class MyBean {
+
+    public Archive findByCodeAndAuthor(@Size(min = 8, max = 10) String code,
+            Author author) {
+        ...
+    }
+
+}
+```
+
+
+
+# 17. 发送邮件
+
+
+
+
+
 # 19. Hazelcast
 
 

@@ -4999,6 +4999,34 @@ public class MyBean {
 
 # 17. 发送邮件
 
+Spring 框架通过使用`JavaMailSender`接口提供了用于发送电子邮件的简单抽象，Spring Boot 为它以及启动器模块提供了自动配置。
+
+>[!tip]
+>
+>有关如何使用`JavaMailSender`的详细说明，请参见[参考文档](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/integration.html#mail)。
+
+如果`spring.mail.host`和相关的库（由`spring-boot-starter-mail`定义）可用，那么如果不存在默认`JavaMailSender`，则会创建一个。可以通过`spring.mail`命名空间中的配置项进一步自定义发件人。有关更多详细信息，请参见[`MailProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/mail/MailProperties.java)。
+
+特别是，某些默认超时时间是无限的，您可能需要更改该值，以避免线程被无响应的邮件服务器阻塞，如以下示例所示：
+
+```properties
+spring.mail.properties.mail.smtp.connectiontimeout=5000
+spring.mail.properties.mail.smtp.timeout=3000
+spring.mail.properties.mail.smtp.writetimeout=5000
+```
+
+也可以使用来自 JNDI 的现有`Session`配置`JavaMailSender`：
+
+```properties
+spring.mail.jndi-name=mail/Session
+```
+
+设置`jndi-name`后，它将优先于所有其他与会话相关的设置。
+
+
+
+# 18. 使用 JTA 实现分布式事务
+
 
 
 

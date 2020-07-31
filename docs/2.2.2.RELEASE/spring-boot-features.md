@@ -5027,6 +5027,26 @@ spring.mail.jndi-name=mail/Session
 
 # 18. 使用 JTA 实现分布式事务
 
+通过使用[Atomikos](https://www.atomikos.com/)或[Bitronix](https://github.com/bitronix/btm)嵌入式事务管理器，Spring Boot 支持跨多个 XA 资源的分布式 JTA 事务。在部署合适的 Java EE 应用程序服务器时也支持 JTA 事务。
+
+当检测到 JTA 环境时，将使用 Spring 的`JtaTransactionManager`来管理事务。自动配置的 JMS，DataSource 和 JPA Bean 已升级为支持 XA 事务。 您可以使用标准的 Spring 习惯用法（例如`@Transactional`）来参与分布式事务。如果您在 JTA 环境中，但仍要使用本地事务，则可以将`spring.jta.enabled`属性设置为`false`以禁用 JTA 自动配置。
+
+
+
+## 18.1 使用 Atomikos 事务管理器
+
+[Atomikos](https://www.atomikos.com/)是一种流行的开源事务管理器，可以嵌入到您的 Spring Boot 应用程序中。您可以使用`spring-boot-starter-jta-atomikos`启动器引入适当的 Atomikos 库。Spring Boot 自动配置 Atomikos，并确保将适当的`depends-on`设置应用于 Spring Bean，以正确启动和关闭顺序。
+
+默认情况下，Atomikos 事务日志将写入应用程序主目录（应用程序jar文件所在的目录）中的`transaction-logs`目录下。您可以通过在`application.properties`文件中设置`spring.jta.log-dir`属性来自定义此目录的位置。以`spring.jta.atomikos.properties`开头的属性也可以用于自定义Atomikos `UserTransactionServiceImp`。有关完整的详细信息，请参见[`AtomikosProperties` Javadoc](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/jta/atomikos/AtomikosProperties.html)。
+
+>[!note]
+>
+>为了确保多个事务管理器可以安全地协调同一资源管理器，必须为每个 Atomikos 实例配置一个唯一的 ID。 默认情况下，此 ID 是运行 Atomikos 的计算机的 IP 地址。 为了确保生产中的唯一性，应为每个应用程序实例将`spring.jta.transaction-manager-id`属性配置为不同的值。
+
+
+
+## 18.2 使用 Bitronix 事务管理器
+
 
 
 

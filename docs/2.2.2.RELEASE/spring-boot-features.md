@@ -5047,6 +5047,24 @@ spring.mail.jndi-name=mail/Session
 
 ## 18.2 使用 Bitronix 事务管理器
 
+[Bitronix](https://github.com/bitronix/btm)是一个流行的开源 JTA 事务管理器实现。您可以使用`spring-boot-starter-jta-bitronix`启动器引入相关的依赖到您的项目中。与 Atomikos 一样，Spring Boot 自动配置 Bitronix 并对您的 bean 进行后处理，以确保启动和关闭顺序正确。
+
+Bitronix 事务日志文件（`part1.btm`和`part2.btm`）默认写到应用主目录下的`transaction-logs`目录下。您可以通过设置`spring.jta.log-dir`来自定义该目录的位置。以`spring.jta.bitronix.properties`开头的属性也会绑定到`bitronix.tm.Configuration` bean，以实现完全自定义。
+
+>[!note]
+>
+>为了确保多个事务管理器可以安全地协调同一资源管理器，必须为每个 Bitronix 实例配置唯一的ID。默认情况下，此 ID 是运行 Bitronix 的计算机的 IP 地址。为了确保生产中的唯一性，应为每个应用程序实例将`spring.jta.transaction-manager-id`属性配置为不同的值。
+
+
+
+## 18.3 使用 Java EE 管理的事务管理器
+
+如果您将 Spring Boot 应用程序打包为`war`或`ear`文件，然后将其部署到 Java EE 应用程序服务器，则可以使用应用程序服务器的内置事务管理器。Spring Boot 通过查找公共的 JNDI 位置（`java:comp/UserTransaction`、`java:comp/TransactionManager`等）来尝试自动配置事务管理器。如果使用应用程序的服务器提供的事务服务，通常还需要确保所有资源都由服务器管理并通过 JNDI 公开。Spring Boot 会通过在 JNDI 路径（`java:/JmsXA`或`java:/XAConnectionFactory`）中查找`ConnectionFactory`来尝试自动配置 JMS，并且您可以使用[`spring.datasource.jndi-name`属性](spring-boot-features.md#1013-连接到-jndi-数据源)配置您的`DataSource`。
+
+
+
+## 18.4 同时使用 XA 和非 XA JMS 连接
+
 
 
 

@@ -5065,7 +5065,33 @@ Bitronix 事务日志文件（`part1.btm`和`part2.btm`）默认写到应用主�
 
 ## 18.4 同时使用 XA 和非 XA JMS 连接
 
+使用 JTA 时，主 JMS `ConnectionFactory` bean是 XA 感知的，并参与分布式事务。在某些情况下，您可能希望通过使用非 XA `ConnectionFactory`处理某些 JMS 消息。例如，您的 JMS 处理逻辑可能需要比 XA 超时更长的时间。
 
+如果要使用非 XA `ConnectionFactory`，则可以注入`nonXaJmsConnectionFactory` bean，而不是`@Primary ` `jmsConnectionFactory` bean。为了保持一致性，`jmsConnectionFactory` bean使用别名`xaJmsConnectionFactory`提供。
+
+如下示例展示了如何注入一个`ConnectionFactory`实例：
+
+```java
+// Inject the primary (XA aware) ConnectionFactory
+@Autowired
+private ConnectionFactory defaultConnectionFactory;
+
+// Inject the XA aware ConnectionFactory (uses the alias and injects the same as above)
+@Autowired
+@Qualifier("xaJmsConnectionFactory")
+private ConnectionFactory xaConnectionFactory;
+
+// Inject the non-XA aware ConnectionFactory
+@Autowired
+@Qualifier("nonXaJmsConnectionFactory")
+private ConnectionFactory nonXaConnectionFactory;
+```
+
+
+
+## 18.5 其他可选的嵌入式事务管理器
+
+[`XAConnectionFactoryWrapper`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/jms/XAConnectionFactoryWrapper.java)和[`XADataSourceWrapper`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/jdbc/XADataSourceWrapper.java)接口可用于支持其他嵌入式事务管理器。这些接口负责包装`XAConnectionFactory`和`XADataSource` Bean，并将它们作为常规的`ConnectionFactory`和`DataSource` Bean公开，以透明方式注册分布式事务。如果您在`ApplicationContext`中注册了`JtaTransactionManager` bean和相应的的 XA 包装 bean，则 DataSource 和 JMS 自动配置使用 JTA 变体。
 
 
 
@@ -5075,7 +5101,7 @@ Bitronix 事务日志文件（`part1.btm`和`part2.btm`）默认写到应用主�
 
 
 
-# 20. 任务执行与调度
+# 21. 任务执行与调度
 
 在上下文中没有`Executor` bean 的情况下，Spring Boot 会使用合理的默认值自动配置`ThreadPoolTaskExecutor`，这些默认值可以自动与异步任务执行（`@EnableAsync`）和 Spring MVC 异步请求处理相关联。
 

@@ -5125,7 +5125,63 @@ spring.hazelcast.config=classpath:config/my-hazelcast.xml
 
 # 20. Quartz 调度器
 
+Spring Boot 为使用[Quartz调度器](https://www.quartz-scheduler.org/)提供了许多便利，包括`spring-boot-starter-quartz`“启动器”。如果Quartz可用，则自动配置`Scheduler`（通过`SchedulerFactoryBean`抽象类）。
 
+以下类型的Bean将自动被创建并与`Scheduler`关联：
+
+* `JobDetail`：定义一个特定的 job。可以使用`JobBuilder` API 构建`JobDetail`实例。
+* `Calendar`
+* `Trigger`：定义特定的 job 何时触发
+
+默认情况下，使用内存中的`JobStore`。但是，如果应用程序中有可用的`DataSource` bean，并且如果也相应地配置了`spring.quartz.job-store-type`属性，则可以配置基于`JDBC`的存储，如以下示例所示：
+
+```properties
+spring.quartz.job-store-type=jdbc
+```
+
+使用 JDBC 存储时，可以在启动时初始化 schema，如以下示例所示：
+
+```properties
+spring.quartz.jdbc.initialize-schema=always
+```
+
+>[!warning]
+>
+>默认情况下，将使用 Quartz 库中的标准脚本检测并初始化数据库。这些脚本将删除现有表，并在每次重新启动时删除所有触发器。还可以通过设置`spring.quartz.jdbc.schema`属性来提供自定义脚本。
+
+要让 Quartz 使用应用程序的主`DataSource`之外的`DataSource`，请声明一个`DataSource` bean，并用`@QuartzDataSource`标注其`@Bean`方法。这样做可以确保`SchedulerFactoryBean`和模式初始化都使用特定于 Quartz 的数据源。
+
+默认情况下，通过配置创建的 job 将不会覆盖从持久化的 job 存储中读取的已注册 job。要启用覆盖现有 job 定义的功能，请设置`spring.quartz.overwrite-existing-jobs`属性。
+
+可以使用`spring.quartz`属性和`SchedulerFactoryBeanCustomizer` bean来定制 Quart 调度器配置，这可以通过编程方式来调度`SchedulerFactoryBean`。可以使用`spring.quartz.properties.*`自定义高级 Quartz 配置属性。
+
+>[!note]
+>
+>特别是，`Executor` bean没有与调度器关联，因为 Quartz 提供了一种通过`spring.quartz.properties`配置调度器的方法。如果需要自定义任务执行器，请考虑实现`SchedulerFactoryBeanCustomizer`。
+
+job 可以定义 setter 以注入数据映射属性。常规 bean 也可以用类似的方式注入，如以下示例所示：
+
+```java
+public class SampleJob extends QuartzJobBean {
+
+    private MyService myService;
+
+    private String name;
+
+    // Inject "MyService" bean
+    public void setMyService(MyService myService) { ... }
+
+    // Inject the "name" job data property
+    public void setName(String name) { ... }
+
+    @Override
+    protected void executeInternal(JobExecutionContext context)
+            throws JobExecutionException {
+        ...
+    }
+
+}
+```
 
 
 

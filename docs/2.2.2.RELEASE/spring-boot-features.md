@@ -5211,9 +5211,23 @@ spring.task.execution.pool.keep-alive=10s
 
 
 
+# 22. Spring Integration
+
+Spring Boot为使用[Spring Integration](https://spring.io/projects/spring-integration)提供了许多便利，包括`spring-boot-starter-integration` “启动器”。Spring Integration 提供了消息传递以及 HTTP，TCP 等其他传输方式的抽象。如果您的类路径上有Spring Integration，则将通过`@EnableIntegration`注解对其进行初始化。
+
+Spring Boot 还配置了一些功能，这些功能由存在的其他 Spring Integration 模块触发。如果`spring-integration-jmx`也位于类路径上，则消息处理统计信息将通过 JMX 发布。如果`spring-integration-jdbc`可用，则可以在启动时创建默认的数据库架构，如以下行所示：
+
+```properties
+spring.integration.jdbc.initialize-schema=always
+```
+
+有关更多详细信息，请参见[`IntegrationAutoConfiguration`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/integration/IntegrationAutoConfiguration.java)和[`IntegrationProperties`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/integration/IntegrationProperties.java)类。
+
+默认情况下，如果存在 Micrometer `meterRegistry` bean，那么 Spring Integration 指标将由 Micrometer 管理。如果您希望使用旧版 Spring Integration 指标，请将`DefaultMetricsFactory` bean添加到应用程序上下文中。
 
 
 
+# 23. Spring Session
 
 
 

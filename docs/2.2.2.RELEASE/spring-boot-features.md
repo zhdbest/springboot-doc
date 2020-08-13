@@ -5263,19 +5263,41 @@ spring.session.jdbc.table-name=SESSIONS
 
 # 24. 通过 JMX 进行监视和管理
 
+Java Management Extensions (JMX) 提供了监视和管理应用程序的标准机制。Spring Boot 将最合适的`MBeanServer`暴露为 ID 为`MBeanServer`的 bean。使用 Spring JMX 注解(`@ManagedResource`、`@ManagedAttribute`或`@ManagedOperation`)标注的任何 bean 都将暴露给它。
+
+如果您的平台提供了一个标准的`MBeanServer`，那么 Spring Boot 将使用它，并在必要时默认使用 VM `MBeanServer`。如果所有这些都失败了，将创建一个新的`MBeanServer`。
+
+有关更多细节，请参阅[`JmxAutoConfiguration`](https://github.com/spring-projects/spring-boot/tree/v2.2.2.RELEASE/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/jmx/JmxAutoConfiguration.java)类。
 
 
 
+# 25. 测试
+
+Spring Boot 提供了许多实用程序和注解来帮助测试应用程序。测试支持由两个模块提供：`spring-boot-test`包含核心项，`spring-boot-test autoconfigure`支持测试的自动配置。
+
+大多数开发人员使用 `spring-boot-starter-test` “Starter”，它导入 Spring Boot 测试模块以及 JUnit Jupiter、AssertJ、Hamcrest 和许多其他有用的库。
+
+>[!tip]
+>
+>启动器还提供了老式引擎，以便您可以运行 JUnit 4 和 JUnit 5 测试。如果您已经将测试迁移到 JUnit 5，那么您应该排除 JUnit 4 支持，如下面的示例所示：
+>
+>```xml
+><dependency>
+>    <groupId>org.springframework.boot</groupId>
+>    <artifactId>spring-boot-starter-test</artifactId>
+>    <scope>test</scope>
+>    <exclusions>
+>        <exclusion>
+>            <groupId>org.junit.vintage</groupId>
+>            <artifactId>junit-vintage-engine</artifactId>
+>        </exclusion>
+>    </exclusions>
+></dependency>
+>```
 
 
 
-
-
-
-
-
-
-
+## 25.1 测试范围的依赖
 
 
 

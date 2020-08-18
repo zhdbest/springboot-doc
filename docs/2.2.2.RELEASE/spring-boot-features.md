@@ -5299,11 +5299,21 @@ Spring Boot 提供了许多实用程序和注解来帮助测试应用程序。�
 
 ## 25.1 测试范围的依赖
 
+`spring-boot-starter-test`“启动器”（`scope`为`test`）包含以下提供的库：
+
+* [JUnit 5](https://junit.org/junit5) (包括用于向后兼容 JUnit 4 的老式引擎)：实际测试 Java 应用程序的标准。
+* [Spring Test](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/testing.html#integration-testing) & Spring Boot Test：对 Spring Boot 应用程序的实用程序和集成测试支持。
+* [AssertJ](https://joel-costigliola.github.io/assertj/)：流畅的断言库
+* [Hamcrest](https://github.com/hamcrest/JavaHamcrest)：匹配器对象库（也称为约束或谓词）。
+* [Mockito](https://mockito.github.io/)：Java 模拟框架。
+* [JSONassert](https://github.com/skyscreamer/JSONassert)：JSON 的断言库。
+* [JsonPath](https://github.com/jayway/JsonPath)：JSON 的 XPath。
+
+通常，我们发现这些通用库在编写测试时很有用。如果这些库不满足您的需求，则可以添加自己的其他测试依赖项。
 
 
 
-
-
+## 25.2 测试 Spring 应用
 
 
 

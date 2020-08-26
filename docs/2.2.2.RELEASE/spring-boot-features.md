@@ -5315,11 +5315,17 @@ Spring Boot 提供了许多实用程序和注解来帮助测试应用程序。�
 
 ## 25.2 测试 Spring 应用
 
+依赖注入的主要优点之一是，它应该使您的代码更易于进行单元测试。您可以使用`new`操作进行实例化对象，而无需使用 Spring。您还可以使用*模拟对象*而不是实际的依赖项。
+
+通常，您除了单元测试还要进行集成测试（使用 Spring `ApplicationContext`）。能够进行集成测试而无需部署应用程序或连接到其他基础架构，这很有用。
+
+Spring 框架包括用于此类集成测试的专用测试模块。您可以直接声明一个`org.springframework:spring-test`依赖项，或使用`spring-boot-starter-test`“启动器”来传递它。
+
+如果您以前没有使用过`spring-test`模块，则应先阅读 Spring 框架参考文档的[相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/testing.html#testing)。
 
 
 
-
-
+## 25.3 测试 Spring Boot 应用
 
 
 

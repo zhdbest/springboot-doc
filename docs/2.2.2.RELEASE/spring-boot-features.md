@@ -5422,11 +5422,96 @@ class MyTests {
 
 ### 25.3.4 使用应用参数
 
+如果您的应用程序需要参数，则可以使用`args`属性让`@SpringBootTest`注入参数。
+
+```java
+@SpringBootTest(args = "--app.test=one")
+class ApplicationArgumentsExampleTests {
+
+    @Test
+    void applicationArgumentsPopulated(@Autowired ApplicationArguments args) {
+        assertThat(args.getOptionNames()).containsOnly("app.test");
+        assertThat(args.getOptionValues("app.test")).containsOnly("one");
+    }
+
+}
+```
+
+
+
+### 25.3.5 在模拟环境中进行测试
+
+默认情况下，`@SpringBootTest`不会启动服务器。如果您有要针对此模拟环境进行测试的Web端点，则可以另外配置`MockMvc`，如以下示例所示：
+
+```java
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class MockMvcExampleTests {
+
+    @Test
+    void exampleTest(@Autowired MockMvc mvc) throws Exception {
+        mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string("Hello World"));
+    }
+
+}
+```
+
+>[!tip]
+>
+>如果只想关注 Web 层而不希望启动完整的`ApplicationContext`，请考虑[改用`@WebMvcTest`](spring-boot-features.md#25312-自动配置的-spring-mvc-测试)。
+
+另外，您可以配置`WebTestClient`，如以下示例所示：
+
+```java
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+@SpringBootTest
+@AutoConfigureWebTestClient
+class MockWebTestClientExampleTests {
+
+    @Test
+    void exampleTest(@Autowired WebTestClient webClient) {
+        webClient.get().uri("/").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("Hello World");
+    }
+
+}
+```
+
+>[!tip]
+>
+>在模拟环境中进行测试通常比在完整的 Servlet 容器中运行更快。但是，由于模拟是在 Spring MVC 层进行的，因此无法使用 MockMvc 直接测试依赖于较低级别 Servlet 容器行为的代码。
+>
+>例如，Spring Boot 的错误处理基于 Servlet 容器提供的“错误页面”支持。这意味着，尽管您可以按预期测试 MVC 层引发和处理异常，但是您无法直接测试是否呈现了特定的自定义错误页面。如果需要测试这些较低级别的问题，则可以按照下一节中的描述启动一个完全运行的服务器。
+
+
+
+### 25.3.6 使用正在运行的服务进行测试
+
 
 
 
 
 ### 25.3.10 自动配置的测试
+
+
+
+### 25.3.12 自动配置的 Spring MVC 测试
 
 
 

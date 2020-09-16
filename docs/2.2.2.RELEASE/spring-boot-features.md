@@ -5560,6 +5560,29 @@ class RandomPortTestRestTemplateExampleTests {
 
 ### 25.3.8 使用 JMX
 
+由于测试上下文框架缓存上下文，因此默认情况下禁用 JMX 以防止相同组件在同一域上注册。如果此类测试需要访问`MBeanServer`，请考虑将其标记为脏：
+
+```java
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(properties = "spring.jmx.enabled=true")
+@DirtiesContext
+class SampleJmxTests {
+
+    @Autowired
+    private MBeanServer mBeanServer;
+
+    @Test
+    void exampleTest() {
+        // ...
+    }
+
+}
+```
+
+
+
+### 25.3.9 模拟和发现 Bean
+
 
 
 

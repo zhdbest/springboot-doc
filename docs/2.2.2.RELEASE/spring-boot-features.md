@@ -5583,7 +5583,74 @@ class SampleJmxTests {
 
 ### 25.3.9 模拟和发现 Bean
 
+运行测试时，有时需要在应用程序上下文中模拟某些组件。例如，您可能在开发过程中无法使用的远程服务上有一个facade。当您想要模拟在真实环境中很难触发的故障时，模拟也很有用。
 
+Spring Boot 包含一个`@MockBean`注解，可用于为`ApplicationContext`中的 bean 定义 Mockito mock。您可以使用注解添加新的 bean 或替换现有的单个 bean 定义。该注解可以直接用于测试类、测试中的字段或`@Configuration`类和字段。在字段上使用时，创建的 mock 的实例也会被注入。模拟的 bean 在每个测试方法之后都会自动重置。
+
+>[!note]
+>
+>如果您的测试使用 Spring Boot 的测试注解之一（比如`@SpringBootTest`），这个特性会自动启用。要以不同的方式使用此功能，必须显式添加监听器，如下例所示：
+>
+>```java
+>@TestExecutionListeners(MockitoTestExecutionListener.class)
+>```
+
+以下示例使用模拟实现替换现有的`RemoteService` bean：
+
+```java
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.context.*;
+import org.springframework.boot.test.mock.mockito.*;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+
+@SpringBootTest
+class MyTests {
+
+    @MockBean
+    private RemoteService remoteService;
+
+    @Autowired
+    private Reverser reverser;
+
+    @Test
+    void exampleTest() {
+        // RemoteService has been injected into the reverser bean
+        given(this.remoteService.someCall()).willReturn("mock");
+        String reverse = reverser.reverseSomeCall();
+        assertThat(reverse).isEqualTo("kcom");
+    }
+
+}
+```
+
+>[!note]
+>
+>`@MockBean`不能用于模拟 bean 在应用程序上下文刷新期间执行的行为。在执行测试时，应用程序上下文刷新已经完成，配置模拟行为已经太晚了。我们建议在这种情况下使用`@Bean`方法来创建和配置 mock。
+
+此外，您可以使用`@SpyBean`用Mockito `spy`包装任何现有的 bean。请参阅[Javadoc](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/api//org/springframework/boot/test/mock/mockito/SpyBean.html)以获取完整的详细信息。
+
+>[!note]
+>
+>CGLib 代理，比如为有作用域的 bean 创建的代理，将代理方法声明为`final`。这将使 Mockito 无法正常工作，因为它无法模拟或监视其默认配置中的`final`方法。如果您想要模拟或监视这样的 bean，可以通过添加`org.mockito:mockito-inline`到应用程序的测试依赖项配置 Mockito 来使用它的内联模拟生成器。这允许 Mockito 模拟和监视`final`方法。
+
+<span></span>
+
+
+
+>[!note]
+>
+>虽然 Spring 的测试框架在测试之间缓存应用程序上下文，并为共享相同配置的测试重用上下文，但`@MockBean`或`@SpyBean`的使用会影响缓存键，这很可能会增加上下文的数量。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>如果您使用`@SpyBean`来监视带有`@Cacheable`方法的 bean，这些方法通过名称引用参数，那么您的应用程序必须使用`-parameters`进行编译。这确保了当 bean 被监视时，参数名对缓存基础设施可用。
 
 
 

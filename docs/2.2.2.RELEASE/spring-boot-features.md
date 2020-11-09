@@ -5656,6 +5656,36 @@ class MyTests {
 
 ### 25.3.10 自动配置的测试
 
+Spring Boot 的自动配置系统对于应用程序来说很好，但是有时候对于测试来说有点太过了。通常只要加载被测试应用程序的“片段”所需的配置部分。例如，您可能想要测试 Spring MVC 控制器是否正确地映射了 url，并且您不想在这些测试中涉及到数据库调用，或者您可能想要测试 JPA 实体，并且当这些测试运行时，您对 web 层不感兴趣。
+
+`spring-boot-test-autoconfigure`模块包括许多可用于自动配置此类“片段”的注解。它们都以类似的方式工作，提供一个`@…Test`注解来加载`ApplicationContext`，以及一个或多个`@AutoConfigure…`注解，可以用于自定义自动配置的设置。
+
+>[!note]
+>
+>每个片段将组件扫描限制为合适的组件，并加载一组非常有限的自动配置类。如果需要排除其中一个，大多数`@…Test`注解都提供了`excludeAutoConfiguration`属性。或者，您可以使用`@ImportAutoConfiguration#exclude`。
+
+<span></span>
+
+
+
+>[!note]
+>
+>不支持在一个测试中使用几个`@…Test`注解来引入多个“片”。如果您需要多个“切片”，可以选择其中一个`@…Test`注解，并手动引入其他“切片”的`@AutoConfigure…`注解。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>也可以使用`@AutoConfigure…`注解和标准的`@SpringBootTest`注解。如果您对“分割”应用程序不感兴趣，但又需要一些自动配置的测试 bean，则可以使用此组合。
+
+
+
+### 25.3.11 自动配置的 JSON 测试
+
+
+
 
 
 ### 25.3.12 自动配置的 Spring MVC 测试

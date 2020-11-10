@@ -5684,7 +5684,68 @@ Spring Boot 的自动配置系统对于应用程序来说很好，但是有时�
 
 ### 25.3.11 自动配置的 JSON 测试
 
+要测试对象 JSON 序列化和反序列化是否如预期的那样工作，可以使用`@JsonTest`注解。`@JsonTest`自动配置可用的 JSON 映射器，它可以是以下库之一：
 
+- Jackson `ObjectMapper`，任何`@JsonComponent` bean 和任何 Jackson `Module`
+- `Gson`
+- `Jsonb`
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@JsonTest`所启用的自动配置列表。
+
+如果需要配置自动配置的元素，可以使用`@AutoConfigureJsonTesters`注解。
+
+Spring Boot 包括基于 AssertJ 的助手，这些助手使用 JSONAssert 和 JsonPath 库检查 JSON 是否按预期的呈现。Jackson、Gson、Jsonb 和字符串分别可以使用`JacksonTester`、`GsonTester`、`JsonbTester`和`BasicJsonTester`类。当使用`@JsonTest`时，测试类中的任何助手字段都可以被`@Autowired`。下面的示例展示了 Jackson 的测试类：
+
+```java
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.autoconfigure.json.*;
+import org.springframework.boot.test.context.*;
+import org.springframework.boot.test.json.*;
+
+import static org.assertj.core.api.Assertions.*;
+
+@JsonTest
+class MyJsonTests {
+
+    @Autowired
+    private JacksonTester<VehicleDetails> json;
+
+    @Test
+    void testSerialize() throws Exception {
+        VehicleDetails details = new VehicleDetails("Honda", "Civic");
+        // Assert against a `.json` file in the same package as the test
+        assertThat(this.json.write(details)).isEqualToJson("expected.json");
+        // Or use JSON path based assertions
+        assertThat(this.json.write(details)).hasJsonPathStringValue("@.make");
+        assertThat(this.json.write(details)).extractingJsonPathStringValue("@.make")
+                .isEqualTo("Honda");
+    }
+
+    @Test
+    void testDeserialize() throws Exception {
+        String content = "{\"make\":\"Ford\",\"model\":\"Focus\"}";
+        assertThat(this.json.parse(content))
+                .isEqualTo(new VehicleDetails("Ford", "Focus"));
+        assertThat(this.json.parseObject(content).getMake()).isEqualTo("Ford");
+    }
+
+}
+```
+
+>[!note]
+>
+>JSON 助手类也可以直接用于标准单元测试。为此，如果不使用`@JsonTest`，则在`@Before`方法中调用 helper 的`initFields`方法。
+
+如果您正在使用 Spring Boot 的基于 AssertJ 的帮助程序对给定 JSON 路径上的数字值进行断言，根据类型的不同，您可能无法使用`isEqualTo`。相反，您可以使用 AssertJ 的`satisfies`来断言该值与给定条件匹配。例如，下面的示例断言实际数字是一个接近0.15的浮点值，偏移量为0.01。
+
+```java
+assertThat(json.write(message))
+    .extractingJsonPathNumberValue("@.test.numberValue")
+    .satisfies((number) -> assertThat(number.floatValue()).isCloseTo(0.15f, within(0.01f)));
+```
 
 
 

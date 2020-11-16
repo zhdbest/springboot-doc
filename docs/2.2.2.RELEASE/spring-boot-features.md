@@ -5501,7 +5501,7 @@ class MockWebTestClientExampleTests {
 
 
 
-### 25.3.6 使用正在运行的服务进行测试
+### 25.3.6 使用正在运行的服务器进行测试
 
 如果需要启动完全运行的服务器，建议您使用随机端口。如果使用`@SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)`，则每次运行测试时都会随机选择一个可用端口。
 
@@ -5751,7 +5751,113 @@ assertThat(json.write(message))
 
 ### 25.3.12 自动配置的 Spring MVC 测试
 
+要测试 Spring MVC 控制器是否按预期工作，请使用`@WebMvcTest`注解。`@WebMvcTest`自动配置 Spring MVC 基础架构，并将扫描的 bean 限制为`@Controller`、`@ControllerAdvice`、`@JsonComponent`、`Converter`、`GenericConverter`、`Filter`、`HandlerInterceptor`、`WebMvcConfigurer`和`HandlerMethodArgumentResolver`。使用此注解时不会扫描常规的`@Component` bean。
 
+>[!tip]
+>
+>可以在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中找到`@WebMvcTest`启用的自动配置设置的列表。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>如果您需要注册额外的组件，比如`Jackson`模块，那么您可以在测试中使用`@Import`来导入额外的配置类。
+
+通常，`@WebMvcTest`仅限于一个控制器，并与`@MockBean`结合使用，为所需的协作者提供模拟实现。
+
+`@WebMvcTest`也自动配置`MockMvc`。模拟 MVC 提供了一种强大的方法来快速测试 MVC 控制器，而不需要启动一个完整的 HTTP 服务器。
+
+>[!tip]
+>
+>你也可以通过`@AutoConfigureMockMvc`注解来在非`@WebMvcTest`(如`@SpringBootTest`)中自动配置`MockMvc`。下面的例子使用了`MockMvc`：
+
+```java
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.autoconfigure.web.servlet.*;
+import org.springframework.boot.test.mock.mockito.*;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(UserVehicleController.class)
+class MyControllerTests {
+
+    @Autowired
+    private MockMvc mvc;
+
+    @MockBean
+    private UserVehicleService userVehicleService;
+
+    @Test
+    void testExample() throws Exception {
+        given(this.userVehicleService.getVehicleDetails("sboot"))
+                .willReturn(new VehicleDetails("Honda", "Civic"));
+        this.mvc.perform(get("/sboot/vehicle").accept(MediaType.TEXT_PLAIN))
+                .andExpect(status().isOk()).andExpect(content().string("Honda Civic"));
+    }
+
+}
+
+```
+
+>[!tip]
+>
+>如果您需要配置自动配置的元素(例如，当应该应用servlet过滤器时)，您可以使用`@AutoConfigureMockMvc`注解中的属性。
+
+如果你使用 HtmlUnit 或 Selenium，自动配置还提供一个 HtmlUnit `WebClient` bean 或 Selenium `WebDriver` bean。下面的例子使用了 HtmlUnit：
+
+```java
+import com.gargoylesoftware.htmlunit.*;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.autoconfigure.web.servlet.*;
+import org.springframework.boot.test.mock.mockito.*;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+
+@WebMvcTest(UserVehicleController.class)
+class MyHtmlUnitTests {
+
+    @Autowired
+    private WebClient webClient;
+
+    @MockBean
+    private UserVehicleService userVehicleService;
+
+    @Test
+    void testExample() throws Exception {
+        given(this.userVehicleService.getVehicleDetails("sboot"))
+                .willReturn(new VehicleDetails("Honda", "Civic"));
+        HtmlPage page = this.webClient.getPage("/sboot/vehicle.html");
+        assertThat(page.getBody().getTextContent()).isEqualTo("Honda Civic");
+    }
+
+}
+```
+
+>[!note]
+>
+>默认情况下，Spring Boot 将`WebDriver` bean 放在一个特殊的“作用域”中，以确保每次测试后驱动退出，并注入一个新实例。如果你不想要这种行为，你可以添加`@Scope("singleton")`到你的`WebDriver` `@Bean`定义。
+
+<span></span>
+
+
+
+>[!warning]
+>
+>Spring Boot 创建的`webDriver`范围将替换任何同名的用户定义的范围。如果你定义你自己的`webDriver`范围，你可能会发现当你使用`@WebMvcTest`时它不生效。
+
+如果类路径上有 Spring Security， `@WebMvcTest`也会扫描`WebSecurityConfigurer` bean。您可以使用 Spring Security 的测试支持，而不是对此类测试完全禁用安全性。关于如何使用 Spring Security 的`MockMvc`支持的更多细节可以在[howto.html](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/howto.html#howto-use-test-with-spring-security) how-to一节中找到。
+
+>[!tip]
+>
+>有时候编写 Spring MVC 测试是不够的。Spring Boot 可以帮助您[在实际服务器上运行完整的端到端测试](spring-boot-features.md#2536-使用正在运行的服务器进行测试)。
 
 
 

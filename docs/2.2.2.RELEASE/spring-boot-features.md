@@ -5802,7 +5802,6 @@ class MyControllerTests {
     }
 
 }
-
 ```
 
 >[!tip]
@@ -5858,6 +5857,96 @@ class MyHtmlUnitTests {
 >[!tip]
 >
 >有时候编写 Spring MVC 测试是不够的。Spring Boot 可以帮助您[在实际服务器上运行完整的端到端测试](spring-boot-features.md#2536-使用正在运行的服务器进行测试)。
+
+
+
+### 25.3.13 自动配置的 Spring WebFlux 测试
+
+要测试[Spring WebFlux](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference//web-reactive.html)控制器是否按预期工作，可以使用`@WebFluxTest`注解。`@WebFluxTest`自动配置 Spring WebFlux 基础架构，并将扫描的 bean 限制为`@Controller`、`@ControllerAdvice`、`@JsonComponent`、`Converter`、`GenericConverter`、`WebFilter`和`WebFluxConfigurer`。在使用`@WebFluxTest`注解时，不会扫描常规的`@Component` bean。
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@WebFluxTest`所启用的自动配置列表。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>如果需要注册额外的组件，比如`Jackson`模块，可以在测试中使用`@Import`导入额外的配置类。
+
+通常，`@WebFluxTest`被限制在单个控制器上，并与`@MockBean`注解结合使用，为所需的协作者提供模拟实现。
+
+`@WebFluxTest`还自动配置了`WebTestClient`，它提供了一种强大的方法来快速测试 WebFlux 控制器，而不需要启动一个完整的 HTTP 服务器。
+
+>[!tip]
+>
+>您还可以通过使用`@AutoConfigureWebTestClient`注解来在非`@WebFluxTest`中自动配置`WebTestClient`（比如`@SpringBootTest`）。下面的例子显示了一个同时使用`@WebFluxTest`和`WebTestClient`的类:
+
+```java
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+@WebFluxTest(UserVehicleController.class)
+class MyControllerTests {
+
+    @Autowired
+    private WebTestClient webClient;
+
+    @MockBean
+    private UserVehicleService userVehicleService;
+
+    @Test
+    void testExample() throws Exception {
+        given(this.userVehicleService.getVehicleDetails("sboot"))
+                .willReturn(new VehicleDetails("Honda", "Civic"));
+        this.webClient.get().uri("/sboot/vehicle").accept(MediaType.TEXT_PLAIN)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class).isEqualTo("Honda Civic");
+    }
+
+}
+```
+
+>[!tip]
+>
+>这个设置只有 WebFlux 应用程序支持，因为在模拟的 web 应用程序中使用`WebTestClient`目前只能与 WebFlux 一起工作。
+
+<span></span>
+
+
+
+>[!note]
+>
+>`@WebFluxTest`无法检测通过函数式 web 框架注册的路由。为了在上下文中测试`RouterFunction` bean，可以考虑通过`@Import`或使用`@SpringBootTest`自己导入`RouterFunction`。
+
+<span></span>
+
+
+
+>[!note]
+>
+>`@WebFluxTest`无法检测通过`SecurityWebFilterChain`类型的`@Bean`注册的自定义安全配置。要将其包含在您的测试中，您需要通过`@Import`或使用`@SpringBootTest`导入注册 bean 的配置。
+
+<span></span>
+
+
+
+>[!tip]
+>
+>有时候编写 Spring WebFlux 测试是不够的。Spring Boot 可以帮助您[在实际服务器上运行完整的端到端测试](spring-boot-features.md#2536-使用正在运行的服务器进行测试)。
+
+
+
+### 25.3.14 自动配置的 Data JPA 测试
+
+
 
 
 

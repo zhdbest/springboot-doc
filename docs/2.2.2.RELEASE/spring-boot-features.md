@@ -5946,6 +5946,71 @@ class MyControllerTests {
 
 ### 25.3.14 自动配置的 Data JPA 测试
 
+您可以使用`@DataJpaTest`注解来测试 JPA 应用程序。默认情况下，它扫描`@Entity`类并配置 Spring Data JPA 存储库。如果类路径上有可用的嵌入式数据库，它也会配置一个。常规的`@Component` bean 不会加载到`ApplicationContext`中。
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@DataJpaTest`所启用的自动配置设置列表。
+
+默认情况下，data JPA 测试是事务性的，并在每次测试结束时回滚。有关更多细节，请参阅 [Spring 框架参考文档中的相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/testing.html#testcontext-tx-enabling-transactions)。如果这不是您想要的，您可以为某个测试或整个类禁用事务管理，如下所示:
+
+```java
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+@DataJpaTest
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
+class ExampleNonTransactionalTests {
+
+}
+```
+
+Data JPA 测试也可以注入一个`TestEntityManager` bean，该 bean 为专门测试设计的标准 JPA `EntityManager`提供了一个替代方案。如果希望在`@DataJpaTest`实例之外使用`TestEntityManager`，还可以使用`@AutoConfigureTestEntityManager`注解。如果需要，还可以使用`JdbcTemplate`。下面的例子展示了`@DataJpaTest`注解的使用情况：
+
+```java
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.orm.jpa.*;
+
+import static org.assertj.core.api.Assertions.*;
+
+@DataJpaTest
+class ExampleRepositoryTests {
+
+    @Autowired
+    private TestEntityManager entityManager;
+
+    @Autowired
+    private UserRepository repository;
+
+    @Test
+    void testExample() throws Exception {
+        this.entityManager.persist(new User("sboot", "1234"));
+        User user = this.repository.findByUsername("sboot");
+        assertThat(user.getUsername()).isEqualTo("sboot");
+        assertThat(user.getVin()).isEqualTo("1234");
+    }
+
+}
+```
+
+嵌入式内存数据库通常可以很好地用于测试，因为它们速度很快，而且不需要任何安装。但是，如果您喜欢在真实的数据库上运行测试，则可以使用`@AutoConfigureTestDatabase`注解，如下面的示例所示：
+
+```java
+@DataJpaTest
+@AutoConfigureTestDatabase(replace=Replace.NONE)
+class ExampleRepositoryTests {
+
+    // ...
+
+}
+```
+
+
+
+### 25.3.15 自动配置的 JDBC 测试
+
 
 
 

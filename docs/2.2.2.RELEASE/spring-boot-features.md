@@ -6011,7 +6011,28 @@ class ExampleRepositoryTests {
 
 ### 25.3.15 自动配置的 JDBC 测试
 
+`@JdbcTest`与`@DataJpaTest`类似，但用于只需要`DataSource`而不使用 Spring Data JDBC 的测试。默认情况下，它配置一个内存嵌入式数据库和一个`JdbcTemplate`。常规的`@Component` bean不会加载到`ApplicationContext`中。
 
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@JdbcTest`所启用的自动配置列表。
+
+默认情况下，JDBC 测试是事务性的，并在每次测试结束时回滚。有关更多细节，请参阅[Spring 框架参考文档中的相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/testing.html#testcontext-tx-enabling-transactions)。如果这不是您想要的，您可以为测试或整个类禁用事务管理，如下所示：
+
+```java
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+@JdbcTest
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
+class ExampleNonTransactionalTests {
+
+}
+```
+
+如果您希望您的测试在一个真实的数据库上运行，您可以使用`@AutoConfigureTestDatabase`注解，其方式与`DataJpaTest`相同。(请参阅[“自动配置的 Data JPA 测试”](spring-boot-features.md#25314-自动配置的-data-jpa-测试)。)
 
 
 

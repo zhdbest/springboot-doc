@@ -6036,6 +6036,53 @@ class ExampleNonTransactionalTests {
 
 
 
+### 25.3.16 自动配置的 Data JDBC 测试
+
+`@DataJdbcTest`与`@JdbcTest`类似，但用于使用 Spring Data JDBC 存储库的测试。默认情况下，它会配置嵌入式内存数据库、`JdbcTemplate`和 Spring Data JDBC 存储库。常规的`@Component` bean 不会加载到`ApplicationContext`中。
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@DataJdbcTest`所启用的自动配置列表。
+
+默认情况下，Data  JDBC 测试是事务性的，并在每次测试结束时回滚。有关更多细节，请参阅 [Spring 框架参考文档中的相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/testing.html#testcontext-tx-enabling-transactions)。如果您不想让事务回滚，则可以为一个测试或整个测试类禁用事务管理，如 [JDBC 示例所示](spring-boot-features.md#25315-自动配置的-jdbc-测试)。
+
+如果您希望您的测试在一个真实的数据库上运行，您可以使用`@AutoConfigureTestDatabase`注解，其方式与`DataJpaTest`相同。(请参阅[“自动配置的Data JPA 测试”](spring-boot-features.md#25314-自动配置的-data-jpa-测试)。)
+
+
+
+### 25.3.17 自动配置的 jOOQ 测试
+
+您可以与`@JdbcTest`类似的方式使用`@JooqTest`，但仅限于与 jOOQ 相关的测试。由于 jOOQ 严重依赖与数据库结构相对应的基于 java 的模式，因此使用真实存在的`DataSource`。如果您想用内存数据库替换它，可以使用`@AutoConfigureTestDatabase`来覆盖这些设置。（有关在 Spring Boot 中使用 jOOQ 的更多信息，请参见本章前面的[“使用jOOQ”](spring-boot-features.md#106-使用-jooq)）常规的`@Component` bean不会加载到`ApplicationContext`中。
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到由`@JooqTest`启用的自动配置列表。
+
+`@JooqTest`配置了一个`DSLContext`。常规的`@Component` bean 不会加载到`ApplicationContext`中。下面的例子显示了`@JooqTest`注解的使用情况：
+
+```java
+import org.jooq.DSLContext;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.jooq.JooqTest;
+
+@JooqTest
+class ExampleJooqTests {
+
+    @Autowired
+    private DSLContext dslContext;
+}
+```
+
+JOOQ 测试是事务性的，默认情况下在每个测试结束时回滚。如果您不想让事务回滚，可以为一个测试或整个测试类禁用事务管理，如[JDBC 示例所示](spring-boot-features.md#25315-自动配置的-jdbc-测试)。
+
+
+
+### 25.3.18 自动配置的 Data MongoDB 测试
+
+
+
+
+
 ### 25.3.25 用户配置和切片
 
 

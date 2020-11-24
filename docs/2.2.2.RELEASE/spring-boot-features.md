@@ -6079,6 +6079,85 @@ JOOQ 测试是事务性的，默认情况下在每个测试结束时回滚。如
 
 ### 25.3.18 自动配置的 Data MongoDB 测试
 
+您可以使用`@DataMongoTest`来测试 MongoDB 应用程序。默认情况下，它会配置一个内存里的嵌入式 MongoDB （如果可用），还会配置一个`MongoTemplate`，并扫描`@Document`类，并配置 Spring Data MongoDB 存储库。常规的`@Component` bean 不会加载到`ApplicationContext`中。（更多关于在 Spring Boot 中使用 MongoDB 的信息，请参阅本章前面的[“MongoDB”](spring-boot-features.md#112-mongodb)。）
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@DataMongoTest`所启用的自动配置设置列表。
+
+下面的类显示了`@DataMongoTest`注解的用法：
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+
+@DataMongoTest
+class ExampleDataMongoTests {
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    //
+}
+```
+
+在内存里的嵌入式 MongoDB 通常在测试中工作得很好，因为它速度快而且不需要任何开发人员安装。但是，如果你喜欢在一个真正的 MongoDB 服务器上运行测试，你应该排除嵌入式的 MongoDB 自动配置，如下面的例子所示：
+
+```java
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+
+@DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
+class ExampleDataMongoNonEmbeddedTests {
+
+}
+```
+
+
+
+### 25.3.19 自动配置的 Data Neo4j 测试
+
+您可以使用`@DataNeo4jTest`来测试 Neo4j 应用程序。默认情况下，它使用内存中嵌入式 Neo4j（如果嵌入式驱动程序可用），并扫描`@NodeEntity`类，并配置 Spring Data Neo4j 存储库。常规的`@Component` bean 不会加载到`ApplicationContext`中。（有关在 Spring Boot 中使用 Neo4J 的更多信息，请参阅本章前面的[“Neo4J”](spring-boot-features.md#113-neo4j)。）
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@DataNeo4jTest`所启用的自动配置设置列表。
+
+下面的示例显示了在 Spring Boot 中使用 Neo4J 测试的典型设置：
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
+
+@DataNeo4jTest
+class ExampleDataNeo4jTests {
+
+    @Autowired
+    private YourRepository repository;
+
+    //
+}
+```
+
+默认情况下，Data Neo4j 测试是事务性的，在每次测试结束时回滚。有关更多细节，请参阅[Spring 框架参考文档中的相关部分](https://docs.spring.io/spring/docs/5.2.2.RELEASE/spring-framework-reference/testing.html#testcontext-tx-enabling-transactions)。如果这不是您想要的，您可以为测试或整个类禁用事务管理，如下所示：
+
+```java
+import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+@DataNeo4jTest
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
+class ExampleNonTransactionalTests {
+
+}
+```
+
+
+
+### 25.3.20 自动配置的 Data Redis 测试
+
 
 
 

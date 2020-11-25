@@ -6158,6 +6158,71 @@ class ExampleNonTransactionalTests {
 
 ### 25.3.20 自动配置的 Data Redis 测试
 
+你可以使用`@DataRedisTest`来测试 Redis 应用程序。默认情况下，它扫描`@RedisHash`类并配置 Spring Data Redis 存储库。常规的`@Component` bean 不会加载到`ApplicationContext`中。（更多关于在 Spring Boot 中使用 Redis 的信息，请参阅本章前面的[“Redis”](spring-boot-features.md#111-redis)。）
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@DataRedisTest `所启用的自动配置设置列表。
+
+下面的例子展示了`@DataRedisTest`注解的使用情况：
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
+
+@DataRedisTest
+class ExampleDataRedisTests {
+
+    @Autowired
+    private YourRepository repository;
+
+    //
+}
+```
+
+
+
+### 25.3.21 自动配置的 Data LDAP 测试
+
+您可以使用`@DataLdapTest`来测试 LDAP 应用程序。默认情况下，它配置内存中的嵌入式 LDAP（如果可用），并配置`LdapTemplate`、扫描`@Entry`类，并配置 Spring Data LDAP 存储库。常规的`@Component` bean 不会加载到`ApplicationContext`中。（有关在 Spring Boot 下使用 LDAP 的更多信息，请参阅本章前面的[“LDAP”](spring-boot-features.md#118-ldap)。）
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@DataLdapTest`所启用的自动配置设置列表。
+
+下面的例子展示了`@DataLdapTest`注解的使用情况：
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.ldap.DataLdapTest;
+import org.springframework.ldap.core.LdapTemplate;
+
+@DataLdapTest
+class ExampleDataLdapTests {
+
+    @Autowired
+    private LdapTemplate ldapTemplate;
+
+    //
+}
+```
+
+在内存中嵌入的 LDAP 通常适合测试，因为它速度很快，而且不需要任何开发人员安装。但是，如果您喜欢在真正的 LDAP 服务器上运行测试，那么应该排除嵌入式的 LDAP 自动配置，如下面的示例所示：
+
+```java
+import org.springframework.boot.autoconfigure.ldap.embedded.EmbeddedLdapAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.data.ldap.DataLdapTest;
+
+@DataLdapTest(excludeAutoConfiguration = EmbeddedLdapAutoConfiguration.class)
+class ExampleDataLdapNonEmbeddedTests {
+
+}
+```
+
+
+
+### 25.3.22 自动配置的 REST 客户端
+
 
 
 

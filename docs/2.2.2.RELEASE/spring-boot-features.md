@@ -6223,6 +6223,40 @@ class ExampleDataLdapNonEmbeddedTests {
 
 ### 25.3.22 自动配置的 REST 客户端
 
+您可以使用`@RestClientTest`注解来测试 REST 客户端。默认情况下，它自动配置 Jackson、GSON 和 Jsonb 的支持，配置`RestTemplateBuilder`，并添加对`MockRestServiceServer`的支持。常规的`@Component` bean不会加载到`ApplicationContext`中。
+
+>[!tip]
+>
+>在[附录](https://docs.spring.io/spring-boot/docs/2.2.2.RELEASE/reference/html/appendix-test-auto-configuration.html#test-auto-configuration)中可以找到`@RestClientTest `所启用的自动配置设置列表。
+
+您要测试的特定 bean 应该使用`@RestClientTest`的`value`或`components`属性来指定，如下面的示例所示：
+
+```java
+@RestClientTest(RemoteVehicleDetailsService.class)
+class ExampleRestClientTest {
+
+    @Autowired
+    private RemoteVehicleDetailsService service;
+
+    @Autowired
+    private MockRestServiceServer server;
+
+    @Test
+    void getVehicleDetailsWhenResultIsSuccessShouldReturnDetails()
+            throws Exception {
+        this.server.expect(requestTo("/greet/details"))
+                .andRespond(withSuccess("hello", MediaType.TEXT_PLAIN));
+        String greeting = this.service.callRestService();
+        assertThat(greeting).isEqualTo("hello");
+    }
+
+}
+```
+
+
+
+### 25.3.23 自动配置的 Spring REST Docs 测试
+
 
 
 

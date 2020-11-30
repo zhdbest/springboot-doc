@@ -6257,7 +6257,166 @@ class ExampleRestClientTest {
 
 ### 25.3.23 自动配置的 Spring REST Docs 测试
 
+您可以使用`@AutoConfigureRestDocs`注解在 Mock MVC、REST Assured 或 WebTestClient 的测试中使用[Spring REST Doc]([Spring REST Docs](https://spring.io/projects/spring-restdocs))。它消除了 Spring REST Doc中对 JUnit 扩展的需要。
 
+`@AutoConfigureRestDocs`可以用来覆盖默认的输出目录（如果您使用 Maven，则是`target/generated-snippets`；如果您使用 Gradle，则是`build/generated-snippets`）。它还可以用于配置出现在任何文档 uri 中的主机、方案和端口。
+
+
+
+#### 使用 Mock MVC 测试自动配置的 Spring REST Doc
+
+`@AutoConfigureRestDocs`会自定义`MockMvc` bean 来使用 Spring REST Doc。你可以通过使用`@Autowired`注入它，并在你的测试中使用它，就像你平常使用 Mock MVC 和 Spring REST Doc 一样，如下面的例子所示：
+
+```java
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(UserController.class)
+@AutoConfigureRestDocs
+class UserDocumentationTests {
+
+    @Autowired
+    private MockMvc mvc;
+
+    @Test
+    void listUsers() throws Exception {
+        this.mvc.perform(get("/users").accept(MediaType.TEXT_PLAIN))
+                .andExpect(status().isOk())
+                .andDo(document("list-users"));
+    }
+
+}
+```
+
+如果你需要比`@AutoConfigureRestDocs`属性提供的更多的对 Spring REST Doc 配置的控制，你可以使用`RestDocsMockMvcConfigurationCustomizer` bean，如下面的例子所示：
+
+```java
+@TestConfiguration
+static class CustomizationConfiguration
+        implements RestDocsMockMvcConfigurationCustomizer {
+
+    @Override
+    public void customize(MockMvcRestDocumentationConfigurer configurer) {
+        configurer.snippets().withTemplateFormat(TemplateFormats.markdown());
+    }
+
+}
+```
+
+如果您想利用 Spring REST Doc 对参数化输出目录的支持，您可以创建一个`RestDocumentationResultHandler` bean。自动配置使用这个结果处理程序调用`alwaysDo`，从而导致每个 MockMvc 调用自动生成默认代码片段。下面的示例显示了定义的`RestDocumentationResultHandler`：
+
+```java
+@TestConfiguration(proxyBeanMethods = false)
+static class ResultHandlerConfiguration {
+
+    @Bean
+    public RestDocumentationResultHandler restDocumentation() {
+        return MockMvcRestDocumentation.document("{method-name}");
+    }
+
+}
+```
+
+
+
+#### 使用 WebTestClient 测试自动配置的 Spring REST Docs
+
+`@AutoConfigureRestDocs`也可以与`WebTestClient`一起使用。你可以通过使用`@Autowired`注入它，然后像平常使用`@WebFluxTest`和 Spring REST Docs 一样，在你的测试中使用它，如下所示：
+
+```java
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
+
+@WebFluxTest
+@AutoConfigureRestDocs
+class UsersDocumentationTests {
+
+    @Autowired
+    private WebTestClient webTestClient;
+
+    @Test
+    void listUsers() {
+        this.webTestClient.get().uri("/").exchange().expectStatus().isOk().expectBody()
+                .consumeWith(document("list-users"));
+    }
+
+}
+```
+
+如果你需要比`@AutoConfigureRestDocs`属性提供的更多的对 Spring REST Docs 配置的控制，你可以使用`RestDocsWebTestClientConfigurationCustomizer` bean，如下面的例子所示：
+
+```java
+@TestConfiguration(proxyBeanMethods = false)
+public static class CustomizationConfiguration implements RestDocsWebTestClientConfigurationCustomizer {
+
+    @Override
+    public void customize(WebTestClientRestDocumentationConfigurer configurer) {
+        configurer.snippets().withEncoding("UTF-8");
+    }
+
+}
+```
+
+
+
+#### 使用 REST Assured 测试自动配置的 Spring REST Docs
+
+`@AutoConfigureRestDocs`为您的测试提供了一个`RequestSpecification` bean，预先配置为使用 Spring REST Docs。你可以使用`@Autowired`注入它，并在你的测试中使用它，就像你平常使用 REST 和 Spring REST Docs 一样，如下面的例子所示：
+
+```java
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.restdocs.restassured3.RestAssuredRestDocumentation.document;
+
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@AutoConfigureRestDocs
+class UserDocumentationTests {
+
+    @Test
+    void listUsers(@Autowired RequestSpecification documentationSpec, @LocalServerPort int port) {
+        given(documentationSpec).filter(document("list-users")).when().port(port).get("/").then().assertThat()
+                .statusCode(is(200));
+    }
+
+}
+```
+
+如果你需要比`@AutoConfigureRestDocs`属性提供的更多对 Spring REST Docs 配置的控制，可以使用一个`RestDocsRestAssuredConfigurationCustomizer` bean，如下面的例子所示：
+
+```java
+@TestConfiguration(proxyBeanMethods = false)
+public static class CustomizationConfiguration implements RestDocsRestAssuredConfigurationCustomizer {
+
+    @Override
+    public void customize(RestAssuredRestDocumentationConfigurer configurer) {
+        configurer.snippets().withTemplateFormat(TemplateFormats.markdown());
+    }
+
+}
+```
 
 
 

@@ -6420,6 +6420,24 @@ public static class CustomizationConfiguration implements RestDocsRestAssuredCon
 
 
 
+### 25.3.24 额外的自动配置和切片
+
+每个片提供一个或多个`@AutoConfigure…`注解，即定义应该作为片的一部分包含的自动配置。额外的自动配置可以通过创建一个自定义的`@AutoConfigure…`注解来添加，或者简单地通过添加`@ImportAutoConfiguration`到测试中，如下面的例子所示：
+
+```java
+@JdbcTest
+@ImportAutoConfiguration(IntegrationAutoConfiguration.class)
+class ExampleJdbcTests {
+
+}
+```
+
+>[!note]
+>
+>请确保不要使用常规的`@Import`注解来导入自动配置，因为 Spring Boot 会以特定的方式处理这些配置。
+
+
+
 ### 25.3.25 用户配置和切片
 
 
